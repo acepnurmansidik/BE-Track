@@ -18,11 +18,10 @@ const AuthSchema = Schema(
     password: {
       type: String,
       minlength: [3, "Panjang password minimal 3 karakter"],
-      maxLength: [20, "Panjang password maksimal 20 karakter"],
       required: [true, "password harus diisi"],
     },
   },
-  { timestamps: true },
+  { timestamps: true, versionKey: false },
 );
 
 module.exports = model("sys_auth_user", AuthSchema);

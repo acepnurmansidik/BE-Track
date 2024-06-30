@@ -1,7 +1,9 @@
-const AuthSchema = require("./body/auth");
+const Authchema = require("./body/auth");
 
 const GlobalSchema = {
-  ...AuthSchema,
+  ...Authchema.Register,
+  ...Authchema.Login,
+  ...Authchema.ForgotPassword,
 };
 
 module.exports = GlobalSchema;

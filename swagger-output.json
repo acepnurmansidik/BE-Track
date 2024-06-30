@@ -22,7 +22,7 @@
     }
   },
   "paths": {
-    "/api/v1/auth/": {
+    "/api/v1/auth/signup": {
       "post": {
         "tags": [
           "Master Role"
@@ -35,20 +35,68 @@
             "in": "body",
             "description": "Create role",
             "schema": {
-              "$ref": "#/definitions/BodyAuthSchema"
+              "$ref": "#/definitions/BodyAuthRegisterSchema"
             }
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/auth/signin": {
+      "post": {
+        "tags": [
+          "Master Role"
+        ],
+        "summary": "role user",
+        "description": "every user has role for access",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create role",
+            "schema": {
+              "$ref": "#/definitions/BodyAuthLoginSchema"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/auth/forgot": {
+      "put": {
+        "tags": [
+          "Master Role"
+        ],
+        "summary": "role user",
+        "description": "every user has role for access",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create role",
+            "schema": {
+              "$ref": "#/definitions/BodyAuthForgotSchema"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
           }
         }
       }
     }
   },
   "definitions": {
-    "BodyAuthSchema": {
+    "BodyAuthRegisterSchema": {
       "type": "object",
       "properties": {
         "username": {
@@ -60,6 +108,36 @@
           "example": "john.doe@gmail.com"
         },
         "password": {
+          "type": "string",
+          "example": "123456"
+        }
+      }
+    },
+    "BodyAuthLoginSchema": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "example": "john.doe@gmail.com"
+        },
+        "password": {
+          "type": "string",
+          "example": "123456"
+        }
+      }
+    },
+    "BodyAuthForgotSchema": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "example": "john.doe@gmail.com"
+        },
+        "password": {
+          "type": "string",
+          "example": "123456"
+        },
+        "confirmPassword": {
           "type": "string",
           "example": "123456"
         }

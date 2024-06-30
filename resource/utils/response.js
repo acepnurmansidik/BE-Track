@@ -1,7 +1,7 @@
 const { StatusCodes } = require("http-status-codes");
 const { methodConstant } = require("./constanta");
 
-let response = {};
+const response = {};
 
 response.MethodResponse = ({ res, method, data }) => {
   let code = StatusCodes.OK;

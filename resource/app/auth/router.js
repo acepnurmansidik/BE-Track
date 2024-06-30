@@ -10,5 +10,7 @@ const router = express.Router();
  * @returns {Error} 500 - Internal server error
  */
 router.post("/signup", controller.Register);
+router.post("/signin", controller.Login);
+router.put("/forgot", controller.recoveryPassword);
 
 module.exports = router;
