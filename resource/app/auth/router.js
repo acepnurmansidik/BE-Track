@@ -9,6 +9,6 @@ const router = express.Router();
  * @returns {Array.<User>} 200 - An array of users
  * @returns {Error} 500 - Internal server error
  */
-router.post("/", controller.Register);
+router.post("/signup", controller.Register);
 
 module.exports = router;
