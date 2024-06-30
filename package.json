@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www"
+    "dev": "nodemon ./bin/www",
+    "swag": "node ./swagger.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

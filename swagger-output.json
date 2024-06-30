@@ -1,0 +1,99 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "REST API",
+    "description": ""
+  },
+  "host": "localhost:3022",
+  "basePath": "/",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "securityDefinitions": {
+    "bearerAuth": {
+      "type": "apiKey",
+      "in": "header",
+      "scheme": "bearer",
+      "name": "Authorization",
+      "bearerFormat": "JWT",
+      "description": "Please insert JWT format!"
+    }
+  },
+  "paths": {
+    "/api/v1/auth/": {
+      "post": {
+        "tags": [
+          "Master Role"
+        ],
+        "summary": "role user",
+        "description": "every user has role for access",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create role",
+            "schema": {
+              "$ref": "#/definitions/BodyAuthSchema"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BodyAuthSchema": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "example": "john doe"
+        },
+        "email": {
+          "type": "string",
+          "example": "john.doe@gmail.com"
+        },
+        "password": {
+          "type": "string",
+          "example": "123456"
+        }
+      }
+    },
+    "NotFound": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "number",
+          "example": 404
+        },
+        "status": {
+          "type": "boolean",
+          "example": false
+        },
+        "message": {
+          "type": "string",
+          "example": "Data not found!"
+        },
+        "data": {
+          "type": "string",
+          "example": ""
+        }
+      }
+    },
+    "QueryIdSchema": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": ""
+        }
+      }
+    }
+  }
+}
