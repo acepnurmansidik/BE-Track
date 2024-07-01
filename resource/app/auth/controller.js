@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const responseAPI = require("../../utils/response");
 const { BadRequestError, NotFoundError } = require("../../utils/errors");
 const { methodConstant } = require("../../utils/constanta");
+const globalService = require("../../helper/global-func");
 
 const controller = {};
 
@@ -69,10 +70,15 @@ controller.Login = async (req, res, next) => {
       throw new BadRequestError("Please check your password!");
     }
 
+    const token = globalService.generateJwtToken({
+      email,
+      name: isAvailable.username,
+    });
+
     responseAPI.MethodResponse({
       res,
       method: methodConstant.GET,
-      data: null,
+      data: { token },
     });
   } catch (err) {
     next(err);
