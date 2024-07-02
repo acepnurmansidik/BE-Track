@@ -93,6 +93,101 @@
           }
         }
       }
+    },
+    "/api/v1/ref-parameter/": {
+      "get": {
+        "tags": [
+          "REF PARAMETER"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "type",
+            "default": "cashflow_type",
+            "description": "Search by type",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "REF PARAMETER"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create role",
+            "schema": {
+              "$ref": "#/definitions/BodyRefParameterSchema"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/ref-parameter/{id}": {
+      "put": {
+        "tags": [
+          "REF PARAMETER"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create role",
+            "schema": {
+              "$ref": "#/definitions/BodyRefParameterSchema"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "REF PARAMETER"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -140,6 +235,23 @@
         "confirmPassword": {
           "type": "string",
           "example": "123456"
+        }
+      }
+    },
+    "BodyRefParameterSchema": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "example": "income"
+        },
+        "type": {
+          "type": "string",
+          "example": "cashflow_type"
+        },
+        "description": {
+          "type": "string",
+          "example": "pemasukan anda"
         }
       }
     },
