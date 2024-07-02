@@ -188,6 +188,92 @@
           }
         }
       }
+    },
+    "/api/v1/trx/": {
+      "get": {
+        "tags": [
+          "FINANCE"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk referensi group",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "FINANCE"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create role",
+            "schema": {
+              "$ref": "#/definitions/BodyFinancialLedgerSchema"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/trx/{id}": {
+      "put": {
+        "tags": [
+          "FINANCE"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create role",
+            "schema": {
+              "$ref": "#/definitions/BodyFinancialLedgerSchema"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "FINANCE"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -252,6 +338,27 @@
         "description": {
           "type": "string",
           "example": "pemasukan anda"
+        }
+      }
+    },
+    "BodyFinancialLedgerSchema": {
+      "type": "object",
+      "properties": {
+        "category_id": {
+          "type": "string",
+          "example": "668385cc136530f33f660a65"
+        },
+        "type_id": {
+          "type": "string",
+          "example": "6683858e136530f33f660a63"
+        },
+        "amount": {
+          "type": "number",
+          "example": 20000
+        },
+        "note": {
+          "type": "string",
+          "example": "naik KRL"
         }
       }
     },
