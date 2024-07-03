@@ -12,10 +12,12 @@ controller.index = async (req, res, next) => {
     #swagger.description = 'untuk referensi group'
   */
     const query = req.query;
-    const data = await SysFinancialLedgerSchema.find(query).populate([
-      { path: "type_id", select: "value" },
-      { path: "category_id", select: "value" },
-    ]);
+    const data = await SysFinancialLedgerSchema.find(query)
+      .populate([
+        { path: "type_id", select: "value" },
+        { path: "category_id", select: "value" },
+      ])
+      .select(["-createdAt", "-updatedAt"]);
 
     responseAPI.MethodResponse({
       res,

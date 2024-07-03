@@ -13,7 +13,10 @@ controller.index = async (req, res, next) => {
     #swagger.parameters['type'] = { default: 'cashflow_type', description: 'Search by type' }
   */
     const query = req.query;
-    const data = await SysRefparamSchema.find(query);
+    const data = await SysRefparamSchema.find(query).select([
+      "-createdAt",
+      "-updatedAt",
+    ]);
 
     responseAPI.MethodResponse({
       res,
