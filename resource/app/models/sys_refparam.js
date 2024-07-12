@@ -23,6 +23,11 @@ const SysRefparamSchema = Schema(
       minlength: [3, "Panjang password minimal 3 karakter"],
       required: [true, "password harus diisi"],
     },
+    parent_id: {
+      type: mongoose.Types.ObjectId,
+      ref: "sys_refparameter",
+      default: null,
+    },
   },
   { timestamps: true, versionKey: false, new: true },
 );

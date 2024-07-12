@@ -30,7 +30,7 @@ db.on("error", function (err) {
  * kode yang mendeteksi jika koneksi dengan MongoDB telah terbuka dan
  *  aplikasi berhasil terhubung dengan MongoDB,
  */
-db.on("open", function () {
+db.once("open", function () {
   server.listen(port);
   server.on("error", onError);
   server.on("listening", onListening);

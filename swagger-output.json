@@ -104,10 +104,17 @@
         "parameters": [
           {
             "name": "type",
-            "default": "cashflow_type",
+            "default": "category",
             "description": "Search by type",
             "in": "query",
             "type": "string"
+          },
+          {
+            "name": "preserve",
+            "default": "false",
+            "description": "Search by type",
+            "type": "boolean",
+            "in": "query"
           }
         ],
         "responses": {
@@ -338,6 +345,10 @@
         "description": {
           "type": "string",
           "example": "pemasukan anda"
+        },
+        "parent_id": {
+          "type": "string",
+          "example": "669122f5e485b234f586e895"
         }
       }
     },
