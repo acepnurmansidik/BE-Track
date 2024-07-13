@@ -57,7 +57,7 @@ controller.index = async (req, res, next) => {
             $push: {
               _id: "$_id",
               key: "$key",
-              value: "$value",
+              name: "$value",
               description: "$description",
             },
           },
