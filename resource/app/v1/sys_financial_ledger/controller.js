@@ -10,6 +10,11 @@ const controller = {};
 controller.index = async (req, res, next) => {
   try {
     /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+    /*
     #swagger.tags = ['FINANCE']
     #swagger.summary = 'ref parameter'
     #swagger.description = 'untuk referensi group'
@@ -170,6 +175,11 @@ controller.index = async (req, res, next) => {
 controller.create = async (req, res, next) => {
   try {
     /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+    /*
     #swagger.tags = ['FINANCE']
     #swagger.summary = 'ref parameter'
     #swagger.description = 'untuk referensi group'
@@ -207,6 +217,11 @@ controller.create = async (req, res, next) => {
 
 controller.update = async (req, res, next) => {
   try {
+    /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
     /*
     #swagger.tags = ['FINANCE']
     #swagger.summary = 'ref parameter'
@@ -249,6 +264,11 @@ controller.update = async (req, res, next) => {
 
 controller.delete = async (req, res, next) => {
   try {
+    /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
     /*
     #swagger.tags = ['FINANCE']
     #swagger.summary = 'ref parameter'

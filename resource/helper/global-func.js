@@ -27,4 +27,17 @@ globalService.generateJwtToken = ({ ...payload }) => {
   return jwt.sign(payload, secretKey, jwtSignOptions);
 };
 
+globalService.verifyJwtToken = async (token, next) => {
+  try {
+    // verify token
+    const decode = await jwt.verify(token, secretKey, (err, decode) => {
+      if (err) throw new UnauthenticatedError(err.message);
+      if (!err) return decode;
+    });
+    return decode;
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = globalService;
