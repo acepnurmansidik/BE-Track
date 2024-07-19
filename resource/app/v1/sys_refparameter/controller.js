@@ -48,6 +48,11 @@ controller.index = async (req, res, next) => {
         $match: query,
       },
       {
+        $sort: {
+          key: 1,
+        },
+      },
+      {
         $group: {
           _id: {
             parent_id: "$parent_id",

@@ -8,9 +8,9 @@ const SysRefparamSchema = Schema(
     },
     value: {
       type: String,
-      minlength: [3, "Panjang email minimal 3 karakter"],
-      maxLength: [20, "Panjang email maksimal 20 karakter"],
-      required: [true, "Email harus diisi"],
+      minlength: [1, "Panjang minimal 3 karakter"],
+      maxLength: [20, "Panjang maksimal 20 karakter"],
+      required: [true, "Value harus diisi"],
       unique: true,
     },
     type: {

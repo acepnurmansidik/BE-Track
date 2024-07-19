@@ -1,8 +1,10 @@
 const FinancialLedgerSchema = {
   BodyFinancialLedgerSchema: {
-    category_id: "668385cc136530f33f660a65",
-    type_id: "6683858e136530f33f660a63",
+    category_id: "66912314e485b234f586e897",
+    type_id: "669122f5e485b234f586e895",
+    kurs_id: "669365e02c2c9f9c783752b2",
     amount: 20000,
+    kurs_amount: 1,
     note: "naik KRL",
   },
 };

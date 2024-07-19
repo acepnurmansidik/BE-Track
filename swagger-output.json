@@ -357,15 +357,23 @@
       "properties": {
         "category_id": {
           "type": "string",
-          "example": "668385cc136530f33f660a65"
+          "example": "66912314e485b234f586e897"
         },
         "type_id": {
           "type": "string",
-          "example": "6683858e136530f33f660a63"
+          "example": "669122f5e485b234f586e895"
+        },
+        "kurs_id": {
+          "type": "string",
+          "example": "669365e02c2c9f9c783752b2"
         },
         "amount": {
           "type": "number",
           "example": 20000
+        },
+        "kurs_amount": {
+          "type": "number",
+          "example": 1
         },
         "note": {
           "type": "string",
