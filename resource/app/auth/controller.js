@@ -1,14 +1,18 @@
 const { saltEncrypt } = require("../../utils/config");
 const AuthUser = require("../models/auth");
+const UserSchema = require("../models/sys_users");
 const bcrypt = require("bcrypt");
 const responseAPI = require("../../utils/response");
 const { BadRequestError, NotFoundError } = require("../../utils/errors");
 const { methodConstant } = require("../../utils/constanta");
 const globalService = require("../../helper/global-func");
+const { default: mongoose } = require("mongoose");
 
 const controller = {};
 
 controller.Register = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     /* 
     #swagger.tags = ['Master Role']
@@ -20,7 +24,7 @@ controller.Register = async (req, res, next) => {
       schema: { $ref: '#/definitions/BodyAuthRegisterSchema' }
     }
   */
-    const payload = req.body;
+    const { token, ...payload } = req.body;
 
     // komparasikan dengna yang ada di database
     const isAvailable = await AuthUser.findOne({ email: payload.email });
@@ -34,7 +38,18 @@ controller.Register = async (req, res, next) => {
       parseInt(saltEncrypt),
     );
 
-    await AuthUser.create(payload);
+    const auth = new AuthUser({ ...payload });
+    await auth.save({ session });
+
+    const user = new UserSchema({
+      auth_id: auth._id,
+      device_token: token,
+      name: auth.username,
+    });
+    await user.save({ session });
+
+    // Jika semua operasi berhasil, commit transaksi
+    await session.commitTransaction();
 
     responseAPI.MethodResponse({
       res,
@@ -42,7 +57,10 @@ controller.Register = async (req, res, next) => {
       data: null,
     });
   } catch (err) {
+    await session.abortTransaction();
     next(err);
+  } finally {
+    session.endSession();
   }
 };
 

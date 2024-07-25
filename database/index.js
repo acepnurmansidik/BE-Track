@@ -2,7 +2,10 @@
 const mongoose = require("mongoose");
 
 // (2) kita import konfigurasi terkait MongoDB dari app/config.js
-const { urlDb } = require("../resource/utils/config");
+const { urlDb } = require("../resource/utils/config", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 // (3) connect ke MongoDB menggunakan konfigurasi yang telah kita import
 mongoose.connect(urlDb);

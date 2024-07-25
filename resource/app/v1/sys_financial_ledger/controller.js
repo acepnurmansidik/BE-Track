@@ -4,6 +4,8 @@ const responseAPI = require("../../../utils/response");
 const { methodConstant } = require("../../../utils/constanta");
 const { BadRequestError } = require("../../../utils/errors");
 const { DateTime } = require("luxon");
+const admin = require("firebase-admin");
+const serviceAccount = require("../../../../serviceAccountKey.json");
 
 const controller = {};
 
@@ -191,6 +193,8 @@ controller.create = async (req, res, next) => {
   */
     const payload = req.body;
 
+    console.log(req.headers);
+
     const [typeRef, categoryRef] = await Promise.all([
       SysRefparamSchema.findOne({ _id: payload.type_id }),
       SysRefparamSchema.findOne({ _id: payload.category_id }),
@@ -204,6 +208,10 @@ controller.create = async (req, res, next) => {
     payload.isIncome = typeRef.value.toLowerCase() == "income" ? true : false;
 
     const data = await SysFinancialLedgerSchema.create(payload);
+
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
 
     responseAPI.MethodResponse({
       res,

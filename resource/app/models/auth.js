@@ -12,7 +12,6 @@ const AuthSchema = Schema(
     email: {
       type: String,
       minlength: [3, "Panjang email minimal 3 karakter"],
-      maxLength: [20, "Panjang email maksimal 20 karakter"],
       required: [true, "Email harus diisi"],
     },
     password: {
