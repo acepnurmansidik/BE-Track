@@ -114,11 +114,13 @@ controller.index = async (req, res, next) => {
               _id: 1,
               value: 1,
               description: 1,
+              icon: 1,
             },
             "items.category_id": {
               _id: 1,
               value: 1,
               description: 1,
+              icon: 1,
             },
             "items.kurs_id": {
               _id: 1,
@@ -130,6 +132,7 @@ controller.index = async (req, res, next) => {
         {
           $sort: {
             createdAt: 1,
+            _id: 1,
           },
         },
       ]),
@@ -165,7 +168,9 @@ controller.index = async (req, res, next) => {
       data: {
         list_data: listData,
         grand_total: grand_total.grand_total,
-        current_monthly: current_monthly.current_monthly,
+        current_monthly: current_monthly.current_monthly
+          ? current_monthly.current_monthly
+          : 0,
       },
       // data: listData,
     });
@@ -209,9 +214,9 @@ controller.create = async (req, res, next) => {
 
     const data = await SysFinancialLedgerSchema.create(payload);
 
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    });
+    // admin.initializeApp({
+    //   credential: admin.credential.cert(serviceAccount),
+    // });
 
     responseAPI.MethodResponse({
       res,
