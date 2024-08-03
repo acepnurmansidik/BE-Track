@@ -1,5 +1,7 @@
 const SysFinancialLedgerSchema = require("../../models/sys_financial_ledger");
 const SysRefparamSchema = require("../../models/sys_refparam");
+const SysUserSchema = require("../../models/sys_users");
+const AuthSchema = require("../../models/auth");
 const responseAPI = require("../../../utils/response");
 const { methodConstant } = require("../../../utils/constanta");
 const { BadRequestError } = require("../../../utils/errors");
@@ -22,6 +24,7 @@ controller.index = async (req, res, next) => {
     #swagger.description = 'untuk referensi group'
   */
     const query = req.query;
+
     /**
      * Penjelasan
       1. Model Mongoose:
@@ -34,6 +37,10 @@ controller.index = async (req, res, next) => {
       count: { $sum: 1 }: Menghitung jumlah dokumen dalam setiap grup.
       $sort: Mengurutkan hasil berdasarkan _id yang berisi bulan dan tahun.
      */
+
+    const auth = await AuthSchema.findOne({ email: req.login.email });
+    const userLogin = await SysUserSchema.findOne({ auth_id: auth._id });
+    query.user_id = userLogin._id;
 
     const [listData, [grand_total], [current_monthly]] = await Promise.all([
       SysFinancialLedgerSchema.aggregate([
@@ -137,6 +144,7 @@ controller.index = async (req, res, next) => {
         },
       ]),
       SysFinancialLedgerSchema.aggregate([
+        { $match: query },
         {
           $group: {
             _id: null,
@@ -145,6 +153,7 @@ controller.index = async (req, res, next) => {
         },
       ]),
       SysFinancialLedgerSchema.aggregate([
+        { $match: query },
         {
           $match: {
             createdAt: {
@@ -162,17 +171,18 @@ controller.index = async (req, res, next) => {
       ]),
     ]);
 
+    const dataResponse = {
+      list_data: listData.length ? listData : [],
+      grand_total: grand_total.grand_total ? grand_total.grand_total : 0,
+      current_monthly: current_monthly.current_monthly
+        ? current_monthly.current_monthly
+        : 0,
+    };
+
     responseAPI.MethodResponse({
       res,
       method: methodConstant.GET,
-      data: {
-        list_data: listData,
-        grand_total: grand_total.grand_total,
-        current_monthly: current_monthly.current_monthly
-          ? current_monthly.current_monthly
-          : 0,
-      },
-      // data: listData,
+      data: dataResponse,
     });
   } catch (err) {
     next(err);
@@ -198,8 +208,6 @@ controller.create = async (req, res, next) => {
   */
     const payload = req.body;
 
-    console.log(req.headers);
-
     const [typeRef, categoryRef] = await Promise.all([
       SysRefparamSchema.findOne({ _id: payload.type_id }),
       SysRefparamSchema.findOne({ _id: payload.category_id }),
@@ -211,6 +219,10 @@ controller.create = async (req, res, next) => {
 
     payload.total_amount = payload.amount * payload.kurs_amount;
     payload.isIncome = typeRef.value.toLowerCase() == "income" ? true : false;
+
+    const auth = await AuthSchema.findOne({ email: req.login.email });
+    const userLogin = await SysUserSchema.findOne({ auth_id: auth._id });
+    payload.user_id = userLogin._id;
 
     const data = await SysFinancialLedgerSchema.create(payload);
 
@@ -259,7 +271,6 @@ controller.update = async (req, res, next) => {
 
     payload.total_amount = payload.amount * payload.kurs_amount;
 
-    console.log(payload);
     const data = await SysFinancialLedgerSchema.findOneAndUpdate(
       { _id },
       payload,

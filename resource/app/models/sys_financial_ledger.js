@@ -3,6 +3,11 @@ const { model, Schema } = mongoose;
 
 const SysFinancialLedgerSchema = Schema(
   {
+    user_id: {
+      type: mongoose.Types.ObjectId,
+      ref: "sys_user",
+      require: true,
+    },
     category_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_refparameter",
