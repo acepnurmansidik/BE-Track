@@ -9,6 +9,21 @@ const SysUserSchema = Schema(
       require: true,
       unique: true,
     },
+    gender_id: {
+      type: mongoose.Types.ObjectId,
+      ref: "sys_refparameter",
+      require: true,
+    },
+    role_id: {
+      type: mongoose.Types.ObjectId,
+      ref: "sys_refparameter",
+      require: true,
+    },
+    status_id: {
+      type: mongoose.Types.ObjectId,
+      ref: "sys_refparameter",
+      require: true,
+    },
     name: {
       type: String,
       minlength: [3, "Panjang name minimal 3 karakter"],
@@ -17,7 +32,46 @@ const SysUserSchema = Schema(
     device_token: {
       type: String,
       minlength: [3, "Panjang password minimal 3 karakter"],
-      required: [true, "Device token can't be empty"],
+      required: [false, "Device token can't be empty"],
+    },
+    address: {
+      type: String,
+      minlength: [10, "Panjang name minimal 3 karakter"],
+    },
+    tagline: {
+      type: String,
+      minlength: [7, "Panjang name minimal 3 karakter"],
+    },
+    birth_date: {
+      type: Date,
+    },
+    description: {
+      type: String,
+      minlength: [3, "Panjang name minimal 3 karakter"],
+    },
+    web_url: {
+      type: String,
+      minlength: [3, "Panjang name minimal 3 karakter"],
+    },
+    github_url: {
+      type: String,
+      minlength: [3, "Panjang name minimal 3 karakter"],
+    },
+    phone_number: {
+      type: String,
+      minlength: [3, "Panjang name minimal 3 karakter"],
+    },
+    instagram_url: {
+      type: String,
+      minlength: [3, "Panjang name minimal 3 karakter"],
+    },
+    linkedin_url: {
+      type: String,
+      minlength: [3, "Panjang name minimal 3 karakter"],
+    },
+    facebook_url: {
+      type: String,
+      minlength: [3, "Panjang name minimal 3 karakter"],
     },
   },
   { timestamps: true, versionKey: false, new: true },

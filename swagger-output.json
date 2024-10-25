@@ -248,6 +248,11 @@
             "name": "authorization",
             "in": "header",
             "type": "string"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
@@ -363,6 +368,40 @@
           }
         ]
       }
+    },
+    "/api/v1/profile/": {
+      "put": {
+        "tags": [
+          "PROFILE"
+        ],
+        "summary": "profile",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create role",
+            "schema": {
+              "$ref": "#/definitions/BodyProfileSchema"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
     }
   },
   "definitions": {
@@ -464,6 +503,151 @@
         "note": {
           "type": "string",
           "example": "naik KRL"
+        }
+      }
+    },
+    "BodyProfileSchema": {
+      "type": "object",
+      "properties": {
+        "gender_id": {
+          "type": "string",
+          "example": "671a55ba8d72b1ceca3770fd"
+        },
+        "status_id": {
+          "type": "string",
+          "example": "671a569e25616b9c3c89bdd5"
+        },
+        "role_id": {
+          "type": "string",
+          "example": "671a56f3af9cf9e0557d02c7"
+        },
+        "description": {
+          "type": "string",
+          "example": "pemasukan anda"
+        },
+        "name": {
+          "type": "string",
+          "example": "john doe"
+        },
+        "tagline": {
+          "type": "string",
+          "example": "Merain kesusksusan di usia muda"
+        },
+        "birth_date": {
+          "type": "string",
+          "example": "22 July 1998"
+        },
+        "web_url": {
+          "type": "string",
+          "example": "web_url"
+        },
+        "github_url": {
+          "type": "string",
+          "example": "github_url"
+        },
+        "phone_number": {
+          "type": "string",
+          "example": "phone_number"
+        },
+        "instagram_url": {
+          "type": "string",
+          "example": "instagram_url"
+        },
+        "linkedin_url": {
+          "type": "string",
+          "example": "linkedin_url"
+        },
+        "facebook_url": {
+          "type": "string",
+          "example": "facebook_url"
+        },
+        "address": {
+          "type": "string",
+          "example": ""
+        },
+        "educations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "number",
+                "example": 0
+              },
+              "major_id": {
+                "type": "string",
+                "example": "671a56f3af9cf9e0557d02c7"
+              },
+              "school_name": {
+                "type": "string",
+                "example": "SMK"
+              },
+              "start_date": {
+                "type": "string",
+                "example": "22 July 1998"
+              },
+              "end_date": {
+                "type": "string",
+                "example": "22 July 1998"
+              }
+            }
+          }
+        },
+        "experiences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "number",
+                "example": 0
+              },
+              "role_id": {
+                "type": "string",
+                "example": "671a56f3af9cf9e0557d02c7"
+              },
+              "product_name": {
+                "type": "string",
+                "example": "sdasd"
+              },
+              "achievment_list": {
+                "type": "string",
+                "example": "test"
+              },
+              "company_name": {
+                "type": "string",
+                "example": "PT.Sinar Berlian"
+              },
+              "start_date": {
+                "type": "string",
+                "example": "22 July 1998"
+              },
+              "end_date": {
+                "type": "string",
+                "example": "22 July 1998"
+              },
+              "stacks": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "671a56f3af9cf9e0557d02c7"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "test"
+                    },
+                    "icon": {
+                      "type": "string",
+                      "example": "test"
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },

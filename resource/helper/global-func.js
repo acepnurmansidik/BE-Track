@@ -5,6 +5,7 @@ const {
   jwtId,
   tokenExp,
 } = require("../utils/config");
+const { UnauthenticatedError } = require("../utils/errors");
 
 const globalService = {};
 

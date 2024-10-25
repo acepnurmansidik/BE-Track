@@ -1,5 +1,6 @@
 const AuthUser = require("../app/models/auth");
 const globalService = require("../helper/global-func");
+const { UnauthenticatedError } = require("../utils/errors");
 
 const AuthorizeUserLogin = async (req, res, next) => {
   try {
@@ -17,7 +18,9 @@ const AuthorizeUserLogin = async (req, res, next) => {
     const dataValid = await globalService.verifyJwtToken(authHeader, next);
 
     // check email is register on database
-    const verifyData = await AuthUser.findOne({ email: dataValid.email });
+    const verifyData = await AuthUser.findOne({
+      email: dataValid.email,
+    }).select("_id username email");
 
     // send error not found, if data not register
     if (!verifyData) throw new NotFound("Data not register!");
@@ -27,7 +30,7 @@ const AuthorizeUserLogin = async (req, res, next) => {
     delete dataValid.exp;
     delete dataValid.jti;
 
-    req.login = { ...dataValid };
+    req.login = { ...verifyData._doc, _id: verifyData.id };
     // next to controller
     next();
   } catch (err) {
