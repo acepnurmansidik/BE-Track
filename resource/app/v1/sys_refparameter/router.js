@@ -1,6 +1,7 @@
 const controller = require("./controller");
 
 const router = require("express").Router();
+const mobileRout = "/mob";
 
 /**
  * @route GET /users
@@ -9,7 +10,8 @@ const router = require("express").Router();
  * @returns {Array.<User>} 200 - An array of users
  * @returns {Error} 500 - Internal server error
  */
-router.get("/", controller.index);
+router.get(`${mobileRout}/`, controller.indexMobileResponse);
+router.get("/", controller.indexWebResponse);
 router.post("/", controller.create);
 router.put("/:id", controller.update);
 router.delete("/:id", controller.delete);

@@ -8,7 +8,7 @@ const financeLedgerRouter = require("../resource/app/v1/sys_financial_ledger/rou
 const AuthorizeUserLogin = require("../resource/middleware/authentification");
 
 router.use("/auth", authRouter);
-router.use(AuthorizeUserLogin);
+// router.use(AuthorizeUserLogin);
 router.use("/ref-parameter", refparamRouter);
 router.use("/trx", financeLedgerRouter);
 router.use("/profile", profileRouter);

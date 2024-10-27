@@ -4,7 +4,7 @@ const { methodConstant } = require("../../../utils/constanta");
 
 const controller = {};
 
-controller.index = async (req, res, next) => {
+controller.indexMobileResponse = async (req, res, next) => {
   try {
     /*
     #swagger.security = [{
@@ -102,6 +102,46 @@ controller.index = async (req, res, next) => {
       res,
       method: methodConstant.GET,
       data,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+controller.indexWebResponse = async (req, res, next) => {
+  try {
+    /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+    /*
+    #swagger.tags = ['REF PARAMETER']
+    #swagger.summary = 'ref parameter'
+    #swagger.description = 'untuk referensi group'
+    #swagger.parameters['type'] = { default: 'category', description: 'Search by type' }
+    #swagger.parameters['preserve'] = { default: 'false', description: 'Search by type', type: 'boolean' }
+    #swagger.parameters['limit'] = { default: '10', description: 'Search by type' }
+    #swagger.parameters['page'] = { default: '1', description: 'Search by type' }
+  */
+    const { preserve, limit = 2, page = 1, ...query } = req.query;
+    const skip = (page - 1) * limit;
+
+    const [totalData, dReffParam] = await Promise.all([
+      await SysRefparamSchema.find().countDocuments().lean(),
+      await SysRefparamSchema.find(query)
+        .skip(skip)
+        .limit(limit)
+        .select("-createdAt -updatedAt")
+        .lean(),
+    ]);
+
+    responseAPI.GetPaginationResponse({
+      res,
+      page,
+      limit,
+      data: dReffParam,
+      total: totalData,
     });
   } catch (err) {
     next(err);

@@ -25,6 +25,7 @@ const SysRefparamSchema = Schema(
     },
     icon: {
       type: String,
+      default: null,
     },
     parent_id: {
       type: mongoose.Types.ObjectId,

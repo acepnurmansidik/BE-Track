@@ -30,19 +30,18 @@ response.MethodResponse = ({ res, method, data }) => {
   });
 };
 
-response.GetPaginationResponse = ({ res, data, page, page_size }) => {
+response.GetPaginationResponse = ({ res, data, total, page, limit }) => {
   return res.status(StatusCodes.CREATED).json({
     code: StatusCodes.OK,
     status: true,
     message: "Data retrieved successfully!",
-    data: {
-      data,
-      pagination: {
-        page,
-        page_size,
-        total: data.length,
-      },
+    meta: {
+      current_page: Number(page),
+      total_page: Math.ceil(Number(total) / Number(limit)),
+      limit: Number(limit),
+      total_data: Number(total),
     },
+    data,
   });
 };
 
