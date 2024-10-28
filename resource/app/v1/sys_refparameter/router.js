@@ -12,6 +12,7 @@ const mobileRout = "/mob";
  */
 router.get(`${mobileRout}/`, controller.indexMobileResponse);
 router.get("/", controller.indexWebResponse);
+router.get("/type/", controller.indexWebGroupType);
 router.post("/", controller.create);
 router.put("/:id", controller.update);
 router.delete("/:id", controller.delete);

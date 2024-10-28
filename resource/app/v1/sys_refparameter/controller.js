@@ -121,27 +121,82 @@ controller.indexWebResponse = async (req, res, next) => {
     #swagger.description = 'untuk referensi group'
     #swagger.parameters['type'] = { default: 'category', description: 'Search by type' }
     #swagger.parameters['preserve'] = { default: 'false', description: 'Search by type', type: 'boolean' }
+    #swagger.parameters['alias'] = { default: 'false', description: 'Search by type', type: 'boolean' }
     #swagger.parameters['limit'] = { default: '10', description: 'Search by type' }
     #swagger.parameters['page'] = { default: '1', description: 'Search by type' }
   */
-    const { preserve, limit = 2, page = 1, ...query } = req.query;
+    const { preserve, limit = 10, page = 1, alias, ...query } = req.query;
     const skip = (page - 1) * limit;
 
-    const [totalData, dReffParam] = await Promise.all([
+    const [totalData, dReffParam, dAliasReffParam] = await Promise.all([
       await SysRefparamSchema.find().countDocuments().lean(),
       await SysRefparamSchema.find(query)
         .skip(skip)
         .limit(limit)
         .select("-createdAt -updatedAt")
         .lean(),
+      await SysRefparamSchema.aggregate([
+        { $match: query },
+        {
+          $group: {
+            _id: { value: "$value", id: "$_id", icon: "$icon" }, // Mengelompokkan berdasarkan name dan _id
+          },
+        },
+        {
+          $project: {
+            _id: "$_id.id", // Menyalin nilai id
+            name: "$_id.value", // Menyalin nilai name
+            icon: "$_id.icon", // Menyalin nilai name
+          },
+        },
+      ]),
     ]);
 
     responseAPI.GetPaginationResponse({
       res,
       page,
       limit,
-      data: dReffParam,
-      total: totalData,
+      data: alias == "true" ? dAliasReffParam : dReffParam,
+      total: alias == "true" ? dAliasReffParam.length : totalData,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+controller.indexWebGroupType = async (req, res, next) => {
+  try {
+    /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+    /*
+    #swagger.tags = ['REF PARAMETER']
+    #swagger.summary = 'ref parameter'
+    #swagger.description = 'untuk list refferences'
+  */
+    const { preserve, limit = 10, page = 1, ...query } = req.query;
+    const data = await SysRefparamSchema.aggregate([
+      {
+        $group: {
+          _id: { name: "$type" }, // Mengelompokkan berdasarkan name dan _id
+        },
+      },
+      {
+        $project: {
+          _id: "$_id.name", // Menyalin nilai id
+          name: "$_id.name", // Menyalin nilai name
+        },
+      },
+    ]);
+
+    responseAPI.GetPaginationResponse({
+      res,
+      page,
+      limit,
+      data,
+      total: data.length,
     });
   } catch (err) {
     next(err);
@@ -166,9 +221,11 @@ controller.create = async (req, res, next) => {
     }
   */
     const payload = req.body;
+
     payload.type = payload.type.toLowerCase().replace(" ", "_");
-    payload.value = payload.value.toLowerCase();
-    const data = await SysRefparamSchema.create(payload);
+    payload.value = payload.value;
+    const iseExist = await SysRefparamSchema.findOne({ type: payload.type });
+    if (!iseExist) await SysRefparamSchema.create(payload);
 
     responseAPI.MethodResponse({
       res,

@@ -152,6 +152,13 @@
             "in": "query"
           },
           {
+            "name": "alias",
+            "default": "false",
+            "description": "Search by type",
+            "type": "boolean",
+            "in": "query"
+          },
+          {
             "name": "limit",
             "default": "10",
             "description": "Search by type",
@@ -193,6 +200,25 @@
             }
           }
         ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ref-parameter/type/": {
+      "get": {
+        "tags": [
+          "REF PARAMETER"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk list refferences",
         "responses": {
           "default": {
             "description": ""
