@@ -125,8 +125,8 @@ controller.indexWebResponse = async (req, res, next) => {
     #swagger.parameters['limit'] = { default: '10', description: 'Search by type' }
     #swagger.parameters['page'] = { default: '1', description: 'Search by type' }
   */
-    const { preserve, limit = 10, page = 1, alias, ...query } = req.query;
-    const skip = (page - 1) * limit;
+    let { preserve, limit = 10, page = 1, alias, ...query } = req.query;
+    let skip = (page - 1) * limit;
 
     const [totalData, dReffParam, dAliasReffParam] = await Promise.all([
       await SysRefparamSchema.find().countDocuments().lean(),

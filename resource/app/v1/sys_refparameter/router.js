@@ -10,7 +10,11 @@ const mobileRout = "/mob";
  * @returns {Array.<User>} 200 - An array of users
  * @returns {Error} 500 - Internal server error
  */
+
+// MOBILE ROUTE API ===========================================
 router.get(`${mobileRout}/`, controller.indexMobileResponse);
+
+// WEB ROUTE API ==============================================
 router.get("/", controller.indexWebResponse);
 router.get("/type/", controller.indexWebGroupType);
 router.post("/", controller.create);
