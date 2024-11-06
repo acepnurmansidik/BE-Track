@@ -103,6 +103,11 @@
         "description": "untuk referensi group",
         "parameters": [
           {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
             "name": "type",
             "default": "category",
             "description": "Search by type",
@@ -137,6 +142,11 @@
         "summary": "ref parameter",
         "description": "untuk referensi group",
         "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
           {
             "name": "type",
             "default": "category",
@@ -192,6 +202,11 @@
         "description": "untuk referensi group",
         "parameters": [
           {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
             "name": "obj",
             "in": "body",
             "description": "Create role",
@@ -219,6 +234,13 @@
         ],
         "summary": "ref parameter",
         "description": "untuk list refferences",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -243,6 +265,11 @@
             "name": "id",
             "in": "path",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
             "type": "string"
           },
           {
@@ -277,6 +304,11 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
           }
         ],
         "responses": {
@@ -299,6 +331,11 @@
         "summary": "ref parameter",
         "description": "untuk referensi group",
         "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
           {
             "name": "user_id",
             "in": "query",
@@ -323,6 +360,11 @@
         "summary": "ref parameter",
         "description": "untuk referensi group",
         "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
           {
             "name": "obj",
             "in": "body",
@@ -359,6 +401,11 @@
             "type": "string"
           },
           {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
             "name": "obj",
             "in": "body",
             "description": "Create role",
@@ -390,6 +437,11 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
           }
         ],
         "responses": {
@@ -413,12 +465,41 @@
         "description": "untuk referensi group",
         "parameters": [
           {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
             "name": "obj",
             "in": "body",
             "description": "Create role",
             "schema": {
               "$ref": "#/definitions/BodyProfileSchema"
             }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "PROFILE"
+        ],
+        "summary": "profile",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
           }
         ],
         "responses": {
@@ -608,6 +689,10 @@
                 "type": "string",
                 "example": "671a56f3af9cf9e0557d02c7"
               },
+              "degree_id": {
+                "type": "string",
+                "example": "671a56f3af9cf9e0557d02c7"
+              },
               "school_name": {
                 "type": "string",
                 "example": "SMK"
@@ -675,6 +760,68 @@
                     }
                   }
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "BodyProjectResumeSchema": {
+      "type": "object",
+      "properties": {
+        "project_name": {
+          "type": "string",
+          "example": "income"
+        },
+        "url_web_app": {
+          "type": "string",
+          "example": "cashflow_type"
+        },
+        "url_doc_be": {
+          "type": "string",
+          "example": "pemasukan anda"
+        },
+        "url_download_android_apk": {
+          "type": "string",
+          "example": "669122f5e485b234f586e895"
+        },
+        "url_download_ios_apk": {
+          "type": "string",
+          "example": "https://firebasestorage.googleapis.com"
+        },
+        "description": {
+          "type": "string",
+          "example": "669122f5e485b234f586e895"
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "example": "669122f5e485b234f586e895"
+              }
+            }
+          }
+        },
+        "images": {
+          "type": "array",
+          "example": [
+            "https://firebasestorage.googleapis.com"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "stacks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "example": "669122f5e485b234f586e895"
               }
             }
           }

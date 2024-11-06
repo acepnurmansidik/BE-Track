@@ -4,6 +4,7 @@ const { methodConstant } = require("../../../utils/constanta");
 const { default: mongoose } = require("mongoose");
 const SysTrxEducationSchema = require("../../models/sys_trx_education");
 const SysTrxExperienceSchema = require("../../models/sys_trx_experience");
+const { raw } = require("body-parser");
 
 const controller = {};
 
@@ -53,6 +54,46 @@ controller.updateResume = async (req, res, next) => {
       res,
       method: methodConstant.POST,
       data: null,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+controller.fetchResume = async (req, res, next) => {
+  /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+  /*
+    #swagger.tags = ['PROFILE']
+    #swagger.summary = 'profile'
+    #swagger.description = 'untuk referensi group'
+  */
+  try {
+    const profile = await SysUserSchema.findOne({
+      auth_id: req.login._id,
+    }).select("-createdAt -updatedAt");
+    const [experiences, educations] = await Promise.all([
+      await SysTrxExperienceSchema.findOne({ user_id: profile._id }).select(
+        "-createdAt -updatedAt",
+      ),
+      await SysTrxEducationSchema.findOne({ user_id: profile._id }).select(
+        "-createdAt -updatedAt",
+      ),
+    ]);
+
+    const dataResponse = {
+      ...profile._doc,
+      experiences,
+      educations,
+    };
+
+    responseAPI.MethodResponse({
+      res,
+      method: methodConstant.POST,
+      data: dataResponse,
     });
   } catch (err) {
     next(err);

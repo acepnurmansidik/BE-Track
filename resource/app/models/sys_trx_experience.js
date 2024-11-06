@@ -62,7 +62,7 @@ const SysTrxExperienceSchema = Schema(
       required: [true, "Tanggal kelulusan wajib diisi!"],
     },
   },
-  { timestamps: true, versionKey: false },
+  { timestamps: true, versionKey: false, new: true },
 );
 
 module.exports = model("sys_trx_experience", SysTrxExperienceSchema);

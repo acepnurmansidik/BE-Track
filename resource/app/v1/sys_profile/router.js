@@ -10,5 +10,6 @@ const router = require("express").Router();
  * @returns {Error} 500 - Internal server error
  */
 router.put("/", controller.updateResume);
+router.get("/", controller.fetchResume);
 
 module.exports = router;

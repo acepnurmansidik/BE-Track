@@ -18,6 +18,7 @@ const ProfileSchema = {
       {
         key: 0,
         major_id: "671a56f3af9cf9e0557d02c7",
+        degree_id: "671a56f3af9cf9e0557d02c7",
         school_name: "SMK",
         start_date: "22 July 1998",
         end_date: "22 July 1998",

@@ -17,6 +17,11 @@ const SysTrxEducationSchema = Schema(
       ref: "sys_refparameter",
       required: true,
     },
+    degree_id: {
+      type: mongoose.Types.ObjectId,
+      ref: "sys_refparameter",
+      default: null,
+    },
     school_name: {
       type: String,
       minlength: [3, "Panjang nama sekolah minimal 3 karakter"],
@@ -28,7 +33,7 @@ const SysTrxEducationSchema = Schema(
       type: Date,
     },
   },
-  { timestamps: true, versionKey: false },
+  { timestamps: true, versionKey: false, new: true },
 );
 
 module.exports = model("sys_trx_education", SysTrxEducationSchema);
