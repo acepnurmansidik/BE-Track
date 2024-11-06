@@ -94,6 +94,128 @@
         }
       }
     },
+    "/api/v1/show-case/": {
+      "get": {
+        "tags": [
+          "PROJECT SHOW CASE"
+        ],
+        "summary": "project show case",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "limit",
+            "default": "10",
+            "description": "Search by type",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "default": "1",
+            "description": "Search by type",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "PROJECT SHOW CASE"
+        ],
+        "summary": "project show case",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create project",
+            "schema": {
+              "$ref": "#/definitions/BodyProjectResumeSchema"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/show-case/{id}": {
+      "put": {
+        "tags": [
+          "PROJECT SHOW CASE"
+        ],
+        "summary": "project show case",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create project",
+            "schema": {
+              "$ref": "#/definitions/BodyProjectResumeSchema"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "PROJECT SHOW CASE"
+        ],
+        "summary": "project show case",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/ref-parameter/mob/": {
       "get": {
         "tags": [
@@ -809,6 +931,15 @@
           "type": "array",
           "example": [
             "https://firebasestorage.googleapis.com"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "features": {
+          "type": "array",
+          "example": [
+            ""
           ],
           "items": {
             "type": "string"

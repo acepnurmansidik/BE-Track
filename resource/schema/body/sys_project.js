@@ -8,6 +8,7 @@ const ProjectResumeSchema = {
     description: "669122f5e485b234f586e895",
     categories: ["https://firebasestorage.googleapis.com"],
     images: ["https://firebasestorage.googleapis.com"],
+    features: [""],
     categories: [
       {
         _id: "669122f5e485b234f586e895",
