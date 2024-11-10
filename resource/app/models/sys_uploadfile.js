@@ -19,5 +19,4 @@ const SysUploadFileSchema = Schema(
   },
   { timestamps: true, versionKey: false },
 );
-
 module.exports = model("sys_uploadfile", SysUploadFileSchema);

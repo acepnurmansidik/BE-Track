@@ -94,6 +94,178 @@
         }
       }
     },
+    "/api/v1/upload/img": {
+      "post": {
+        "tags": [
+          "UPLOAD IMAGES"
+        ],
+        "summary": "this API for upload images",
+        "description": "untuk referensi group",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "proofs",
+            "in": "formData",
+            "type": "array",
+            "required": true,
+            "description": "Some description...",
+            "collectionFormat": "multi",
+            "items": {
+              "type": "file"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/upload/img/{id}": {
+      "put": {
+        "tags": [
+          "UPLOAD IMAGES"
+        ],
+        "summary": "this API for upload images",
+        "description": "untuk referensi group",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "proofs",
+            "in": "formData",
+            "type": "array",
+            "required": true,
+            "description": "Some description...",
+            "collectionFormat": "multi",
+            "items": {
+              "type": "file"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/upload/doc": {
+      "post": {
+        "tags": [
+          "UPLOAD IMAGES"
+        ],
+        "summary": "this API for upload images",
+        "description": "untuk referensi group",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "proofs",
+            "in": "formData",
+            "type": "array",
+            "required": true,
+            "description": "Some description...",
+            "collectionFormat": "multi",
+            "items": {
+              "type": "file"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/upload/doc/{id}": {
+      "put": {
+        "tags": [
+          "UPLOAD IMAGES"
+        ],
+        "summary": "this API for upload images",
+        "description": "untuk referensi group",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "proofs",
+            "in": "formData",
+            "type": "array",
+            "required": true,
+            "description": "Some description...",
+            "collectionFormat": "multi",
+            "items": {
+              "type": "file"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/show-case/": {
       "get": {
         "tags": [
@@ -102,6 +274,11 @@
         "summary": "project show case",
         "description": "untuk referensi group",
         "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
           {
             "name": "limit",
             "default": "10",
@@ -135,6 +312,11 @@
         "summary": "project show case",
         "description": "untuk referensi group",
         "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
           {
             "name": "obj",
             "in": "body",
@@ -171,6 +353,11 @@
             "type": "string"
           },
           {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
             "name": "obj",
             "in": "body",
             "description": "Create project",
@@ -202,6 +389,11 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
           }
         ],
         "responses": {
@@ -224,6 +416,11 @@
         "summary": "ref parameter",
         "description": "untuk referensi group",
         "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
           {
             "name": "type",
             "default": "category",
@@ -259,6 +456,11 @@
         "summary": "ref parameter",
         "description": "untuk referensi group",
         "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
           {
             "name": "type",
             "default": "category",
@@ -314,6 +516,11 @@
         "description": "untuk referensi group",
         "parameters": [
           {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
             "name": "obj",
             "in": "body",
             "description": "Create role",
@@ -341,6 +548,13 @@
         ],
         "summary": "ref parameter",
         "description": "untuk list refferences",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -365,6 +579,11 @@
             "name": "id",
             "in": "path",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
             "type": "string"
           },
           {
@@ -399,6 +618,11 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
           }
         ],
         "responses": {
@@ -411,138 +635,6 @@
             "bearerAuth": []
           }
         ]
-      }
-    },
-    "/api/v1/upload/img": {
-      "post": {
-        "tags": [
-          "UPLOAD IMAGES"
-        ],
-        "summary": "this API for upload images",
-        "description": "untuk referensi group",
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "parameters": [
-          {
-            "name": "proffs",
-            "in": "formData",
-            "type": "array",
-            "required": true,
-            "description": "Some description...",
-            "collectionFormat": "multi",
-            "items": {
-              "type": "file"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/upload/img/{id}": {
-      "put": {
-        "tags": [
-          "UPLOAD IMAGES"
-        ],
-        "summary": "this API for upload images",
-        "description": "untuk referensi group",
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "proffs",
-            "in": "formData",
-            "type": "array",
-            "required": true,
-            "description": "Some description...",
-            "collectionFormat": "multi",
-            "items": {
-              "type": "file"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/upload/doc": {
-      "post": {
-        "tags": [
-          "UPLOAD IMAGES"
-        ],
-        "summary": "this API for upload images",
-        "description": "untuk referensi group",
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "parameters": [
-          {
-            "name": "proffs",
-            "in": "formData",
-            "type": "array",
-            "required": true,
-            "description": "Some description...",
-            "collectionFormat": "multi",
-            "items": {
-              "type": "file"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/v1/upload/doc/{id}": {
-      "put": {
-        "tags": [
-          "UPLOAD IMAGES"
-        ],
-        "summary": "this API for upload images",
-        "description": "untuk referensi group",
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "proffs",
-            "in": "formData",
-            "type": "array",
-            "required": true,
-            "description": "Some description...",
-            "collectionFormat": "multi",
-            "items": {
-              "type": "file"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
       }
     },
     "/api/v1/trx/": {
@@ -1029,11 +1121,18 @@
         },
         "images": {
           "type": "array",
-          "example": [
-            "https://firebasestorage.googleapis.com"
-          ],
           "items": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "example": "669122f5e485b234f586e895"
+              },
+              "is_cover": {
+                "type": "boolean",
+                "example": false
+              }
+            }
           }
         },
         "features": {

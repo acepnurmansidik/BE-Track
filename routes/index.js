@@ -10,10 +10,10 @@ const UploadImagesRouter = require("../resource/app/uploadfile/router");
 const AuthorizeUserLogin = require("../resource/middleware/authentification");
 
 router.use("/auth", authRouter);
+router.use(AuthorizeUserLogin);
+router.use("/upload", UploadImagesRouter);
 router.use("/show-case", showCaseRouter);
 router.use("/ref-parameter", refparamRouter);
-router.use("/upload", UploadImagesRouter);
-router.use(AuthorizeUserLogin);
 router.use("/trx", financeLedgerRouter);
 router.use("/profile", profileRouter);
 

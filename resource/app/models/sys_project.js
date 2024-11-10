@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { model, Schema } = mongoose;
+const SysUploadFileSchema = require("./sys_uploadfile.js");
 
 const SysProjectSchema = Schema(
   {
@@ -44,7 +45,6 @@ const SysProjectSchema = Schema(
       },
     ],
     features: { type: [String], require: true },
-    images: { type: [String], require: true },
   },
   { timestamps: true, versionKey: false },
 );

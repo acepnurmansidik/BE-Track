@@ -6,11 +6,16 @@ const controller = {};
 
 controller.uploadFile = async (req, res, next) => {
   /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+  /*
     #swagger.tags = ['UPLOAD IMAGES']
     #swagger.summary = 'this API for upload images'
     #swagger.description = 'untuk referensi group'
     #swagger.consumes = ['multipart/form-data']
-    #swagger.parameters['proffs'] = {
+    #swagger.parameters['proofs'] = {
             in: 'formData',
             type: 'array',
             required: true,
@@ -47,11 +52,16 @@ controller.uploadFile = async (req, res, next) => {
 
 controller.uploadFileUpdate = async (req, res, next) => {
   /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+  /*
     #swagger.tags = ['UPLOAD IMAGES']
     #swagger.summary = 'this API for upload images'
     #swagger.description = 'untuk referensi group'
     #swagger.consumes = ['multipart/form-data']
-    #swagger.parameters['proffs'] = {
+    #swagger.parameters['proofs'] = {
             in: 'formData',
             type: 'array',
             required: true,
@@ -72,6 +82,7 @@ controller.uploadFileUpdate = async (req, res, next) => {
     for (fileImage of files) {
       const response = await SysUploadFileSchema.create({
         name: fileImage.path,
+        reff_id: id,
       });
 
       data.push({
