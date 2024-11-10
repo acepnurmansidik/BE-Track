@@ -64,8 +64,6 @@ controller.create = async (req, res, next) => {
       method: methodConstant.PUT,
       data: data,
     });
-
-    respoA;
   } catch (err) {
     next(err);
   }

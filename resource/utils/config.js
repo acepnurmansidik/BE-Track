@@ -9,6 +9,7 @@ const ENV = {
   tokenExp: process.env.TOKEN_EXPIRED,
   secretKey: process.env.TOKEN_SECRET,
   tokenAlgorithm: process.env.TOKEN_ALGORITHM,
+  filePath: process.env.FILE_PATH,
 };
 
 module.exports = ENV;
