@@ -6,23 +6,23 @@ const SysUserSchema = Schema(
     auth_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_auth_user",
-      require: true,
+      required: true,
       unique: true,
     },
     gender_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_refparameter",
-      require: true,
+      required: true,
     },
     role_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_refparameter",
-      require: true,
+      required: true,
     },
     status_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_refparameter",
-      require: true,
+      required: true,
     },
     name: {
       type: String,

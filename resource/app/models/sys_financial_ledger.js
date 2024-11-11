@@ -6,22 +6,22 @@ const SysFinancialLedgerSchema = Schema(
     user_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_user",
-      require: true,
+      required: true,
     },
     category_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_refparameter",
-      require: true,
+      required: true,
     },
     type_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_refparameter",
-      require: true,
+      required: true,
     },
     kurs_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_refparameter",
-      require: true,
+      required: true,
     },
     amount: {
       type: Number,

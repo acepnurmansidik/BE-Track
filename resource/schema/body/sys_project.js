@@ -9,19 +9,19 @@ const ProjectResumeSchema = {
     categories: ["https://firebasestorage.googleapis.com"],
     images: [
       {
-        _id: "669122f5e485b234f586e895",
+        _id: "673034811bf4807bb83caa04",
         is_cover: false,
       },
     ],
     features: [""],
     categories: [
       {
-        _id: "669122f5e485b234f586e895",
+        _id: "671a569e25616b9c3c89bdd5",
       },
     ],
     stacks: [
       {
-        _id: "669122f5e485b234f586e895",
+        _id: "671a569e25616b9c3c89bdd5",
       },
     ],
   },

@@ -9,7 +9,12 @@ const SysUploadFileSchema = Schema(
     },
     is_cover: {
       type: Boolean,
-      require: true,
+      required: true,
+      default: false,
+    },
+    is_active: {
+      type: Boolean,
+      required: true,
       default: false,
     },
     name: {

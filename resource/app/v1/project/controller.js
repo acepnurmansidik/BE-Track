@@ -2,6 +2,8 @@ const SysProjectSchema = require("../../models/sys_project");
 const responseAPI = require("../../../utils/response");
 const { methodConstant } = require("../../../utils/constanta");
 const { NotFoundError } = require("../../../utils/errors");
+const sys_uploadfile = require("../../models/sys_uploadfile");
+const { default: mongoose } = require("mongoose");
 
 const controller = {};
 
@@ -22,7 +24,10 @@ controller.index = async (req, res, next) => {
     let { preserve, limit = 10, page = 1, alias, ...query } = req.query;
     let skip = (page - 1) * limit;
 
-    const project = await SysProjectSchema.find();
+    const project = await SysProjectSchema.find()
+      .populate("categories")
+      .populate("images")
+      .populate("stacks");
 
     responseAPI.GetPaginationResponse({
       res,
@@ -31,8 +36,6 @@ controller.index = async (req, res, next) => {
       data: project,
       total: project.length,
     });
-
-    respoA;
   } catch (err) {
     next(err);
   }
@@ -54,18 +57,41 @@ controller.create = async (req, res, next) => {
       schema: { $ref: '#/definitions/BodyProjectResumeSchema' }
     }
   */
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const payload = req.body;
 
-    const data = await SysProjectSchema.create(payload);
+    // Membuat instance baru dari SysProjectSchema
+    const data = new SysProjectSchema(payload);
+    // Menyimpan data dengan session
+    const savedData = await data.save({ session });
 
+    // Memperbarui gambar
+    for (const img of payload.images) {
+      await sys_uploadfile.findOneAndUpdate(
+        { _id: img._id },
+        { is_cover: img.is_cover, reff_id: savedData._id, is_active: true },
+        { session },
+      );
+    }
+
+    // Commit transaksi
+    await session.commitTransaction();
+    session.endSession();
+    // Mengembalikan respons yang sesuai
     responseAPI.MethodResponse({
       res,
       method: methodConstant.PUT,
-      data: data,
+      data: null, // Mengembalikan data yang disimpan
     });
   } catch (err) {
-    next(err);
+    // Abort transaksi jika terjadi kesalahan
+    await session.abortTransaction();
+    session.endSession();
+    next(err); // Mengirimkan kesalahan ke middleware error handling
   }
 };
 
@@ -85,28 +111,50 @@ controller.update = async (req, res, next) => {
       schema: { $ref: '#/definitions/BodyProjectResumeSchema' }
     }
   */
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const payload = req.body;
+    const _id = req.params.id;
 
-    const isExist = await SysProjectSchema.findOne({ _id: req.params.id });
+    // cek project berdaasarkan id
+    const isExist = await SysProjectSchema.findOne({ _id });
     if (!isExist) {
-      throw new NotFoundError(`Data with id: ${req.params.id} not found!`);
+      throw new NotFoundError(`Data with id: ${_id} not found!`);
     }
 
-    const data = await SysProjectSchema.findOneAndUpdate(
-      { _id: req.params.id },
+    // jika datanya ada, lakukan update
+    await SysProjectSchema.findOneAndUpdate(
+      { _id },
       { ...payload },
-      { new: true },
+      { new: true, session },
     );
 
+    // update activenya menjadi false
+    await sys_uploadfile.updateMany({ reff_id: _id }, { is_active: false });
+
+    // lalu perbarui gambar yang dipakai
+    for (const img of payload.images) {
+      await sys_uploadfile.findOneAndUpdate(
+        { _id: img._id },
+        { is_cover: img.is_cover, reff_id: savedData._id, is_active: true },
+        { session },
+      );
+    }
+
+    // akhiri transaction dan session
+    await session.commitTransaction();
+    session.endSession();
     responseAPI.MethodResponse({
       res,
       method: methodConstant.POST,
-      data: data,
+      data: null,
     });
 
     respoA;
   } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
     next(err);
   }
 };
@@ -122,22 +170,34 @@ controller.delete = async (req, res, next) => {
     #swagger.summary = 'project show case'
     #swagger.description = 'untuk referensi group'
   */
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    const isExist = await SysProjectSchema.findOne({ _id: req.params.id });
+    const _id = req.params.id;
+
+    // cek apakah datany atersedia
+    const isExist = await SysProjectSchema.findOne({ _id });
     if (!isExist) {
-      throw new NotFoundError(`Data with id: ${req.params.id} not found!`);
+      throw new NotFoundError(`Data with id: ${_id} not found!`);
     }
 
-    await SysProjectSchema.findOneAndDelete(
-      { _id: req.params.id },
-      { new: true },
-    );
+    // hapus data projectnya
+    await SysProjectSchema.findOneAndDelete({ _id }, { new: true, session });
+
+    // lalu hapus juga data filesnya
+    await sys_uploadfile.updateMany({ reff_id: _id }, { is_active: false });
+
+    // akhiri transaction dan session nya
+    await session.commitTransaction();
+    session.endSession();
     responseAPI.MethodResponse({
       res,
       method: methodConstant.DELETE,
       data: null,
     });
   } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
     next(err);
   }
 };

@@ -106,11 +106,6 @@
         ],
         "parameters": [
           {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
             "name": "proofs",
             "in": "formData",
             "type": "array",
@@ -152,11 +147,6 @@
             "type": "string"
           },
           {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
             "name": "proofs",
             "in": "formData",
             "type": "array",
@@ -191,11 +181,6 @@
           "multipart/form-data"
         ],
         "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
           {
             "name": "proofs",
             "in": "formData",
@@ -238,11 +223,6 @@
             "type": "string"
           },
           {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
             "name": "proofs",
             "in": "formData",
             "type": "array",
@@ -274,11 +254,6 @@
         "summary": "project show case",
         "description": "untuk referensi group",
         "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
           {
             "name": "limit",
             "default": "10",
@@ -312,11 +287,6 @@
         "summary": "project show case",
         "description": "untuk referensi group",
         "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
           {
             "name": "obj",
             "in": "body",
@@ -353,11 +323,6 @@
             "type": "string"
           },
           {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
             "name": "obj",
             "in": "body",
             "description": "Create project",
@@ -389,11 +354,6 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
           }
         ],
         "responses": {
@@ -416,11 +376,6 @@
         "summary": "ref parameter",
         "description": "untuk referensi group",
         "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
           {
             "name": "type",
             "default": "category",
@@ -456,11 +411,6 @@
         "summary": "ref parameter",
         "description": "untuk referensi group",
         "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
           {
             "name": "type",
             "default": "category",
@@ -516,11 +466,6 @@
         "description": "untuk referensi group",
         "parameters": [
           {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
             "name": "obj",
             "in": "body",
             "description": "Create role",
@@ -548,13 +493,6 @@
         ],
         "summary": "ref parameter",
         "description": "untuk list refferences",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
         "responses": {
           "default": {
             "description": ""
@@ -579,11 +517,6 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
             "type": "string"
           },
           {
@@ -617,11 +550,6 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
             "type": "string"
           }
         ],
@@ -1114,7 +1042,7 @@
             "properties": {
               "_id": {
                 "type": "string",
-                "example": "669122f5e485b234f586e895"
+                "example": "671a569e25616b9c3c89bdd5"
               }
             }
           }
@@ -1126,7 +1054,7 @@
             "properties": {
               "_id": {
                 "type": "string",
-                "example": "669122f5e485b234f586e895"
+                "example": "673034811bf4807bb83caa04"
               },
               "is_cover": {
                 "type": "boolean",
@@ -1151,7 +1079,7 @@
             "properties": {
               "_id": {
                 "type": "string",
-                "example": "669122f5e485b234f586e895"
+                "example": "671a569e25616b9c3c89bdd5"
               }
             }
           }

@@ -10,7 +10,7 @@ const SysStackSchema = Schema(
     stack_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_refparameter",
-      require: true,
+      required: true,
       unique: true,
     },
   },

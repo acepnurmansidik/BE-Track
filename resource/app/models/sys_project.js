@@ -7,30 +7,35 @@ const SysProjectSchema = Schema(
     user_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_user",
-      require: true,
-      unique: true,
+      required: true,
     },
     project_name: {
       type: String,
-      require: true,
+      required: true,
     },
     url_web_app: {
       type: String,
     },
     url_doc_be: {
       type: String,
-      require: true,
+      required: true,
     },
     url_download_android_apk: {
       type: String,
-      require: true,
+      required: true,
     },
     url_download_ios_apk: {
       type: String,
     },
     description: {
       type: String,
-      require: true,
+      required: true,
+    },
+    features: { type: [String], required: true },
+    status_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "sys_refparameter",
+      required: true,
     },
     categories: [
       {
@@ -44,7 +49,12 @@ const SysProjectSchema = Schema(
         ref: "sys_refparameter",
       },
     ],
-    features: { type: [String], require: true },
+    images: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "sys_uploadfile",
+      },
+    ],
   },
   { timestamps: true, versionKey: false },
 );

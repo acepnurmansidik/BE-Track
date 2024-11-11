@@ -6,13 +6,13 @@ const SysTrxSkillSchema = Schema(
     user_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_auth_user",
-      require: true,
+      required: true,
       unique: true,
     },
     skill_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_refparameter",
-      require: true,
+      required: true,
       unique: true,
     },
   },
