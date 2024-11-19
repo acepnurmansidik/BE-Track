@@ -413,7 +413,7 @@
         "parameters": [
           {
             "name": "type",
-            "default": "category",
+            "default": "",
             "description": "Search by type",
             "in": "query",
             "type": "string"
@@ -486,26 +486,50 @@
         ]
       }
     },
-    "/api/v1/ref-parameter/type/": {
+    "/api/v1/ref-parameter/type": {
       "get": {
         "tags": [
           "REF PARAMETER"
         ],
         "summary": "ref parameter",
-        "description": "untuk list refferences",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "type",
+            "default": "",
+            "description": "Search by type",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
           }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/ref-parameter/{id}": {
+      "get": {
+        "tags": [
+          "REF PARAMETER"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
       "put": {
         "tags": [
           "REF PARAMETER"
@@ -819,10 +843,6 @@
         "description": {
           "type": "string",
           "example": "pemasukan anda"
-        },
-        "parent_id": {
-          "type": "string",
-          "example": "669122f5e485b234f586e895"
         },
         "icon": {
           "type": "string",

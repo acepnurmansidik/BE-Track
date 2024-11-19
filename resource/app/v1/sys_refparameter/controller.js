@@ -1,23 +1,25 @@
 const SysRefparamSchema = require("../../models/sys_refparam");
 const responseAPI = require("../../../utils/response");
 const { methodConstant } = require("../../../utils/constanta");
+const BadRequest = require("../../../utils/errors/bad-request");
+const { NotFoundError } = require("../../../utils/errors");
 
 const controller = {};
 
 controller.indexMobileResponse = async (req, res, next) => {
-  try {
-    /*
+  /*
     #swagger.security = [{
       "bearerAuth": []
     }]
   */
-    /*
+  /*
     #swagger.tags = ['REF PARAMETER']
     #swagger.summary = 'ref parameter'
     #swagger.description = 'untuk referensi group'
     #swagger.parameters['type'] = { default: 'category', description: 'Search by type' }
     #swagger.parameters['preserve'] = { default: 'false', description: 'Search by type', type: 'boolean' }
   */
+  try {
     const { preserve, ...query } = req.query;
     /*
     Penjelasan Pipeline Agregasi:
@@ -109,22 +111,22 @@ controller.indexMobileResponse = async (req, res, next) => {
 };
 
 controller.indexWebResponse = async (req, res, next) => {
-  try {
-    /*
+  /*
     #swagger.security = [{
       "bearerAuth": []
     }]
   */
-    /*
+  /*
     #swagger.tags = ['REF PARAMETER']
     #swagger.summary = 'ref parameter'
     #swagger.description = 'untuk referensi group'
-    #swagger.parameters['type'] = { default: 'category', description: 'Search by type' }
+    #swagger.parameters['type'] = { default: '', description: 'Search by type' }
     #swagger.parameters['preserve'] = { default: 'false', description: 'Search by type', type: 'boolean' }
     #swagger.parameters['alias'] = { default: 'false', description: 'Search by type', type: 'boolean' }
     #swagger.parameters['limit'] = { default: '10', description: 'Search by type' }
     #swagger.parameters['page'] = { default: '1', description: 'Search by type' }
   */
+  try {
     let { preserve, limit = 10, page = 1, alias, ...query } = req.query;
     let skip = (page - 1) * limit;
 
@@ -164,39 +166,63 @@ controller.indexWebResponse = async (req, res, next) => {
   }
 };
 
-controller.indexWebGroupType = async (req, res, next) => {
-  try {
-    /*
-    #swagger.security = [{
-      "bearerAuth": []
-    }]
-  */
-    /*
+controller.findByInd = async (req, res, next) => {
+  /*
     #swagger.tags = ['REF PARAMETER']
     #swagger.summary = 'ref parameter'
-    #swagger.description = 'untuk list refferences'
+    #swagger.description = 'untuk referensi group'
   */
-    const { preserve, limit = 10, page = 1, ...query } = req.query;
-    const data = await SysRefparamSchema.aggregate([
+  try {
+    const _id = req.params.id;
+
+    const data = await SysRefparamSchema.findOne({ _id });
+    if (!data) {
+      throw new NotFoundError(`Data with id: ${_id} not found!`);
+    }
+
+    responseAPI.MethodResponse({
+      res,
+      method: methodConstant.PUT,
+      data,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+controller.indexWebGroupType = async (req, res, next) => {
+  /*
+    #swagger.tags = ['REF PARAMETER']
+    #swagger.summary = 'ref parameter'
+    #swagger.description = 'untuk referensi group'
+    #swagger.parameters['type'] = { default: '', description: 'Search by type' }
+  */
+  try {
+    const filter = {};
+    // Filter
+    const { type = "" } = req.query;
+    if (type.length) filter.type = type;
+
+    // Fetch data
+    const result = await SysRefparamSchema.aggregate([
       {
-        $group: {
-          _id: { name: "$type" }, // Mengelompokkan berdasarkan name dan _id
-        },
+        $match: { ...filter },
+      },
+      {
+        $group: { _id: "$type" },
       },
       {
         $project: {
-          _id: "$_id.name", // Menyalin nilai id
-          name: "$_id.name", // Menyalin nilai name
+          _id: "$_id",
+          name: "$_id",
         },
       },
     ]);
 
-    responseAPI.GetPaginationResponse({
+    responseAPI.MethodResponse({
       res,
-      page,
-      limit,
-      data,
-      total: data.length,
+      method: methodConstant.GET,
+      data: result,
     });
   } catch (err) {
     next(err);
@@ -204,13 +230,12 @@ controller.indexWebGroupType = async (req, res, next) => {
 };
 
 controller.create = async (req, res, next) => {
-  try {
-    /*
+  /*
     #swagger.security = [{
       "bearerAuth": []
     }]
   */
-    /*
+  /*
     #swagger.tags = ['REF PARAMETER']
     #swagger.summary = 'ref parameter'
     #swagger.description = 'untuk referensi group'
@@ -220,13 +245,18 @@ controller.create = async (req, res, next) => {
       schema: { $ref: '#/definitions/BodyRefParameterSchema' }
     }
   */
+  try {
     const payload = req.body;
 
     payload.type = payload.type.toLowerCase().replace(" ", "_");
     payload.value = payload.value;
-    const iseExist = await SysRefparamSchema.findOne({ type: payload.type });
-    if (!iseExist) await SysRefparamSchema.create(payload);
+    const iseExist = await SysRefparamSchema.findOne({ value: payload.value });
 
+    if (iseExist) {
+      throw new BadRequest(`Data with '${payload.value}' has available!`);
+    }
+
+    await SysRefparamSchema.create(payload);
     responseAPI.MethodResponse({
       res,
       method: methodConstant.POST,
@@ -238,13 +268,12 @@ controller.create = async (req, res, next) => {
 };
 
 controller.update = async (req, res, next) => {
-  try {
-    /*
+  /*
     #swagger.security = [{
       "bearerAuth": []
     }]
   */
-    /*
+  /*
     #swagger.tags = ['REF PARAMETER']
     #swagger.summary = 'ref parameter'
     #swagger.description = 'untuk referensi group'
@@ -254,12 +283,16 @@ controller.update = async (req, res, next) => {
       schema: { $ref: '#/definitions/BodyRefParameterSchema' }
     }
   */
+  try {
     const payload = req.body;
     const _id = req.params.id;
 
     payload.type = payload.type.toLowerCase().replace(" ", "_");
     payload.value = payload.value.toLowerCase();
     const data = await SysRefparamSchema.findOneAndUpdate({ _id }, payload);
+    if (!data) {
+      throw new NotFoundError(`Data with id: ${_id} not found!`);
+    }
 
     responseAPI.MethodResponse({
       res,
@@ -267,25 +300,28 @@ controller.update = async (req, res, next) => {
       data,
     });
   } catch (err) {
-    next();
+    next(err);
   }
 };
 
 controller.delete = async (req, res, next) => {
-  try {
-    /*
+  /*
     #swagger.security = [{
       "bearerAuth": []
     }]
   */
-    /*
+  /*
     #swagger.tags = ['REF PARAMETER']
     #swagger.summary = 'ref parameter'
     #swagger.description = 'untuk referensi group'
   */
+  try {
     const _id = req.params.id;
 
-    await SysRefparamSchema.findOneAndDelete({ _id });
+    const result = await SysRefparamSchema.findOneAndDelete({ _id });
+    if (!result) {
+      throw new NotFoundError(`Data with id: ${_id} not found!`);
+    }
 
     responseAPI.MethodResponse({
       res,
@@ -293,7 +329,7 @@ controller.delete = async (req, res, next) => {
       data: null,
     });
   } catch (err) {
-    next();
+    next(err);
   }
 };
 

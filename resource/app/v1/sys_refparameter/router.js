@@ -16,7 +16,8 @@ router.get(`${mobileRout}/`, controller.indexMobileResponse);
 
 // WEB ROUTE API ==============================================
 router.get("/", controller.indexWebResponse);
-router.get("/type/", controller.indexWebGroupType);
+router.get("/type", controller.indexWebGroupType);
+router.get("/:id", controller.findByInd);
 router.post("/", controller.create);
 router.put("/:id", controller.update);
 router.delete("/:id", controller.delete);

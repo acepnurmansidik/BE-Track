@@ -27,11 +27,6 @@ const SysRefparamSchema = Schema(
       type: String,
       default: null,
     },
-    parent_id: {
-      type: mongoose.Types.ObjectId,
-      ref: "sys_refparameter",
-      default: null,
-    },
   },
   { timestamps: true, versionKey: false, new: true },
 );

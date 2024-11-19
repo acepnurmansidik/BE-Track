@@ -9,6 +9,8 @@ const router = require("express").Router();
  * @returns {Array.<User>} 200 - An array of users
  * @returns {Error} 500 - Internal server error
  */
+// MOBILE ROUTE API ===========================================
+// WEB ROUTE API ==============================================
 router.get("/", controller.index);
 router.post("/", controller.create);
 router.put("/:id", controller.update);
