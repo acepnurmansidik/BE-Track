@@ -7,7 +7,7 @@ const SysProjectSchema = Schema(
     user_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_user",
-      required: true,
+      // required: true,
     },
     project_name: {
       type: String,

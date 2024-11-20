@@ -69,14 +69,14 @@ controller.create = async (req, res, next) => {
     // Menyimpan data dengan session
     const savedData = await data.save({ session });
 
-    // Memperbarui gambar
-    for (const img of payload.images) {
-      await sys_uploadfile.findOneAndUpdate(
-        { _id: img._id },
-        { is_cover: img.is_cover, reff_id: savedData._id, is_active: true },
-        { session },
-      );
-    }
+    // // Memperbarui gambar
+    // for (const img of payload.images) {
+    //   await sys_uploadfile.findOneAndUpdate(
+    //     { _id: img._id },
+    //     { is_cover: img.is_cover, reff_id: savedData._id, is_active: true },
+    //     { session },
+    //   );
+    // }
 
     // Commit transaksi
     await session.commitTransaction();
@@ -84,7 +84,7 @@ controller.create = async (req, res, next) => {
     // Mengembalikan respons yang sesuai
     responseAPI.MethodResponse({
       res,
-      method: methodConstant.PUT,
+      method: methodConstant.POST,
       data: null, // Mengembalikan data yang disimpan
     });
   } catch (err) {
@@ -150,8 +150,6 @@ controller.update = async (req, res, next) => {
       method: methodConstant.POST,
       data: null,
     });
-
-    respoA;
   } catch (err) {
     await session.abortTransaction();
     session.endSession();

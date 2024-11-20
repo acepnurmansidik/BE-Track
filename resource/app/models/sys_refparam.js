@@ -21,10 +21,10 @@ const SysRefparamSchema = Schema(
     description: {
       type: String,
       minlength: [3, "Panjang password minimal 3 karakter"],
-      required: [true, "password harus diisi"],
     },
     icon: {
-      type: String,
+      type: mongoose.Types.ObjectId,
+      ref: "sys_uploadfile",
       default: null,
     },
   },
