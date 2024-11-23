@@ -9,18 +9,20 @@ const SysRefparamSchema = Schema(
     value: {
       type: String,
       minlength: [1, "Panjang minimal 3 karakter"],
-      maxLength: [20, "Panjang maksimal 20 karakter"],
       required: [true, "Value harus diisi"],
       unique: true,
     },
+    slug: {
+      type: String,
+      unique: [true, "Project name must be unique"],
+      required: true,
+    },
     type: {
       type: String,
-      minlength: [3, "Panjang password minimal 3 karakter"],
       required: [true, "password harus diisi"],
     },
     description: {
       type: String,
-      minlength: [3, "Panjang password minimal 3 karakter"],
       default: "",
     },
     icon: {

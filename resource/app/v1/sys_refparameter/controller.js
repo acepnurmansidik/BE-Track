@@ -258,6 +258,7 @@ controller.create = async (req, res, next) => {
     const payload = req.body;
 
     payload.type = payload.type.toLowerCase().replace(" ", "_");
+    payload.slug = payload.value.toLowerCase().replace(" ", "_");
     payload.value = payload.value;
     const iseExist = await SysRefparamSchema.findOne({ value: payload.value });
 
@@ -267,8 +268,6 @@ controller.create = async (req, res, next) => {
 
     // create new data
     await SysRefparamSchema.create([payload], { session });
-
-    console.log(payload);
 
     // update data image
     if (![null, undefined].includes(payload?.icon)) {
@@ -316,6 +315,7 @@ controller.update = async (req, res, next) => {
     const _id = req.params.id;
 
     payload.type = payload.type.toLowerCase().replace(" ", "_");
+    payload.slug = payload.value.toLowerCase().replace(" ", "_");
     const dExist = await SysRefparamSchema.findOne({ _id });
 
     if (dExist?.icon) {
@@ -347,10 +347,10 @@ controller.update = async (req, res, next) => {
       data: null,
     });
   } catch (err) {
-    // session.abortTransaction();
+    session.abortTransaction();
     next(err);
   } finally {
-    // session.endSession();
+    session.endSession();
   }
 };
 
@@ -365,21 +365,36 @@ controller.delete = async (req, res, next) => {
     #swagger.summary = 'ref parameter'
     #swagger.description = 'untuk referensi group'
   */
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const _id = req.params.id;
 
-    const result = await SysRefparamSchema.findOneAndDelete({ _id });
-    if (!result) {
+    const isExist = await SysRefparamSchema.findOne({ _id });
+    if (!isExist) {
       throw new NotFoundError(`Data with id: ${_id} not found!`);
     }
 
+    await Promise.all([
+      await SysRefparamSchema.findOneAndDelete({ _id }, { session }),
+      await sys_uploadfile.findOneAndUpdate(
+        { _id: isExist.icon },
+        { is_active: false, is_cover: false },
+        { session },
+      ),
+    ]);
+
+    await session.commitTransaction();
     responseAPI.MethodResponse({
       res,
       method: methodConstant.DELETE,
       data: null,
     });
   } catch (err) {
+    session.abortTransaction();
     next(err);
+  } finally {
+    session.endSession();
   }
 };
 

@@ -14,6 +14,11 @@ const SysProjectSchema = new Schema(
       type: String,
       required: true,
     },
+    slug: {
+      type: String,
+      unique: [true, "Project name must be unique"],
+      required: true,
+    },
     url_web_app: {
       type: String,
     },

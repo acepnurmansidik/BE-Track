@@ -70,6 +70,7 @@ controller.create = async (req, res, next) => {
     const payload = req.body;
 
     // Membuat instance baru dari SysProjectSchema
+    payload.slug = payload.project_name.toLowerCase().replace(" ", "_");
     const data = new SysProjectSchema(payload);
     // Menyimpan data dengan session
     await data.save({ session });
@@ -159,6 +160,8 @@ controller.update = async (req, res, next) => {
   try {
     const payload = req.body;
     const _id = req.params.id;
+
+    payload.slug = payload.project_name.toLowerCase().replace(" ", "_");
 
     // cek project berdaasarkan id
     const isExist = await SysProjectSchema.findOne({ _id });
