@@ -3,10 +3,6 @@ const { model, Schema } = mongoose;
 
 const SysUploadFileSchema = Schema(
   {
-    reff_id: {
-      type: mongoose.Types.ObjectId,
-      default: null,
-    },
     is_cover: {
       type: Boolean,
       required: true,

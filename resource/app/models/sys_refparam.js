@@ -21,6 +21,7 @@ const SysRefparamSchema = Schema(
     description: {
       type: String,
       minlength: [3, "Panjang password minimal 3 karakter"],
+      default: "",
     },
     icon: {
       type: mongoose.Types.ObjectId,

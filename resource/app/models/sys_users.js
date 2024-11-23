@@ -37,10 +37,12 @@ const SysUserSchema = Schema(
     address: {
       type: String,
       minlength: [10, "Panjang name minimal 3 karakter"],
+      default: "",
     },
     tagline: {
       type: String,
       minlength: [7, "Panjang name minimal 3 karakter"],
+      default: "",
     },
     birth_date: {
       type: Date,
@@ -48,30 +50,37 @@ const SysUserSchema = Schema(
     description: {
       type: String,
       minlength: [3, "Panjang name minimal 3 karakter"],
+      default: "",
     },
     web_url: {
       type: String,
       minlength: [3, "Panjang name minimal 3 karakter"],
+      default: "",
     },
     github_url: {
       type: String,
       minlength: [3, "Panjang name minimal 3 karakter"],
+      default: "",
     },
     phone_number: {
       type: String,
       minlength: [3, "Panjang name minimal 3 karakter"],
+      default: "",
     },
     instagram_url: {
       type: String,
       minlength: [3, "Panjang name minimal 3 karakter"],
+      default: "",
     },
     linkedin_url: {
       type: String,
       minlength: [3, "Panjang name minimal 3 karakter"],
+      default: "",
     },
     facebook_url: {
       type: String,
       minlength: [3, "Panjang name minimal 3 karakter"],
+      default: "",
     },
   },
   { timestamps: true, versionKey: false, new: true },

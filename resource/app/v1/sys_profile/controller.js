@@ -4,7 +4,6 @@ const { methodConstant } = require("../../../utils/constanta");
 const { default: mongoose } = require("mongoose");
 const SysTrxEducationSchema = require("../../models/sys_trx_education");
 const SysTrxExperienceSchema = require("../../models/sys_trx_experience");
-const { raw } = require("body-parser");
 
 const controller = {};
 
@@ -25,6 +24,7 @@ controller.updateResume = async (req, res, next) => {
     }
   */
   const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const payload = req.body;
     const data = await SysUserSchema.findOneAndUpdate(
@@ -48,7 +48,7 @@ controller.updateResume = async (req, res, next) => {
       await SysTrxExperienceSchema.insertMany(payload.experiences, { session }),
     ]);
 
-    session.endSession();
+    session.commitTransaction();
 
     responseAPI.MethodResponse({
       res,
@@ -56,7 +56,10 @@ controller.updateResume = async (req, res, next) => {
       data: null,
     });
   } catch (err) {
+    session.abortTransaction();
     next(err);
+  } finally {
+    session.endSession();
   }
 };
 

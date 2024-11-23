@@ -25,6 +25,7 @@ const SysTrxEducationSchema = Schema(
     school_name: {
       type: String,
       minlength: [3, "Panjang nama sekolah minimal 3 karakter"],
+      required: true,
     },
     start_date: {
       type: Date,

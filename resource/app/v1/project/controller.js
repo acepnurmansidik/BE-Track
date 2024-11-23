@@ -24,17 +24,22 @@ controller.index = async (req, res, next) => {
     let { preserve, limit = 10, page = 1, alias, ...query } = req.query;
     let skip = (page - 1) * limit;
 
-    const project = await SysProjectSchema.find()
-      .populate("categories")
-      .populate("images")
-      .populate("stacks");
+    const [totalData, project] = await Promise.all([
+      await SysProjectSchema.find().countDocuments().lean(),
+      await SysProjectSchema.find()
+        .populate("categories")
+        .populate("images")
+        .populate("stacks")
+        .populate("status_id")
+        .lean(),
+    ]);
 
     responseAPI.GetPaginationResponse({
       res,
       page,
       limit,
       data: project,
-      total: project.length,
+      total: totalData ?? 1,
     });
   } catch (err) {
     next(err);
@@ -67,20 +72,21 @@ controller.create = async (req, res, next) => {
     // Membuat instance baru dari SysProjectSchema
     const data = new SysProjectSchema(payload);
     // Menyimpan data dengan session
-    const savedData = await data.save({ session });
+    await data.save({ session });
 
-    // // Memperbarui gambar
-    // for (const img of payload.images) {
-    //   await sys_uploadfile.findOneAndUpdate(
-    //     { _id: img._id },
-    //     { is_cover: img.is_cover, reff_id: savedData._id, is_active: true },
-    //     { session },
-    //   );
-    // }
+    // Memperbarui gambar
+    if (payload?.images) {
+      for (const img of payload.images) {
+        await sys_uploadfile.findOneAndUpdate(
+          { _id: img._id },
+          { is_cover: false, is_active: true },
+          { session },
+        );
+      }
+    }
 
     // Commit transaksi
     await session.commitTransaction();
-    session.endSession();
     // Mengembalikan respons yang sesuai
     responseAPI.MethodResponse({
       res,
@@ -90,8 +96,45 @@ controller.create = async (req, res, next) => {
   } catch (err) {
     // Abort transaksi jika terjadi kesalahan
     await session.abortTransaction();
-    session.endSession();
     next(err); // Mengirimkan kesalahan ke middleware error handling
+  } finally {
+    await session.endSession();
+  }
+};
+
+controller.findById = async (req, res, next) => {
+  /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+  /*
+    #swagger.tags = ['PROJECT SHOW CASE']
+    #swagger.summary = 'project show case'
+    #swagger.description = 'untuk referensi group'
+  */
+  try {
+    const _id = req.params.id;
+
+    // cek project berdaasarkan id
+    const result = await SysProjectSchema.findOne({ _id })
+      .populate("categories")
+      .populate("images")
+      .populate("stacks")
+      .populate("status_id")
+      .select("-createdAt -updated")
+      .lean();
+    if (!result) {
+      throw new NotFoundError(`Data with id: ${_id} not found!`);
+    }
+
+    responseAPI.MethodResponse({
+      res,
+      method: methodConstant.POST,
+      data: result,
+    });
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -123,28 +166,39 @@ controller.update = async (req, res, next) => {
       throw new NotFoundError(`Data with id: ${_id} not found!`);
     }
 
-    // jika datanya ada, lakukan update
-    await SysProjectSchema.findOneAndUpdate(
-      { _id },
-      { ...payload },
-      { new: true, session },
-    );
-
-    // update activenya menjadi false
-    await sys_uploadfile.updateMany({ reff_id: _id }, { is_active: false });
-
-    // lalu perbarui gambar yang dipakai
-    for (const img of payload.images) {
-      await sys_uploadfile.findOneAndUpdate(
-        { _id: img._id },
-        { is_cover: img.is_cover, reff_id: savedData._id, is_active: true },
-        { session },
-      );
+    // get _id images upload for bulk update
+    const _tempImages = [];
+    if (payload?.images) {
+      for (let imgItem of payload?.images) {
+        _tempImages.push(imgItem._id);
+      }
     }
+
+    await Promise.all([
+      // jika datanya ada, lakukan update
+      await SysProjectSchema.findOneAndUpdate(
+        { _id },
+        { ...payload },
+        { new: true, session },
+      ),
+
+      // setl all image to unlink
+      await sys_uploadfile.updateMany(
+        { _id: { $in: isExist.images } },
+        { is_active: false, is_cover: false },
+        { session },
+      ),
+
+      // lalu perbarui gambar yang dipakai
+      await sys_uploadfile.updateMany(
+        { _id: { $in: _tempImages } },
+        { is_active: true, is_cover: false },
+        { session },
+      ),
+    ]);
 
     // akhiri transaction dan session
     await session.commitTransaction();
-    session.endSession();
     responseAPI.MethodResponse({
       res,
       method: methodConstant.POST,
@@ -152,8 +206,9 @@ controller.update = async (req, res, next) => {
     });
   } catch (err) {
     await session.abortTransaction();
-    session.endSession();
     next(err);
+  } finally {
+    session.endSession();
   }
 };
 
@@ -179,15 +234,20 @@ controller.delete = async (req, res, next) => {
       throw new NotFoundError(`Data with id: ${_id} not found!`);
     }
 
-    // hapus data projectnya
-    await SysProjectSchema.findOneAndDelete({ _id }, { new: true, session });
+    await Promise.all([
+      // hapus data projectnya
+      await SysProjectSchema.findOneAndDelete({ _id }, { new: true, session }),
 
-    // lalu hapus juga data filesnya
-    await sys_uploadfile.updateMany({ reff_id: _id }, { is_active: false });
+      // lalu hapus juga data filesnya
+      await sys_uploadfile.updateMany(
+        { _id: { $in: isExist.images } },
+        { is_active: false },
+        { session },
+      ),
+    ]);
 
     // akhiri transaction dan session nya
     await session.commitTransaction();
-    session.endSession();
     responseAPI.MethodResponse({
       res,
       method: methodConstant.DELETE,
@@ -195,8 +255,9 @@ controller.delete = async (req, res, next) => {
     });
   } catch (err) {
     await session.abortTransaction();
-    session.endSession();
     next(err);
+  } finally {
+    await session.endSession();
   }
 };
 

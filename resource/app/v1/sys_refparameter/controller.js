@@ -1,8 +1,11 @@
 const SysRefparamSchema = require("../../models/sys_refparam");
+const SysUploadFileSchema = require("../../models/sys_uploadfile");
 const responseAPI = require("../../../utils/response");
 const { methodConstant } = require("../../../utils/constanta");
 const BadRequest = require("../../../utils/errors/bad-request");
 const { NotFoundError } = require("../../../utils/errors");
+const { default: mongoose } = require("mongoose");
+const sys_uploadfile = require("../../models/sys_uploadfile");
 
 const controller = {};
 
@@ -133,6 +136,7 @@ controller.indexWebResponse = async (req, res, next) => {
     const [totalData, dReffParam, dAliasReffParam] = await Promise.all([
       await SysRefparamSchema.find().countDocuments().lean(),
       await SysRefparamSchema.find(query)
+        .populate("icon")
         .skip(skip)
         .limit(limit)
         .select("-createdAt -updatedAt")
@@ -175,7 +179,10 @@ controller.findByInd = async (req, res, next) => {
   try {
     const _id = req.params.id;
 
-    const data = await SysRefparamSchema.findOne({ _id });
+    const data = await SysRefparamSchema.findOne({ _id })
+      .populate("icon")
+      .select("-createdAt -updatedAt")
+      .lean();
     if (!data) {
       throw new NotFoundError(`Data with id: ${_id} not found!`);
     }
@@ -245,6 +252,8 @@ controller.create = async (req, res, next) => {
       schema: { $ref: '#/definitions/BodyRefParameterSchema' }
     }
   */
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const payload = req.body;
 
@@ -256,14 +265,31 @@ controller.create = async (req, res, next) => {
       throw new BadRequest(`Data with '${payload.value}' has available!`);
     }
 
-    await SysRefparamSchema.create(payload);
+    // create new data
+    await SysRefparamSchema.create([payload], { session });
+
+    console.log(payload);
+
+    // update data image
+    if (![null, undefined].includes(payload?.icon)) {
+      await SysUploadFileSchema.findOneAndUpdate(
+        { _id: payload.icon },
+        { is_active: true, is_cover: true },
+        { session },
+      );
+    }
+
+    session.commitTransaction();
     responseAPI.MethodResponse({
       res,
       method: methodConstant.POST,
       data: payload,
     });
   } catch (err) {
+    session.abortTransaction();
     next(err);
+  } finally {
+    session.endSession();
   }
 };
 
@@ -283,24 +309,48 @@ controller.update = async (req, res, next) => {
       schema: { $ref: '#/definitions/BodyRefParameterSchema' }
     }
   */
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const payload = req.body;
     const _id = req.params.id;
 
     payload.type = payload.type.toLowerCase().replace(" ", "_");
-    payload.value = payload.value.toLowerCase();
-    const data = await SysRefparamSchema.findOneAndUpdate({ _id }, payload);
-    if (!data) {
+    const dExist = await SysRefparamSchema.findOne({ _id });
+
+    if (dExist?.icon) {
+      await sys_uploadfile.findOneAndUpdate(
+        { _id: dExist.icon },
+        { is_active: false, is_cover: false },
+        { session },
+      );
+    }
+    if (!dExist) {
       throw new NotFoundError(`Data with id: ${_id} not found!`);
     }
 
+    const result = await SysRefparamSchema.findOneAndUpdate({ _id }, payload, {
+      session,
+    });
+
+    if (result.icon) {
+      await sys_uploadfile.findOneAndUpdate(
+        { _id: result.icon },
+        { is_active: true, is_cover: true },
+        { session },
+      );
+    }
+    session.commitTransaction();
     responseAPI.MethodResponse({
       res,
       method: methodConstant.PUT,
-      data,
+      data: null,
     });
   } catch (err) {
+    // session.abortTransaction();
     next(err);
+  } finally {
+    // session.endSession();
   }
 };
 

@@ -1,13 +1,14 @@
 const mongoose = require("mongoose");
 const { model, Schema } = mongoose;
+
 const SysUploadFileSchema = require("./sys_uploadfile.js");
 
-const SysProjectSchema = Schema(
+const SysProjectSchema = new Schema(
   {
     user_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_user",
-      // required: true,
+      // required: true, // Uncomment if user_id is mandatory
     },
     project_name: {
       type: String,
@@ -31,7 +32,10 @@ const SysProjectSchema = Schema(
       type: String,
       required: true,
     },
-    features: { type: [String], required: true },
+    features: {
+      type: [String],
+      required: true,
+    },
     status_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "sys_refparameter",
@@ -41,6 +45,22 @@ const SysProjectSchema = Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "sys_refparameter",
+      },
+    ],
+    contributes: [
+      {
+        contribute_name: {
+          type: String,
+          required: true,
+        },
+        github_link: {
+          type: String,
+          default: "",
+        },
+        linked_link: {
+          type: String,
+          default: "",
+        },
       },
     ],
     stacks: [

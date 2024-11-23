@@ -309,6 +309,31 @@
       }
     },
     "/api/v1/show-case/{id}": {
+      "get": {
+        "tags": [
+          "PROJECT SHOW CASE"
+        ],
+        "summary": "project show case",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
       "put": {
         "tags": [
           "PROJECT SHOW CASE"
