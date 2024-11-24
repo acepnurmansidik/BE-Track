@@ -12,23 +12,20 @@ const SysTrxEducationSchema = Schema(
       ref: "sys_auth_user",
       required: true,
     },
-    major_id: {
-      type: mongoose.Types.ObjectId,
-      ref: "sys_refparameter",
-      required: true,
-    },
-    degree_id: {
-      type: mongoose.Types.ObjectId,
-      ref: "sys_refparameter",
+    degree_name: {
+      type: String,
       default: null,
+      minlength: [2, "The school name must be at least 2 characters"],
+      required: true,
     },
     school_name: {
       type: String,
-      minlength: [3, "Panjang nama sekolah minimal 3 karakter"],
+      minlength: [5, "The school name must be at least 5 characters"],
       required: true,
     },
     start_date: {
       type: Date,
+      required: true,
     },
     end_date: {
       type: Date,

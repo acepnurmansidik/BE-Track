@@ -278,7 +278,7 @@ controller.create = async (req, res, next) => {
       );
     }
 
-    session.commitTransaction();
+    await session.commitTransaction();
     responseAPI.MethodResponse({
       res,
       method: methodConstant.POST,
@@ -340,7 +340,7 @@ controller.update = async (req, res, next) => {
         { session },
       );
     }
-    session.commitTransaction();
+    await session.commitTransaction();
     responseAPI.MethodResponse({
       res,
       method: methodConstant.PUT,

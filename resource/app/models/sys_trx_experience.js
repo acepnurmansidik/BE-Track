@@ -24,17 +24,14 @@ const SysTrxExperienceSchema = Schema(
         _id: {
           type: mongoose.Types.ObjectId,
           ref: "sys_refparameter",
-          required: true,
         },
-        name: {
+        value: {
           type: String,
           minlength: [3, "Nama 3 karakter"],
-          required: [true, "Nama wajib diisi!"],
         },
         icon: {
           type: String,
           minlength: [3, "Nama 3 karakter"],
-          required: [true, "Nama wajib diisi!"],
         },
       },
     ],

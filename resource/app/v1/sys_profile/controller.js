@@ -27,6 +27,7 @@ controller.updateResume = async (req, res, next) => {
   session.startTransaction();
   try {
     const payload = req.body;
+    console.log(payload);
     const data = await SysUserSchema.findOneAndUpdate(
       {
         auth_id: req.login._id,
@@ -48,8 +49,7 @@ controller.updateResume = async (req, res, next) => {
       await SysTrxExperienceSchema.insertMany(payload.experiences, { session }),
     ]);
 
-    session.commitTransaction();
-
+    await session.commitTransaction();
     responseAPI.MethodResponse({
       res,
       method: methodConstant.POST,
