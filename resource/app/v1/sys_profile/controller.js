@@ -27,7 +27,6 @@ controller.updateResume = async (req, res, next) => {
   session.startTransaction();
   try {
     const payload = req.body;
-    console.log(payload);
     const data = await SysUserSchema.findOneAndUpdate(
       {
         auth_id: req.login._id,
@@ -75,16 +74,28 @@ controller.fetchResume = async (req, res, next) => {
     #swagger.description = 'untuk referensi group'
   */
   try {
+    // Get data user by login
     const profile = await SysUserSchema.findOne({
       auth_id: req.login._id,
-    }).select("-createdAt -updatedAt");
+    })
+      .select("-createdAt -updatedAt")
+      .populate([
+        {
+          path: "skills",
+          select: "-createdAt -updatedAt",
+        },
+      ]);
     const [experiences, educations] = await Promise.all([
-      await SysTrxExperienceSchema.findOne({ user_id: profile._id }).select(
-        "-createdAt -updatedAt",
-      ),
-      await SysTrxEducationSchema.findOne({ user_id: profile._id }).select(
-        "-createdAt -updatedAt",
-      ),
+      // Get data experiences
+      await SysTrxExperienceSchema.find({ user_id: profile._id })
+        .select("-createdAt -updatedAt -user_id")
+        .populate({ path: "stacks", select: "-createdAt -updatedAt" })
+        .sort({ key: 1 }),
+
+      // Get data education
+      await SysTrxEducationSchema.find({ user_id: profile._id })
+        .select("-createdAt -updatedAt -user_id")
+        .sort({ key: 1 }),
     ]);
 
     const dataResponse = {

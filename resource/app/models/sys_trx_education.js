@@ -10,25 +10,26 @@ const SysTrxEducationSchema = Schema(
     user_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_auth_user",
-      required: true,
+      required: [true, "Invalid credentials"],
     },
     degree_name: {
       type: String,
       default: null,
       minlength: [2, "The school name must be at least 2 characters"],
-      required: true,
+      required: [true, "Degree can't empty!"],
     },
     school_name: {
       type: String,
       minlength: [5, "The school name must be at least 5 characters"],
-      required: true,
+      required: [true, "School name can't empty!"],
     },
     start_date: {
-      type: Date,
-      required: true,
+      type: String,
+      required: [true, "Start date enter school can't empty!"],
     },
     end_date: {
-      type: Date,
+      type: String,
+      required: [true, "End date enter school can't empty!"],
     },
   },
   { timestamps: true, versionKey: false, new: true },

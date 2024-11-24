@@ -21,9 +21,18 @@ const SysUserSchema = Schema(
       type: mongoose.Types.ObjectId,
       ref: "sys_refparameter",
     },
+    skills: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "sys_refparameter",
+      },
+    ],
     name: {
       type: String,
       required: [true, "Name can't be empty"],
+    },
+    personal_desc: {
+      type: String,
     },
     device_token: {
       type: String,
@@ -38,7 +47,7 @@ const SysUserSchema = Schema(
       default: "",
     },
     birth_date: {
-      type: Date,
+      type: String,
     },
     description: {
       type: String,

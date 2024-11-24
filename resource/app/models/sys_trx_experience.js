@@ -10,53 +10,40 @@ const SysTrxExperienceSchema = Schema(
     user_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_auth_user",
-      required: true,
-      unique: true,
+      required: [true, "Invalid credentials"],
     },
-    role_id: {
-      type: mongoose.Types.ObjectId,
-      ref: "sys_refparameter",
-      required: true,
-      unique: true,
+    role_name: {
+      type: String,
+      minlength: [3, "Role name must be at least 3 character"],
+      required: [true, "Role name can't be empty!"],
     },
     stacks: [
       {
-        _id: {
-          type: mongoose.Types.ObjectId,
-          ref: "sys_refparameter",
-        },
-        value: {
-          type: String,
-          minlength: [3, "Nama 3 karakter"],
-        },
-        icon: {
-          type: String,
-          minlength: [3, "Nama 3 karakter"],
-        },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "sys_refparameter",
       },
     ],
     product_name: {
       type: String,
-      minlength: [3, "Nama product 3 karakter"],
-      required: [true, "Nama sekolah wajib diisi!"],
+      minlength: [3, "Prudct name must be at least 3 character"],
+      required: [true, "Product name can't be empty!"],
     },
-    achievment_list: {
-      type: String,
-      minlength: [3, "Nama product 3 karakter"],
-      required: [true, "Nama sekolah wajib diisi!"],
+    achievments: {
+      type: [String],
+      required: true,
     },
     company_name: {
       type: String,
-      minlength: [3, "Nama perusahaan minimal 3 karakter"],
-      required: [true, "Nama sekolah wajib diisi!"],
+      minlength: [3, "Company name must be at least 3 character"],
+      required: [true, "Company name can't be empty!"],
     },
     start_date: {
-      type: Date,
-      required: [true, "Tanggal masuk wajib diisi!"],
+      type: String,
+      required: [true, "Start date join company can't be empty!"],
     },
     end_date: {
-      type: Date,
-      required: [true, "Tanggal kelulusan wajib diisi!"],
+      type: String,
+      required: [true, "End date join company can't be empty!"],
     },
   },
   { timestamps: true, versionKey: false, new: true },
