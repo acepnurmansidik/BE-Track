@@ -27,6 +27,11 @@ const SysFinancialLedgerSchema = Schema(
       type: Number,
       required: [true, "Nominal can't be empty"],
     },
+    qty: {
+      type: Number,
+      default: 1,
+      required: [true, "Quantity can't be empty"],
+    },
     isIncome: {
       type: Boolean,
       required: [true, "Income type can't be empty"],

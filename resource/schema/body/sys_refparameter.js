@@ -1,5 +1,6 @@
 const RefParameterSchema = {
   BodyRefParameterSchema: {
+    is_subtract: false,
     value: "income",
     type: "cashflow_type",
     description: "pemasukan anda",

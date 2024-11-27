@@ -1,17 +1,19 @@
 const SysFinancialLedgerSchema = require("../../models/sys_financial_ledger");
 const SysRefparamSchema = require("../../models/sys_refparam");
+const SysBillRunningSchema = require("../../models/sys_bill_running");
 const SysUserSchema = require("../../models/sys_users");
 const AuthSchema = require("../../models/auth");
 const responseAPI = require("../../../utils/response");
-const { methodConstant } = require("../../../utils/constanta");
-const { BadRequestError } = require("../../../utils/errors");
+const { methodConstant, monthName } = require("../../../utils/constanta");
+const { BadRequestError, NotFoundError } = require("../../../utils/errors");
 const { DateTime } = require("luxon");
 const admin = require("firebase-admin");
 const serviceAccount = require("../../../../serviceAccountKey.json");
+const { default: mongoose } = require("mongoose");
 
 const controller = {};
 
-controller.index = async (req, res, next) => {
+controller.indexWithMonthlyGroup = async (req, res, next) => {
   try {
     /*
     #swagger.security = [{
@@ -53,9 +55,7 @@ controller.index = async (req, res, next) => {
             as: "typeDetails",
           },
         },
-        {
-          $unwind: "$typeDetails",
-        },
+        { $unwind: "$typeDetails" },
         {
           $lookup: {
             from: "sys_refparameters",
@@ -64,9 +64,7 @@ controller.index = async (req, res, next) => {
             as: "categoryDetails",
           },
         },
-        {
-          $unwind: "$categoryDetails",
-        },
+        { $unwind: "$categoryDetails" },
         {
           $lookup: {
             from: "sys_refparameters",
@@ -75,13 +73,11 @@ controller.index = async (req, res, next) => {
             as: "kursDetails",
           },
         },
-        {
-          $unwind: "$kursDetails",
-        },
+        { $unwind: "$kursDetails" },
         {
           $group: {
             _id: {
-              $dateToString: { format: "%B %Y", date: "$createdAt" },
+              $dateToString: { format: "%Y-%m", date: "$createdAt" }, // Ganti format
             },
             total_monthly: { $sum: "$total_amount" },
             items: {
@@ -94,7 +90,7 @@ controller.index = async (req, res, next) => {
                 is_income: "$isIncome",
                 datetime: {
                   $dateToString: {
-                    format: "%d %B %Y | %H:%M",
+                    format: "%Y-%m-%d %H:%M", // Ganti format
                     timezone: "Asia/Jakarta",
                     date: "$createdAt",
                   },
@@ -138,8 +134,7 @@ controller.index = async (req, res, next) => {
         },
         {
           $sort: {
-            createdAt: 1,
-            _id: 1,
+            _id: 1, // Mengurutkan berdasarkan bulan dan tahun
           },
         },
       ]),
@@ -157,8 +152,8 @@ controller.index = async (req, res, next) => {
         {
           $match: {
             createdAt: {
-              $gte: DateTime.utc().startOf("month"),
-              $lte: DateTime.utc().endOf("month"),
+              $gte: DateTime.utc().startOf("month").toJSDate(), // Mengonversi ke JS Date
+              $lte: DateTime.utc().endOf("month").toJSDate(), // Mengonversi ke JS Date
             },
           },
         },
@@ -183,6 +178,351 @@ controller.index = async (req, res, next) => {
       res,
       method: methodConstant.GET,
       data: dataResponse,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+controller.personalDashboard = async (req, res, next) => {
+  try {
+    /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+    /*
+    #swagger.tags = ['FINANCE']
+    #swagger.summary = 'ref parameter'
+    #swagger.description = 'untuk referensi group'
+    #swagger.parameters['isIncome'] = { default: '', description: 'Search by type', type: 'boolean' }
+  */
+    const query = req.query;
+
+    if (query.from != "undefined" && query.to != "undefined") {
+      query.createdAt = {
+        $gte: DateTime.fromJSDate(new Date(query.from), {
+          zone: "Asia/Jakarta",
+        })
+          .setZone("UTC")
+          .toISO("UTC"),
+        $lte: DateTime.fromJSDate(new Date(query.to), { zone: "Asia/Jakarta" })
+          .set({ hour: 23, minute: 59, second: 59, millisecond: 59 })
+          .setZone("UTC")
+          .toISO("UTC"),
+      };
+    }
+
+    delete query.from;
+    delete query.to;
+
+    if (["undefined", "null"].includes(query.isIncome)) delete query.isIncome;
+
+    const [
+      list_transaction,
+      bar_chart_transaction,
+      grand_total,
+      dReffZakat,
+      dReffSubtractZakat,
+      dReffIncome,
+      dReffGoldSilver,
+    ] = await Promise.all([
+      // query list_transaction
+      SysFinancialLedgerSchema.find({
+        ...query,
+        user_id: req.login.user_id,
+      })
+        .populate([
+          {
+            path: "category_id",
+            select: "_id value icon",
+          },
+          {
+            path: "kurs_id",
+            select: "_id value icon",
+          },
+          {
+            path: "type_id",
+            select: "_id value icon",
+            match: { value: "outcome" }, // Pastikan bahwa value 'outcome' ada dalam dokumen
+          },
+        ])
+        .select("-updatedAt")
+        .lean(),
+
+      // query bar_chart_transaction
+      SysFinancialLedgerSchema.aggregate([
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: "%m %Y", date: "$createdAt" }, // Ganti format
+            },
+            income: {
+              $sum: {
+                $cond: [{ $eq: ["$isIncome", true] }, "$total_amount", 0],
+              },
+            },
+            outcome: {
+              $sum: {
+                $cond: [{ $eq: ["$isIncome", false] }, "$total_amount", 0],
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            month: "$_id",
+            income: 1,
+            outcome: 1,
+          },
+        },
+      ]),
+
+      // query grand_total
+      SysFinancialLedgerSchema.aggregate([
+        {
+          $group: {
+            _id: null,
+            total_income: {
+              $sum: {
+                $cond: [{ $eq: ["$isIncome", true] }, "$total_amount", 0],
+              },
+            },
+            total_outcome: {
+              $sum: {
+                $cond: [{ $eq: ["$isIncome", false] }, "$total_amount", 0],
+              },
+            },
+          },
+        },
+      ]),
+
+      // query find reffparam zakat
+      SysRefparamSchema.findOne({
+        value: { $regex: "zakat", $options: "i" },
+      })
+        .select("_id")
+        .lean(),
+
+      // query find data yang dapat mengurangi zakat
+      SysRefparamSchema.find({
+        is_subtract: true,
+      })
+        .select("_id")
+        .lean(),
+
+      // query income
+      SysRefparamSchema.findOne({
+        value: { $regex: "income", $options: "i" },
+      })
+        .select("_id")
+        .lean(),
+
+      // query get data emas dan perak
+      SysRefparamSchema.findOne({
+        is_subtract: true,
+        slug: { $regex: "emas-perak", $options: "i" },
+      }),
+    ]);
+
+    // BAR * CHART * SECTION ################################################################################
+    // modifikasi result dari DB mnejadi nama bulan dan tahun/MMMM YYYY
+    bar_chart_transaction.map((everyItem) => {
+      everyItem.month = `${
+        monthName[Number(everyItem.month.split(" ")[0]) - 1]
+      } ${everyItem.month.split(" ")[1]}`;
+    });
+
+    // ZAKAT * SECTION ######################################################################################
+    const _dZakatIncome = [];
+    const _dZakatGoldSilver = [];
+
+    const dateNow = DateTime.now();
+
+    // PENGHASILAN ==========================================================================================
+    // get data setup zakat pertahunnya dari penghasilan
+    const dSetZakatPenghasilan = await SysBillRunningSchema.find({
+      category_id: dReffZakat._id,
+    })
+      .sort({ due_date: 1 })
+      .lean();
+    const _tempdReffSubtractZakat = dReffSubtractZakat.map((item) => item._id);
+
+    // lakukan looping untuk melakukan perhitungan zakat berapa zakat pertahunnya
+    for (let index = 0; index < dSetZakatPenghasilan.length; index++) {
+      // set tanggal awal
+      const tanggalAwal = DateTime.fromISO(
+        new Date(dSetZakatPenghasilan[index].due_date).toISOString(),
+        {
+          zone: "Asia/Jakarta",
+        },
+      );
+
+      // set tanggal akhir
+      let tanggalAkhir;
+      if (index === dSetZakatPenghasilan.length - 1) {
+        tanggalAkhir = tanggalAwal.plus({ year: 1 });
+      } else {
+        tanggalAkhir = DateTime.fromISO(
+          new Date(dSetZakatPenghasilan[index + 1].due_date).toISOString(),
+          {
+            zone: "Asia/Jakarta",
+          },
+        );
+      }
+
+      // # cari data di finance berdasarkan filter tanggal
+      // cari data penghasilan dan pnegurang dari data di finance yang dipakia untuk zakat
+      let [dPenghasilan, dPengurang, dEmasPerak] = await Promise.all([
+        // get data penghasilan zakat pertahun
+        SysFinancialLedgerSchema.aggregate([
+          {
+            $match: {
+              createdAt: {
+                $gte: tanggalAwal.toJSDate(),
+                $lte: tanggalAkhir.toJSDate(),
+              },
+              type_id: dReffIncome._id,
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              total_amount: { $sum: "$total_amount" },
+            },
+          },
+        ]),
+
+        // get data pengurang zakat pertahun
+        SysFinancialLedgerSchema.aggregate([
+          {
+            $match: {
+              createdAt: {
+                $gte: tanggalAwal.toJSDate(),
+                $lte: tanggalAkhir.toJSDate(),
+              },
+              category_id: {
+                $in: _tempdReffSubtractZakat,
+              },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              total_amount: { $sum: "$total_amount" },
+            },
+          },
+          {
+            $project: {
+              total_amount: { $ifNull: ["$total_amount", 0] }, // Jika total_amount null, set ke 0
+            },
+          },
+        ]),
+
+        // get data pengurang zakat pertahun berupda emas dan perak
+        SysFinancialLedgerSchema.aggregate([
+          {
+            $match: {
+              createdAt: {
+                $gte: tanggalAwal.toJSDate(),
+                $lte: tanggalAkhir.toJSDate(),
+              },
+              category_id: dReffGoldSilver._id,
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              total_amount: { $sum: "$total_amount" },
+              total_qty: { $sum: "$qty" },
+            },
+          },
+          {
+            $project: {
+              total_amount: { $ifNull: ["$total_amount", 0] }, // Jika total_amount null, set ke 0
+            },
+          },
+        ]),
+      ]);
+
+      if (!dPenghasilan.length) dPenghasilan.push({ total_amount: 0 });
+      if (!dPengurang.length) dPengurang.push({ total_amount: 0 });
+      if (!dEmasPerak.length) dEmasPerak.push({ total_amount: 0 });
+
+      // lalu hitung zakatnya (2.4% dari penghasilan dikurangi pengurang)
+      const otherSubtract = dEmasPerak[0].total_amount;
+      const totalZakat =
+        2.5 *
+        (dPenghasilan[0].total_amount -
+          (dPengurang[0].total_amount - otherSubtract));
+
+      // kemudian data zakat penghasilannya di masukan ke dalam array
+      _dZakatIncome.push({
+        total_zakat: totalZakat,
+        year: tanggalAwal.toFormat("LLL yyyy"),
+      });
+    }
+
+    // EMAS DAN PERAK ==========================================================================================
+    const [dZakatEmasPerak, totalEmasPerak] = await Promise.all([
+      // get data transaksi berupa emas dan perak yang dimana lebih dari satu tahun
+      SysFinancialLedgerSchema.aggregate([
+        {
+          $match: {
+            category_id: dReffGoldSilver._id,
+            createdAt: {
+              $lte: dateNow.minus({ year: 1 }).toJSDate(),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total_amount: { $sum: "$total_amount" },
+            total_qty: { $sum: "$qty" },
+          },
+        },
+      ]),
+
+      // get data transaksi total emas dan perak secara keseluran
+      SysFinancialLedgerSchema.aggregate([
+        {
+          $match: {
+            category_id: dReffGoldSilver._id,
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total_amount: { $sum: "$total_amount" },
+            total_qty: { $sum: "$qty" },
+          },
+        },
+      ]),
+    ]);
+
+    const nominalZakatGoldSilver =
+      dZakatEmasPerak.total_qty >= 85 ? dZakatEmasPerak.total_amount : 0;
+
+    responseAPI.MethodResponse({
+      res,
+      method: methodConstant.GET,
+      data: {
+        list_transaction,
+        bar_chart_transaction,
+        zakat: {
+          income: _dZakatIncome,
+          gold_silver: {
+            nominal: nominalZakatGoldSilver,
+            qty: dZakatEmasPerak.total_qty,
+          },
+        },
+        invest_gold_silver: {
+          total_amount: dZakatEmasPerak.total_amount,
+          total_qty: dZakatEmasPerak.total_qty,
+        },
+      },
     });
   } catch (err) {
     next(err);
@@ -309,6 +649,219 @@ controller.delete = async (req, res, next) => {
     });
   } catch (err) {
     next();
+  }
+};
+
+// =====================================================================================
+// BILL RUNNING =========================================================================
+controller.indexBillRunning = async (req, res, next) => {
+  try {
+    /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+    /*
+    #swagger.tags = ['TAGIHAN/BILL']
+    #swagger.summary = 'ref parameter'
+    #swagger.description = 'untuk referensi group'
+  */
+    const query = req.query;
+
+    /**
+     * Penjelasan
+      1. Model Mongoose:
+
+      exampleSchema: Skema yang memiliki field name dan createdAt. Field createdAt diatur dengan default Date.now.
+      2. Agregasi MongoDB:
+
+      $group: Mengelompokkan dokumen berdasarkan hasil dari $dateToString.
+      $dateToString: Mengonversi tanggal createdAt ke format "MMMM yyyy".
+      count: { $sum: 1 }: Menghitung jumlah dokumen dalam setiap grup.
+      $sort: Mengurutkan hasil berdasarkan _id yang berisi bulan dan tahun.
+     */
+
+    const result = await SysBillRunningSchema.find().populate([
+      {
+        path: "category_id",
+        select: "_id value type",
+      },
+      {
+        path: "type_id",
+        select: "_id value type",
+      },
+    ]);
+
+    responseAPI.MethodResponse({
+      res,
+      method: methodConstant.GET,
+      data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+controller.createBillRunning = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+    /*
+    #swagger.tags = ['TAGIHAN/BILL']
+    #swagger.summary = 'ref parameter'
+    #swagger.description = 'untuk referensi group'
+    #swagger.parameters['obj'] = {
+      in: 'body',
+      description: 'Create role',
+      schema: { $ref: '#/definitions/BodyBillRunningSchema' }
+    }
+  */
+    const payload = req.body;
+
+    // check reffparameter
+    const [categoryExist, TypeExist] = await Promise.all([
+      SysRefparamSchema.findOne({ _id: payload.category_id }),
+      SysRefparamSchema.findOne({ _id: payload.type_id }),
+    ]);
+
+    if (!categoryExist)
+      throw new NotFoundError(
+        `Refference category with id : ${payload.category_id} not found!`,
+      );
+    if (!TypeExist)
+      throw new NotFoundError(
+        `Refference type with id : ${payload.category_id} not found!`,
+      );
+
+    const setDate = DateTime.fromISO(payload.due_date);
+    const toNDate = DateTime.fromISO(payload.date_reminder);
+
+    // cek jika salah pengingat waktu nye melebihi tanggal yang di tentukan
+    if (toNDate > setDate)
+      throw new BadRequestError("Reminder must be less than set date!");
+
+    // insert to database
+    await SysBillRunningSchema.create([payload], { session });
+
+    await session.commitTransaction();
+    // send response
+    responseAPI.MethodResponse({
+      res,
+      method: methodConstant.POST,
+      data: null,
+    });
+  } catch (err) {
+    await session.abortTransaction();
+    next(err);
+  } finally {
+    await session.endSession();
+  }
+};
+
+controller.putBillRunning = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+    /*
+    #swagger.tags = ['TAGIHAN/BILL']
+    #swagger.summary = 'ref parameter'
+    #swagger.description = 'untuk referensi group'
+    #swagger.parameters['obj'] = {
+      in: 'body',
+      description: 'Create role',
+      schema: { $ref: '#/definitions/BodyBillRunningSchema' }
+    }
+  */
+    const payload = req.body;
+    const _id = req.params.id;
+
+    // check reffparameter
+    const [billExis, categoryExist, TypeExist] = await Promise.all([
+      SysBillRunningSchema.findOne({ _id }),
+      SysRefparamSchema.findOne({ _id: payload.category_id }),
+      SysRefparamSchema.findOne({ _id: payload.type_id }),
+    ]);
+
+    // send response not found when data not available in database
+    if (!billExis) throw new NotFoundError(`Data with id : ${_id} not found!`);
+
+    // send response not found when data not available in database
+    if (!categoryExist)
+      throw new NotFoundError(
+        `Refference category with id : ${payload.category_id} not found!`,
+      );
+
+    // send response not found when data not available in database
+    if (!TypeExist)
+      throw new NotFoundError(
+        `Refference type with id : ${payload.category_id} not found!`,
+      );
+
+    // insert to database
+    await SysBillRunningSchema.findOneAndUpdate({ _id }, payload, { session });
+
+    await session.commitTransaction();
+    // send response
+    responseAPI.MethodResponse({
+      res,
+      method: methodConstant.POST,
+      data: null,
+    });
+  } catch (err) {
+    await session.abortTransaction();
+    next(err);
+  } finally {
+    await session.endSession();
+  }
+};
+
+controller.deleteBillRunning = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+    /*
+    #swagger.tags = ['TAGIHAN/BILL']
+    #swagger.summary = 'ref parameter'
+    #swagger.description = 'untuk referensi group'
+  */
+    const _id = req.params.id;
+
+    // check reffparameter
+    const billExis = await SysBillRunningSchema.findOne({ _id });
+
+    // send response not found when data not available in database
+    if (!billExis) throw new NotFoundError(`Data with id : ${_id} not found!`);
+
+    // insert to database
+    await SysBillRunningSchema.findOneAndDelete({ _id }, { session });
+
+    await session.commitTransaction();
+    // send response
+    responseAPI.MethodResponse({
+      res,
+      method: methodConstant.POST,
+      data: null,
+    });
+  } catch (err) {
+    await session.abortTransaction();
+    next(err);
+  } finally {
+    await session.endSession();
   }
 };
 

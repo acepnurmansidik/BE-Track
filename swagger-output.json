@@ -677,6 +677,54 @@
         ]
       }
     },
+    "/api/v1/trx/dashboard/personal": {
+      "get": {
+        "tags": [
+          "FINANCE"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "isIncome",
+            "default": "",
+            "description": "Search by type",
+            "type": "boolean",
+            "in": "query"
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "createdAt",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/trx/{id}": {
       "put": {
         "tags": [
@@ -732,6 +780,152 @@
           {
             "name": "authorization",
             "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/trx/bill": {
+      "get": {
+        "tags": [
+          "TAGIHAN/BILL"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "TAGIHAN/BILL"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create role",
+            "schema": {
+              "$ref": "#/definitions/BodyBillRunningSchema"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/trx/bill/{id}": {
+      "put": {
+        "tags": [
+          "TAGIHAN/BILL"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create role",
+            "schema": {
+              "$ref": "#/definitions/BodyBillRunningSchema"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "TAGIHAN/BILL"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create role",
+            "schema": {
+              "$ref": "#/definitions/BodyBillRunningSchema"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
             "type": "string"
           }
         ],
@@ -1141,6 +1335,27 @@
         "is_cover": {
           "type": "boolean",
           "example": false
+        }
+      }
+    },
+    "BodyBillRunningSchema": {
+      "type": "object",
+      "properties": {
+        "category_id": {
+          "type": "string",
+          "example": "66912314e485b234f586e897"
+        },
+        "type_id": {
+          "type": "string",
+          "example": "669122f5e485b234f586e895"
+        },
+        "due_date": {
+          "type": "string",
+          "example": "2024-11-27T03:02:07.291Z"
+        },
+        "note": {
+          "type": "string",
+          "example": "naik KRL"
         }
       }
     },

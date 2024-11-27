@@ -21,6 +21,12 @@ const SysRefparamSchema = Schema(
       type: String,
       required: [true, "password harus diisi"],
     },
+    // field untuk mengurangi zakat
+    is_subtract: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
     description: {
       type: String,
       default: "",
@@ -28,6 +34,11 @@ const SysRefparamSchema = Schema(
     icon: {
       type: mongoose.Types.ObjectId,
       ref: "sys_uploadfile",
+      default: null,
+    },
+    parent_id: {
+      type: mongoose.Types.ObjectId,
+      ref: "sys_refparameter",
       default: null,
     },
   },

@@ -11,9 +11,16 @@ const router = require("express").Router();
  */
 // MOBILE ROUTE API ===========================================
 // WEB ROUTE API ==============================================
-router.get("/", controller.index);
+router.get("/", controller.indexWithMonthlyGroup);
+router.get("/dashboard/personal", controller.personalDashboard);
 router.post("/", controller.create);
 router.put("/:id", controller.update);
 router.delete("/:id", controller.delete);
+
+// BILLING ROUTE API ===========================================
+router.get("/bill", controller.indexBillRunning);
+router.post("/bill", controller.createBillRunning);
+router.put("/bill/:id", controller.putBillRunning);
+router.delete("/bill/:id", controller.deleteBillRunning);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const AuthUser = require("../app/models/auth");
+const SysUserSchema = require("../app/models/sys_users");
 const globalService = require("../helper/global-func");
 const { UnauthenticatedError } = require("../utils/errors");
 
@@ -25,12 +26,20 @@ const AuthorizeUserLogin = async (req, res, next) => {
     // send error not found, if data not register
     if (!verifyData) throw new NotFound("Data not register!");
 
+    const userLogin = await SysUserSchema.findOne({
+      auth_id: verifyData._id,
+    }).select("_id");
+
     // impliment login user
     delete dataValid.iat;
     delete dataValid.exp;
     delete dataValid.jti;
 
-    req.login = { ...verifyData._doc, _id: verifyData.id };
+    req.login = {
+      ...verifyData._doc,
+      _id: verifyData.id,
+      user_id: userLogin._id,
+    };
     // next to controller
     next();
   } catch (err) {

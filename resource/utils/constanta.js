@@ -5,4 +5,19 @@ const methodConstant = {
   DELETE: "DELETE",
 };
 
-module.exports = { methodConstant };
+const monthName = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+module.exports = { methodConstant, monthName };
