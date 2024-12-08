@@ -219,37 +219,16 @@ controller.personalDashboard = async (req, res, next) => {
     if (["undefined", "null"].includes(query.isIncome)) delete query.isIncome;
 
     const [
-      list_transaction,
       bar_chart_transaction,
-      grand_total,
+      [grand_total],
       dReffZakat,
       dReffSubtractZakat,
       dReffIncome,
       dReffGoldSilver,
+      dListIncome,
+      dListOutcome,
+      list_transactions,
     ] = await Promise.all([
-      // query list_transaction
-      SysFinancialLedgerSchema.find({
-        ...query,
-        user_id: req.login.user_id,
-      })
-        .populate([
-          {
-            path: "category_id",
-            select: "_id value icon",
-          },
-          {
-            path: "kurs_id",
-            select: "_id value icon",
-          },
-          {
-            path: "type_id",
-            select: "_id value icon",
-            match: { value: "outcome" }, // Pastikan bahwa value 'outcome' ada dalam dokumen
-          },
-        ])
-        .select("-updatedAt")
-        .lean(),
-
       // query bar_chart_transaction
       SysFinancialLedgerSchema.aggregate([
         {
@@ -324,6 +303,33 @@ controller.personalDashboard = async (req, res, next) => {
         is_subtract: true,
         slug: { $regex: "emas-perak", $options: "i" },
       }),
+
+      // list data income
+      SysFinancialLedgerSchema.find({
+        isIncome: true,
+      })
+        .select("total_amount createdAt")
+        .lean(),
+
+      // list data outcome
+      SysFinancialLedgerSchema.find({
+        isIncome: false,
+      })
+        .select("total_amount createdAt")
+        .lean(),
+
+      SysFinancialLedgerSchema.find()
+        .populate([
+          {
+            path: "category_id",
+            select: "_id value icon",
+          },
+          {
+            path: "type_id",
+            select: "_id value icon",
+          },
+        ])
+        .select("-updatedAt -isIncome -amount -kurs_amount"),
     ]);
 
     // BAR * CHART * SECTION ################################################################################
@@ -336,8 +342,6 @@ controller.personalDashboard = async (req, res, next) => {
 
     // ZAKAT * SECTION ######################################################################################
     const _dZakatIncome = [];
-    const _dZakatGoldSilver = [];
-
     const dateNow = DateTime.now();
 
     // PENGHASILAN ==========================================================================================
@@ -459,13 +463,15 @@ controller.personalDashboard = async (req, res, next) => {
 
       // kemudian data zakat penghasilannya di masukan ke dalam array
       _dZakatIncome.push({
-        total_zakat: totalZakat,
+        _id: dSetZakatPenghasilan[index]._id,
+        total_amount: totalZakat,
+        createdAt: dSetZakatPenghasilan[index].createdAt,
         year: tanggalAwal.toFormat("LLL yyyy"),
       });
     }
 
     // EMAS DAN PERAK ==========================================================================================
-    const [dZakatEmasPerak, totalEmasPerak] = await Promise.all([
+    const [[dZakatEmasPerak], [gradTotalEmasPerak]] = await Promise.all([
       // get data transaksi berupa emas dan perak yang dimana lebih dari satu tahun
       SysFinancialLedgerSchema.aggregate([
         {
@@ -505,22 +511,104 @@ controller.personalDashboard = async (req, res, next) => {
     const nominalZakatGoldSilver =
       dZakatEmasPerak.total_qty >= 85 ? dZakatEmasPerak.total_amount : 0;
 
+    // GET LIST DATA ==============================================
+    const [dListGoldSilver, dTotalIncomeOutcome] = await Promise.all([
+      // list data emas dan perak
+      SysFinancialLedgerSchema.find({
+        category_id: dReffGoldSilver._id,
+      })
+        .select("total_amount createdAt")
+        .lean(),
+
+      // get total data income dan outcome bulan ini
+      SysFinancialLedgerSchema.aggregate([
+        {
+          $match: {
+            createdAt: {
+              $gte: DateTime.now().startOf("month").toJSDate(),
+              $lte: DateTime.now().endOf("month").toJSDate(),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            income: {
+              $sum: {
+                $cond: [{ $eq: ["$isIncome", true] }, "$total_amount", 0],
+              },
+            },
+            outcome: {
+              $sum: {
+                $cond: [{ $eq: ["$isIncome", false] }, "$total_amount", 0],
+              },
+            },
+            gold_silver: {
+              $sum: {
+                $cond: [
+                  { $eq: ["$category_id", dReffGoldSilver._id] },
+                  "$total_amount",
+                  0,
+                ],
+              },
+            },
+          },
+        },
+      ]),
+    ]);
+
     responseAPI.MethodResponse({
       res,
       method: methodConstant.GET,
       data: {
-        list_transaction,
+        list_transactions,
         bar_chart_transaction,
-        zakat: {
-          income: _dZakatIncome,
-          gold_silver: {
-            nominal: nominalZakatGoldSilver,
-            qty: dZakatEmasPerak.total_qty,
-          },
+        total_gold_silver: {
+          total_month: dTotalIncomeOutcome.gold_silver,
+          grand_total: gradTotalEmasPerak.total_amount,
+          total_qty: gradTotalEmasPerak.total_qty - dZakatEmasPerak.total_qty,
+          grand_total_qty: gradTotalEmasPerak.total_qty,
+          total_left_amount: 0,
+          list_data: dListGoldSilver,
         },
-        invest_gold_silver: {
-          total_amount: dZakatEmasPerak.total_amount,
-          total_qty: dZakatEmasPerak.total_qty,
+        total_income: {
+          total_month: dTotalIncomeOutcome.income,
+          grand_total: grand_total.total_income,
+          total_qty: 0,
+          grand_total_qty: 0,
+          total_left_amount: 0,
+          list_data: dListIncome,
+        },
+        total_outcome: {
+          total_month: dTotalIncomeOutcome.outcome,
+          grand_total: grand_total.total_outcome,
+          total_qty: 0,
+          grand_total_qty: 0,
+          total_left_amount: 0,
+          list_data: dListOutcome,
+        },
+        total_zakat: {
+          penghasilan: {
+            total_month: _dZakatIncome[0].total_amount,
+            grand_total: _dZakatIncome[0].total_amount,
+            total_qty: 0,
+            grand_total_qty: 0,
+            total_left_amount: ![undefined, null].includes(
+              _dZakatIncome[1]?.total_zakat,
+            )
+              ? _dZakatIncome[1].total_zakat
+              : 0,
+            list_data: _dZakatIncome,
+          },
+          gold_silver: {
+            total_month: nominalZakatGoldSilver,
+            grand_total: gradTotalEmasPerak.total_amount,
+            grand_total: nominalZakatGoldSilver,
+            total_qty: gradTotalEmasPerak.total_qty - dZakatEmasPerak.total_qty,
+            grand_total_qty: dZakatEmasPerak.total_qty,
+            total_left_amount: 0,
+            list_data: dListGoldSilver,
+          },
         },
       },
     });
