@@ -1,5 +1,11 @@
 const dotENV = require("dotenv");
-dotENV.config();
+const env = process.env.NODE_ENV || "development"; // default ke 'development'
+
+if (env === "production") {
+  dotENV.config({ path: ".env.production" });
+} else {
+  dotENV.config({ path: ".env.development" });
+}
 
 const ENV = {
   urlDb: process.env.URL_MONGODB_DEV,
