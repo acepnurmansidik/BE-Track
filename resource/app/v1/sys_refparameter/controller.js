@@ -58,9 +58,15 @@ controller.indexMobileResponse = async (req, res, next) => {
         $match: query,
       },
       {
-        $sort: {
-          key: 1,
+        $lookup: {
+          from: "sys_uploadfiles",
+          localField: "icon",
+          foreignField: "_id",
+          as: "iconDetails",
         },
+      },
+      {
+        $unwind: "$iconDetails",
       },
       {
         $group: {
@@ -73,6 +79,7 @@ controller.indexMobileResponse = async (req, res, next) => {
               _id: "$_id",
               key: "$key",
               name: "$value",
+              icon: "$iconDetails",
               description: "$description",
             },
           },
@@ -98,7 +105,20 @@ controller.indexMobileResponse = async (req, res, next) => {
           parent_id: "$_id.parent_id",
           type: "$_id.type",
           name: "$parent.value",
-          items: 1,
+          "items._id": 1,
+          "items.name": 1,
+          "items.description": 1,
+          "items.icon": {
+            _id: 1,
+            name: 1,
+            is_cover: 1,
+            is_active: 1,
+          },
+        },
+      },
+      {
+        $sort: {
+          key: 1,
         },
       },
     ]);
@@ -124,6 +144,7 @@ controller.indexWebResponse = async (req, res, next) => {
     #swagger.summary = 'ref parameter'
     #swagger.description = 'untuk referensi group'
     #swagger.parameters['type'] = { default: '', description: 'Search by type' }
+    #swagger.parameters['parent_id'] = { default: '', description: 'Search by parent_id' }
     #swagger.parameters['preserve'] = { default: 'false', description: 'Search by type', type: 'boolean' }
     #swagger.parameters['alias'] = { default: 'false', description: 'Search by type', type: 'boolean' }
     #swagger.parameters['limit'] = { default: '10', description: 'Search by type' }

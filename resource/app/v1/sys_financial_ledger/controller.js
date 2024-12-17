@@ -44,7 +44,7 @@ controller.indexWithMonthlyGroup = async (req, res, next) => {
     const userLogin = await SysUserSchema.findOne({ auth_id: auth._id });
     query.user_id = userLogin._id;
 
-    const [listData, [grand_total], [current_monthly]] = await Promise.all([
+    const [listData, [grand_total], current_monthly] = await Promise.all([
       SysFinancialLedgerSchema.aggregate([
         { $match: query },
         {
@@ -56,6 +56,19 @@ controller.indexWithMonthlyGroup = async (req, res, next) => {
           },
         },
         { $unwind: "$typeDetails" },
+        // jika ingin populate dari sub _id tulis kuerinya saja seperti contoh di bawah tidak perlu di push ===
+        {
+          $lookup: {
+            from: "sys_uploadfiles",
+            localField: "typeDetails.icon",
+            foreignField: "_id",
+            as: "typeDetails.icon",
+          },
+        },
+        {
+          $unwind: "$typeDetails.icon",
+        },
+        // =======
         {
           $lookup: {
             from: "sys_refparameters",
@@ -65,6 +78,19 @@ controller.indexWithMonthlyGroup = async (req, res, next) => {
           },
         },
         { $unwind: "$categoryDetails" },
+        // jika ingin populate dari sub _id tulis kuerinya saja seperti contoh di bawah tidak perlu di push ===
+        {
+          $lookup: {
+            from: "sys_uploadfiles",
+            localField: "categoryDetails.icon",
+            foreignField: "_id",
+            as: "categoryDetails.icon",
+          },
+        },
+        {
+          $unwind: "$categoryDetails.icon",
+        },
+        // =======
         {
           $lookup: {
             from: "sys_refparameters",
@@ -74,10 +100,23 @@ controller.indexWithMonthlyGroup = async (req, res, next) => {
           },
         },
         { $unwind: "$kursDetails" },
+        // jika ingin populate dari sub _id tulis kuerinya saja seperti contoh di bawah tidak perlu di push ===
+        {
+          $lookup: {
+            from: "sys_uploadfiles",
+            localField: "kursDetails.icon",
+            foreignField: "_id",
+            as: "kursDetails.icon",
+          },
+        },
+        {
+          $unwind: "$kursDetails.icon",
+        },
+        // =======
         {
           $group: {
             _id: {
-              $dateToString: { format: "%Y-%m", date: "$createdAt" }, // Ganti format
+              $dateToString: { format: "%B %Y", date: "$createdAt" }, // Ganti format
             },
             total_monthly: { $sum: "$total_amount" },
             items: {
@@ -117,18 +156,34 @@ controller.indexWithMonthlyGroup = async (req, res, next) => {
               _id: 1,
               value: 1,
               description: 1,
-              icon: 1,
+              icon: {
+                _id: 1,
+                name: 1,
+                is_active: 1,
+                is_cover: 1,
+              },
             },
             "items.category_id": {
               _id: 1,
               value: 1,
               description: 1,
-              icon: 1,
+              icon: {
+                _id: 1,
+                name: 1,
+                is_active: 1,
+                is_cover: 1,
+              },
             },
             "items.kurs_id": {
               _id: 1,
               value: 1,
               description: 1,
+              icon: {
+                _id: 1,
+                name: 1,
+                is_active: 1,
+                is_cover: 1,
+              },
             },
           },
         },
@@ -636,14 +691,21 @@ controller.create = async (req, res, next) => {
   */
     const payload = req.body;
 
-    const [typeRef, categoryRef] = await Promise.all([
+    const [typeRef, categoryRef, kurs] = await Promise.all([
       SysRefparamSchema.findOne({ _id: payload.type_id }),
       SysRefparamSchema.findOne({ _id: payload.category_id }),
+      SysRefparamSchema.findOne({ slug: "idr" }),
     ]);
 
     if (typeRef._id.toString() != categoryRef.parent_id.toString()) {
       throw new BadRequestError("Category no match!");
     }
+
+    // untuk sekarang mata uangnya di hardcode terlebih dahulu
+    payload.kurs_id = kurs._id;
+
+    // cek jika kursnya menggunakan IDR/tidak mengirimka kurs
+    if (!payload.kurs_amount) payload.kurs_amount = 1;
 
     payload.total_amount = payload.amount * payload.kurs_amount;
     payload.isIncome = typeRef.value.toLowerCase() == "income" ? true : false;

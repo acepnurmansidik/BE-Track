@@ -46,8 +46,7 @@ const SysFinancialLedgerSchema = Schema(
     },
     note: {
       type: String,
-      minlength: [3, "Panjang password minimal 3 karakter"],
-      required: [true, "password can't be empty"],
+      default: "",
     },
   },
   { timestamps: true, versionKey: false, new: true },

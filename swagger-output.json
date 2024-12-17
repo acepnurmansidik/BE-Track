@@ -444,6 +444,13 @@
             "type": "string"
           },
           {
+            "name": "parent_id",
+            "default": "",
+            "description": "Search by parent_id",
+            "in": "query",
+            "type": "string"
+          },
+          {
             "name": "preserve",
             "default": "false",
             "description": "Search by type",
@@ -879,11 +886,6 @@
             "schema": {
               "$ref": "#/definitions/BodyBillRunningSchema"
             }
-          },
-          {
-            "name": "id",
-            "in": "query",
-            "type": "string"
           }
         ],
         "responses": {
@@ -913,19 +915,6 @@
           {
             "name": "authorization",
             "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "obj",
-            "in": "body",
-            "description": "Create role",
-            "schema": {
-              "$ref": "#/definitions/BodyBillRunningSchema"
-            }
-          },
-          {
-            "name": "id",
-            "in": "query",
             "type": "string"
           }
         ],
@@ -1051,6 +1040,10 @@
     "BodyRefParameterSchema": {
       "type": "object",
       "properties": {
+        "is_subtract": {
+          "type": "boolean",
+          "example": false
+        },
         "value": {
           "type": "string",
           "example": "income"
@@ -1079,10 +1072,6 @@
         "type_id": {
           "type": "string",
           "example": "669122f5e485b234f586e895"
-        },
-        "kurs_id": {
-          "type": "string",
-          "example": "669365e02c2c9f9c783752b2"
         },
         "amount": {
           "type": "number",
@@ -1343,15 +1332,23 @@
       "properties": {
         "category_id": {
           "type": "string",
-          "example": "66912314e485b234f586e897"
+          "example": "67468e301ab0c28c97425f12"
         },
         "type_id": {
           "type": "string",
-          "example": "669122f5e485b234f586e895"
+          "example": "67468ee21ab0c28c97425f19"
         },
         "due_date": {
           "type": "string",
-          "example": "2024-11-27T03:02:07.291Z"
+          "example": "2024-03-31T17:00:00.000Z"
+        },
+        "date_reminder": {
+          "type": "string",
+          "example": "2024-02-21T17:00:00.000Z"
+        },
+        "nominal": {
+          "type": "number",
+          "example": 0
         },
         "note": {
           "type": "string",
