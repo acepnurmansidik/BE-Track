@@ -1,5 +1,5 @@
 # Menggunakan Node.js versi 20.15.0 dengan Alpine
-FROM node:18-alpine
+FROM node:20.18.1-alpine
 
 # Set direktori kerja di dalam container
 WORKDIR /app
@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Expose port yang digunakan oleh aplikasi
-EXPOSE 3022
+EXPOSE 9000
 
 # Perintah untuk menjalankan aplikasi
 CMD ["npm","run", "prod"]

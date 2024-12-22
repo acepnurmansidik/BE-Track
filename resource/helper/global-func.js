@@ -21,7 +21,7 @@ const globalService = {};
 globalService.generateJwtToken = ({ ...payload }) => {
   const jwtSignOptions = {
     algorithm: tokenAlgorithm,
-    expiresIn: tokenExp,
+    // expiresIn: tokenExp,
     jwtid: jwtId,
   };
 

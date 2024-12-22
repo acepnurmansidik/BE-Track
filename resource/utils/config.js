@@ -16,6 +16,7 @@ const ENV = {
   secretKey: process.env.TOKEN_SECRET,
   tokenAlgorithm: process.env.TOKEN_ALGORITHM,
   filePath: process.env.FILE_PATH,
+  puclicIP: process.env.SERVER_IP_ULTRA,
 };
 
 module.exports = ENV;

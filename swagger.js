@@ -1,6 +1,6 @@
 const swaggerAutogen = require("swagger-autogen")();
 const GlobalSchema = require("./resource/schema");
-const { portAccess } = require("./resource/utils/config");
+const { portAccess, puclicIP } = require("./resource/utils/config");
 
 const outputFile = "./swagger-output.json";
 const endpointsFiles = ["./app.js"]; // Sesuaikan dengan file-file yang berisi route Anda
@@ -11,7 +11,7 @@ const doc = {
     title: "REST API", // by default: 'REST API'
     description: "", // by default: ''
   },
-  host: `localhost:${portAccess}`, // by default: 'localhost:3022'
+  host: `${puclicIP}:${portAccess}`, // by default: 'localhost:3022'
   basePath: "/", // by default: '/'
   schemes: ["http", "https"], // by default: ['http']
   consumes: [], // by default: ['application/json']

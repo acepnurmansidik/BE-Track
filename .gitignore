@@ -1,5 +1,6 @@
-/node_modules/
-.env
 .vercel
-uploads/images/
-uploads/doc/
+vercel.json
+/node_modules
+/uploads/doc/
+/uploads/images/
+swagger-output.json

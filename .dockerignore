@@ -1,4 +1,13 @@
 .git
-/node_modules
+.gitignore
+.gitlab-ci.yml
+.vercel
+.dockerignore
 /uploads
+/uploads/doc
+/uploads/images
+/node_modules
+README.md
 vercel.json
+Dockerfile
+swagger-output.json
