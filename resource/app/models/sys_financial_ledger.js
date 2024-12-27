@@ -23,6 +23,12 @@ const SysFinancialLedgerSchema = Schema(
       ref: "sys_refparameter",
       required: true,
     },
+    bank_id: {
+      type: mongoose.Types.ObjectId,
+      ref: "sys_wallet",
+      required: true,
+      default: null,
+    },
     amount: {
       type: Number,
       required: [true, "Nominal can't be empty"],

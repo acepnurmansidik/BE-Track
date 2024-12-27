@@ -10,7 +10,7 @@ const { DateTime } = require("luxon");
 const admin = require("firebase-admin");
 const serviceAccount = require("../../../../serviceAccountKey.json");
 const { default: mongoose } = require("mongoose");
-const { portAccess, puclicIP } = require("../../../utils/config");
+const { portAccess, puclicIP, urlUltra } = require("../../../utils/config");
 
 const controller = {};
 
@@ -816,9 +816,10 @@ controller.categoryActivity = async (req, res, next) => {
   */
   /*
     #swagger.tags = ['FINANCE']
-    #swagger.summary = 'ref parameter'
-    #swagger.description = 'untuk referensi group'
-    #swagger.parameters['type_id'] = { default: '', description: 'Search by type', type: 'string' }
+    #swagger.summary = 'category activity'
+    #swagger.description = 'get data transaction yang dikelompokan ke dalam setiap kategorinya'
+    #swagger.parameters['type_id'] = { default: '', description: 'Search by type id', type: 'string' }
+    #swagger.parameters['bank_id'] = { default: '', description: 'Search by bank id', type: 'string' }
   */
   try {
     // filter data
@@ -834,7 +835,24 @@ controller.categoryActivity = async (req, res, next) => {
     // filter data with user login
     queryFilter.user_id = req.login.user_id;
 
-    // set default bank(now opsional)
+    // mendapatkan tahun sekarang
+    const currentYear = DateTime.now().year;
+
+    // mendapatkan tanggal dan bulan pertaman id tahun sekarang
+    const firstDayOfYear = DateTime.fromObject({
+      year: currentYear,
+      month: 1,
+      day: 1,
+    }).toJSDate();
+    const lastDayOfYear = DateTime.fromObject({
+      year: currentYear,
+      month: 12,
+      day: 31,
+      hour: 23,
+      minute: 59,
+      second: 59,
+      millisecond: 999,
+    }).toJSDate();
 
     // get data from database
     const [list_data, data_chart] = await Promise.all([
@@ -877,7 +895,7 @@ controller.categoryActivity = async (req, res, next) => {
             name: 1,
             total_count: 1,
             image_url: {
-              $concat: [`http://${puclicIP}:${portAccess}/`, "$image_url"],
+              $concat: [`${urlUltra}`, "$image_url"],
             },
           },
         },
@@ -885,6 +903,9 @@ controller.categoryActivity = async (req, res, next) => {
 
       // query chart_transaction
       SysFinancialLedgerSchema.aggregate([
+        {
+          $match: { createdAt: { $gte: firstDayOfYear, $lte: lastDayOfYear } },
+        },
         {
           $group: {
             _id: {

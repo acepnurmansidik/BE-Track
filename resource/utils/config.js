@@ -8,8 +8,8 @@ switch (env) {
   case "development":
     dotENV.config({ path: ".env.development" });
     break;
-    default:
-      dotENV.config({ path: ".env.local" });
+  default:
+    dotENV.config({ path: ".env.local" });
     break;
 }
 
@@ -23,6 +23,7 @@ const ENV = {
   tokenAlgorithm: process.env.TOKEN_ALGORITHM,
   filePath: process.env.FILE_PATH,
   puclicIP: process.env.SERVER_IP_ULTRA,
+  urlUltra: `${process.env.URL_API}${process.env.SERVER_IP_ULTRA}:${process.env.PORT}/`,
 };
 
 module.exports = ENV;

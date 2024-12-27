@@ -807,8 +807,8 @@
         "tags": [
           "FINANCE"
         ],
-        "summary": "ref parameter",
-        "description": "untuk referensi group",
+        "summary": "category activity",
+        "description": "get data transaction yang dikelompokan ke dalam setiap kategorinya",
         "parameters": [
           {
             "name": "authorization",
@@ -818,7 +818,14 @@
           {
             "name": "type_id",
             "default": "",
-            "description": "Search by type",
+            "description": "Search by type id",
+            "type": "string",
+            "in": "query"
+          },
+          {
+            "name": "bank_id",
+            "default": "",
+            "description": "Search by bank id",
             "type": "string",
             "in": "query"
           }
@@ -1229,6 +1236,10 @@
         "category_id": {
           "type": "string",
           "example": "66912314e485b234f586e897"
+        },
+        "bank_id": {
+          "type": "string",
+          "example": "676dfd599630f0b17d9c874e"
         },
         "type_id": {
           "type": "string",
