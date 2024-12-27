@@ -1,10 +1,16 @@
 const dotENV = require("dotenv");
 const env = process.env.NODE_ENV || "development"; // default ke 'development'
 
-if (env === "production") {
-  dotENV.config({ path: ".env.production" });
-} else {
-  dotENV.config({ path: ".env.development" });
+switch (env) {
+  case "production":
+    dotENV.config({ path: ".env.production" });
+    break;
+  case "development":
+    dotENV.config({ path: ".env.development" });
+    break;
+    default:
+      dotENV.config({ path: ".env.local" });
+    break;
 }
 
 const ENV = {

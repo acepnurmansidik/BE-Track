@@ -5,6 +5,7 @@ const ProfileSchema = require("./body/sys_profile");
 const ProjectResumeSchema = require("./body/sys_project");
 const UploadFileSchema = require("./body/sys_uploadfile");
 const BillRunningSchema = require("./body/sys_bill_running");
+const WalletSchema = require("./body/sys_wallet");
 
 const GlobalSchema = {
   ...Authchema.Register,
@@ -16,6 +17,7 @@ const GlobalSchema = {
   ...ProjectResumeSchema,
   ...UploadFileSchema,
   ...BillRunningSchema,
+  ...WalletSchema,
 };
 
 module.exports = GlobalSchema;

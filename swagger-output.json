@@ -802,6 +802,39 @@
         ]
       }
     },
+    "/api/v1/trx/category-activity": {
+      "get": {
+        "tags": [
+          "FINANCE"
+        ],
+        "summary": "ref parameter",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "type_id",
+            "default": "",
+            "description": "Search by type",
+            "type": "string",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/trx/bill": {
       "get": {
         "tags": [
@@ -970,6 +1003,134 @@
         "summary": "profile",
         "description": "untuk referensi group",
         "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/wallet/": {
+      "get": {
+        "tags": [
+          "BANK/WALLET"
+        ],
+        "summary": "api for bank/wallet",
+        "description": "this api for bank/wallet payment for user when do transaction",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "BANK/WALLET"
+        ],
+        "summary": "api for bank/wallet",
+        "description": "this api for bank/wallet payment for user when do transaction",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create role",
+            "schema": {
+              "$ref": "#/definitions/BodyWalletSchema"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/wallet/{id}": {
+      "put": {
+        "tags": [
+          "BANK/WALLET"
+        ],
+        "summary": "api for bank/wallet",
+        "description": "this api for bank/wallet payment for user when do transaction",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create role",
+            "schema": {
+              "$ref": "#/definitions/BodyWalletSchema"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "BANK/WALLET"
+        ],
+        "summary": "api for bank/wallet",
+        "description": "this api for bank/wallet payment for user when do transaction",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
           {
             "name": "authorization",
             "in": "header",
@@ -1353,6 +1514,27 @@
         "note": {
           "type": "string",
           "example": "naik KRL"
+        }
+      }
+    },
+    "BodyWalletSchema": {
+      "type": "object",
+      "properties": {
+        "va_number": {
+          "type": "string",
+          "example": "2131 6237 0172 2345 2374"
+        },
+        "owner_name": {
+          "type": "string",
+          "example": "john doe"
+        },
+        "wallet_name": {
+          "type": "string",
+          "example": "Cash"
+        },
+        "amount": {
+          "type": "number",
+          "example": 0
         }
       }
     },

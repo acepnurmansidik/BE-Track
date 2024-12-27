@@ -7,6 +7,7 @@ const refparamRouter = require("../resource/app/v1/sys_refparameter/router");
 const showCaseRouter = require("../resource/app/v1/project/router");
 const financeLedgerRouter = require("../resource/app/v1/sys_financial_ledger/router");
 const UploadImagesRouter = require("../resource/app/uploadfile/router");
+const WalletRouter = require("../resource/app/v1/sys_wallet/router");
 const AuthorizeUserLogin = require("../resource/middleware/authentification");
 
 router.use("/auth", authRouter);
@@ -16,5 +17,6 @@ router.use("/ref-parameter", refparamRouter);
 router.use(AuthorizeUserLogin);
 router.use("/trx", financeLedgerRouter);
 router.use("/profile", profileRouter);
+router.use("/wallet", WalletRouter);
 
 module.exports = router;

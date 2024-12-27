@@ -16,6 +16,7 @@ router.get("/dashboard/personal", controller.personalDashboard);
 router.post("/", controller.create);
 router.put("/:id", controller.update);
 router.delete("/:id", controller.delete);
+router.get("/category-activity", controller.categoryActivity);
 
 // BILLING ROUTE API ===========================================
 router.get("/bill", controller.indexBillRunning);

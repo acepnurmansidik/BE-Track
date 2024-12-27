@@ -10,21 +10,22 @@ const { DateTime } = require("luxon");
 const admin = require("firebase-admin");
 const serviceAccount = require("../../../../serviceAccountKey.json");
 const { default: mongoose } = require("mongoose");
+const { portAccess, puclicIP } = require("../../../utils/config");
 
 const controller = {};
 
 controller.indexWithMonthlyGroup = async (req, res, next) => {
+  /*
+  #swagger.security = [{
+    "bearerAuth": []
+  }]
+*/
+  /*
+  #swagger.tags = ['FINANCE']
+  #swagger.summary = 'ref parameter'
+  #swagger.description = 'untuk referensi group'
+*/
   try {
-    /*
-    #swagger.security = [{
-      "bearerAuth": []
-    }]
-  */
-    /*
-    #swagger.tags = ['FINANCE']
-    #swagger.summary = 'ref parameter'
-    #swagger.description = 'untuk referensi group'
-  */
     const query = req.query;
 
     /**
@@ -301,6 +302,7 @@ controller.personalDashboard = async (req, res, next) => {
                 $cond: [{ $eq: ["$isIncome", false] }, "$total_amount", 0],
               },
             },
+            date: { $first: "$createdAt" },
           },
         },
         {
@@ -309,7 +311,11 @@ controller.personalDashboard = async (req, res, next) => {
             month: "$_id",
             income: 1,
             outcome: 1,
+            date: 1,
           },
+        },
+        {
+          $sort: { date: -1 }, // Mengurutkan hasil berdasarkan date
         },
       ]),
 
@@ -799,6 +805,135 @@ controller.delete = async (req, res, next) => {
     });
   } catch (err) {
     next();
+  }
+};
+
+controller.categoryActivity = async (req, res, next) => {
+  /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+  /*
+    #swagger.tags = ['FINANCE']
+    #swagger.summary = 'ref parameter'
+    #swagger.description = 'untuk referensi group'
+    #swagger.parameters['type_id'] = { default: '', description: 'Search by type', type: 'string' }
+  */
+  try {
+    // filter data
+    const queryFilter = {};
+    Object.keys(req.query).map((item) => {
+      if (item.includes("_id")) {
+        queryFilter[item] = new mongoose.Types.ObjectId(`${req.query[item]}`);
+      } else {
+        queryFilter[item] = req.query[item];
+      }
+    });
+
+    // filter data with user login
+    queryFilter.user_id = req.login.user_id;
+
+    // set default bank(now opsional)
+
+    // get data from database
+    const [list_data, data_chart] = await Promise.all([
+      // Data item
+      SysFinancialLedgerSchema.aggregate([
+        {
+          $match: queryFilter,
+        },
+        {
+          $lookup: {
+            from: "sys_refparameters",
+            localField: "category_id",
+            foreignField: "_id",
+            as: "categoryDetails",
+          },
+        },
+        { $unwind: "$categoryDetails" },
+        {
+          $lookup: {
+            from: "sys_uploadfiles",
+            localField: "categoryDetails.icon",
+            foreignField: "_id",
+            as: "categoryDetails.icon",
+          },
+        },
+        { $unwind: "$categoryDetails.icon" },
+        {
+          $group: {
+            _id: "$categoryDetails._id",
+            name: { $first: "$categoryDetails.value" },
+            image_url: { $first: "$categoryDetails.icon.name" },
+            total_category: { $sum: "$total_amount" },
+            total_count: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            total_category: 1,
+            name: 1,
+            total_count: 1,
+            image_url: {
+              $concat: [`http://${puclicIP}:${portAccess}/`, "$image_url"],
+            },
+          },
+        },
+      ]),
+
+      // query chart_transaction
+      SysFinancialLedgerSchema.aggregate([
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: "%m %Y", date: "$createdAt" }, // Ganti format
+            },
+            date: { $first: "$createdAt" },
+            income: {
+              $sum: {
+                $cond: [{ $eq: ["$isIncome", true] }, "$total_amount", 0],
+              },
+            },
+            outcome: {
+              $sum: {
+                $cond: [{ $eq: ["$isIncome", false] }, "$total_amount", 0],
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            month: "$_id",
+            income: 1,
+            outcome: 1,
+            date: 1,
+          },
+        },
+        {
+          $sort: { date: -1 }, // Mengurutkan hasil berdasarkan date
+        },
+      ]),
+    ]);
+
+    // BAR * CHART * SECTION ################################################################################
+    // modifikasi result dari DB mnejadi nama bulan dan tahun/MMMM YYYY
+    data_chart.map((everyItem) => {
+      everyItem.month = `${
+        monthName[Number(everyItem.month.split(" ")[0]) - 1]
+      } ${everyItem.month.split(" ")[1]}`;
+    });
+
+    // send response to client
+    responseAPI.MethodResponse({
+      res,
+      method: methodConstant.GET,
+      data: { list_data, data_chart },
+    });
+  } catch (err) {
+    next(err);
   }
 };
 
