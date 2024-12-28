@@ -1,5 +1,5 @@
 const dotENV = require("dotenv");
-const env = process.env.NODE_ENV || "development"; // default ke 'development'
+const env = process.env.NODE_ENV || "local"; // default ke 'development'
 
 switch (env) {
   case "production":

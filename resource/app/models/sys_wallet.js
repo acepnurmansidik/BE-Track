@@ -22,7 +22,6 @@ const WalletSchema = Schema(
       type: String,
       minlength: [3, "Wallet name must be at least 3 character!"],
       required: [true, "Wallet name can't be empty"],
-      unique: true,
     },
     amount: {
       type: Number,

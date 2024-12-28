@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./swagger.js && nodemon ./bin/www",
+    "start": "nodemon ./bin/www",
     "dev": "cross-env NODE_ENV=development node ./swagger.js && node -r dotenv/config ./bin/www",
     "prod": "cross-env NODE_ENV=production node ./swagger.js && node -r dotenv/config ./bin/www",
     "swag": "node ./swagger.js"

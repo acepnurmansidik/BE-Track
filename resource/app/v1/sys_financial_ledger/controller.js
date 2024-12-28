@@ -855,89 +855,154 @@ controller.categoryActivity = async (req, res, next) => {
     }).toJSDate();
 
     // get data from database
-    const [list_data, data_chart] = await Promise.all([
-      // Data item
-      SysFinancialLedgerSchema.aggregate([
-        {
-          $match: queryFilter,
-        },
-        {
-          $lookup: {
-            from: "sys_refparameters",
-            localField: "category_id",
-            foreignField: "_id",
-            as: "categoryDetails",
+    const [list_data, data_chart, grand_total_left, grand_total] =
+      await Promise.all([
+        // Data item
+        SysFinancialLedgerSchema.aggregate([
+          {
+            $match: queryFilter,
           },
-        },
-        { $unwind: "$categoryDetails" },
-        {
-          $lookup: {
-            from: "sys_uploadfiles",
-            localField: "categoryDetails.icon",
-            foreignField: "_id",
-            as: "categoryDetails.icon",
-          },
-        },
-        { $unwind: "$categoryDetails.icon" },
-        {
-          $group: {
-            _id: "$categoryDetails._id",
-            name: { $first: "$categoryDetails.value" },
-            image_url: { $first: "$categoryDetails.icon.name" },
-            total_category: { $sum: "$total_amount" },
-            total_count: { $sum: 1 },
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            total_category: 1,
-            name: 1,
-            total_count: 1,
-            image_url: {
-              $concat: [`${urlUltra}`, "$image_url"],
+          {
+            $lookup: {
+              from: "sys_refparameters",
+              localField: "category_id",
+              foreignField: "_id",
+              as: "categoryDetails",
             },
           },
-        },
-      ]),
+          { $unwind: "$categoryDetails" },
+          {
+            $lookup: {
+              from: "sys_uploadfiles",
+              localField: "categoryDetails.icon",
+              foreignField: "_id",
+              as: "categoryDetails.icon",
+            },
+          },
+          { $unwind: "$categoryDetails.icon" },
+          {
+            $group: {
+              _id: "$categoryDetails._id",
+              name: { $first: "$categoryDetails.value" },
+              image_url: { $first: "$categoryDetails.icon.name" },
+              total_category: { $sum: "$total_amount" },
+              total_count: { $sum: 1 },
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              total_category: 1,
+              name: 1,
+              total_count: 1,
+              image_url: {
+                $concat: [`${urlUltra}`, "$image_url"],
+              },
+            },
+          },
+        ]),
 
-      // query chart_transaction
-      SysFinancialLedgerSchema.aggregate([
-        {
-          $match: { createdAt: { $gte: firstDayOfYear, $lte: lastDayOfYear } },
-        },
-        {
-          $group: {
-            _id: {
-              $dateToString: { format: "%m %Y", date: "$createdAt" }, // Ganti format
+        // query chart_transaction
+        SysFinancialLedgerSchema.aggregate([
+          {
+            $match: {
+              createdAt: { $gte: firstDayOfYear, $lte: lastDayOfYear },
             },
-            date: { $first: "$createdAt" },
-            income: {
-              $sum: {
-                $cond: [{ $eq: ["$isIncome", true] }, "$total_amount", 0],
+          },
+          {
+            $group: {
+              _id: {
+                $dateToString: { format: "%m %Y", date: "$createdAt" }, // Ganti format
               },
-            },
-            outcome: {
-              $sum: {
-                $cond: [{ $eq: ["$isIncome", false] }, "$total_amount", 0],
+              date: { $first: "$createdAt" },
+              income: {
+                $sum: {
+                  $cond: [{ $eq: ["$isIncome", true] }, "$total_amount", 0],
+                },
+              },
+              outcome: {
+                $sum: {
+                  $cond: [{ $eq: ["$isIncome", false] }, "$total_amount", 0],
+                },
               },
             },
           },
-        },
-        {
-          $project: {
-            _id: 0,
-            month: "$_id",
-            income: 1,
-            outcome: 1,
-            date: 1,
+          {
+            $project: {
+              _id: 0,
+              month: "$_id",
+              income: 1,
+              outcome: 1,
+              date: 1,
+            },
           },
-        },
-        {
-          $sort: { date: -1 }, // Mengurutkan hasil berdasarkan date
-        },
-      ]),
-    ]);
+          {
+            $sort: { date: -1 }, // Mengurutkan hasil berdasarkan date
+          },
+        ]),
+
+        // query grand_total left
+        SysFinancialLedgerSchema.aggregate([
+          {
+            $match: {
+              createdAt: {
+                $gte: DateTime.fromObject({
+                  year: currentYear - 1,
+                  month: 1,
+                  day: 1,
+                }).toJSDate(),
+                $lte: DateTime.fromObject({
+                  year: currentYear - 1,
+                  month: 12,
+                  day: 31,
+                  hour: 23,
+                  minute: 59,
+                  second: 59,
+                  millisecond: 999,
+                }).toJSDate(),
+              },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              total_income: {
+                $sum: {
+                  $cond: [{ $eq: ["$isIncome", true] }, "$total_amount", 0],
+                },
+              },
+              total_outcome: {
+                $sum: {
+                  $cond: [{ $eq: ["$isIncome", false] }, "$total_amount", 0],
+                },
+              },
+            },
+          },
+        ]),
+        // query grand_total
+        SysFinancialLedgerSchema.aggregate([
+          {
+            $match: {
+              createdAt: { $gte: firstDayOfYear, $lte: lastDayOfYear },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              total_income: {
+                $sum: {
+                  $cond: [{ $eq: ["$isIncome", true] }, "$total_amount", 0],
+                },
+              },
+              total_outcome: {
+                $sum: {
+                  $cond: [{ $eq: ["$isIncome", false] }, "$total_amount", 0],
+                },
+              },
+            },
+          },
+        ]),
+      ]);
 
     // BAR * CHART * SECTION ################################################################################
     // modifikasi result dari DB mnejadi nama bulan dan tahun/MMMM YYYY
@@ -947,11 +1012,57 @@ controller.categoryActivity = async (req, res, next) => {
       } ${everyItem.month.split(" ")[1]}`;
     });
 
+    const income = {
+      total_amount: grand_total[0].total_income,
+      percentage: "0 %",
+      status: "stable",
+    };
+    const outcome = {
+      total_amount: grand_total[0].total_outcome,
+      percentage: "0 %",
+      status: "stable",
+    };
+    if (grand_total[0].total_income > grand_total_left[0].total_income) {
+      income.percentage = "+100 %";
+      income.status = "up";
+    } else {
+      income.status = "down";
+      income.percentage =
+        "-" +
+        (
+          grand_total_left[0].total_income / grand_total[0].total_income
+        ).toFixed(0) +
+        " %";
+    }
+
+    if (grand_total[0].total_outcome > grand_total_left[0].total_outcome) {
+      income.status = "up";
+      income.percentage =
+        "+" +
+        (
+          grand_total[0].total_outcome / grand_total_left[0].total_outcome
+        ).toFixed(0) +
+        " %";
+    } else {
+      income.status = "down";
+      income.percentage =
+        "-" +
+        (
+          grand_total_left[0].total_outcome / grand_total[0].total_outcome
+        ).toFixed(0) +
+        " %";
+    }
+
     // send response to client
     responseAPI.MethodResponse({
       res,
       method: methodConstant.GET,
-      data: { list_data, data_chart },
+      data: {
+        list_data,
+        data_chart,
+        income,
+        outcome,
+      },
     });
   } catch (err) {
     next(err);
