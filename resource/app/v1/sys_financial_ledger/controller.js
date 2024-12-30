@@ -101,6 +101,15 @@ controller.indexWithMonthlyGroup = async (req, res, next) => {
           },
         },
         { $unwind: "$kursDetails" },
+        {
+          $lookup: {
+            from: "sys_wallets",
+            localField: "bank_id",
+            foreignField: "_id",
+            as: "bankDetails",
+          },
+        },
+        { $unwind: "$bankDetails" },
         // jika ingin populate dari sub _id tulis kuerinya saja seperti contoh di bawah tidak perlu di push ===
         {
           $lookup: {
@@ -135,6 +144,7 @@ controller.indexWithMonthlyGroup = async (req, res, next) => {
                     date: "$createdAt",
                   },
                 },
+                bank_id: "$bankDetails",
                 type_id: "$typeDetails",
                 category_id: "$categoryDetails",
                 kurs_id: "$kursDetails",
@@ -163,6 +173,10 @@ controller.indexWithMonthlyGroup = async (req, res, next) => {
                 is_active: 1,
                 is_cover: 1,
               },
+            },
+            "items.bank_id": {
+              _id: 1,
+              wallet_name: 1,
             },
             "items.category_id": {
               _id: 1,
