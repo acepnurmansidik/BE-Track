@@ -45,203 +45,200 @@ controller.indexWithMonthlyGroup = async (req, res, next) => {
     const userLogin = await SysUserSchema.findOne({ auth_id: auth._id });
     query.user_id = userLogin._id;
 
-    const [listData, [current_grand_total], current_monthly] =
-      await Promise.all([
-        SysFinancialLedgerSchema.aggregate([
-          { $match: query },
-          {
-            $lookup: {
-              from: "sys_refparameters",
-              localField: "type_id",
-              foreignField: "_id",
-              as: "typeDetails",
+    const [listData, [grand_total], current_monthly] = await Promise.all([
+      SysFinancialLedgerSchema.aggregate([
+        { $match: query },
+        {
+          $lookup: {
+            from: "sys_refparameters",
+            localField: "type_id",
+            foreignField: "_id",
+            as: "typeDetails",
+          },
+        },
+        { $unwind: "$typeDetails" },
+        // jika ingin populate dari sub _id tulis kuerinya saja seperti contoh di bawah tidak perlu di push ===
+        {
+          $lookup: {
+            from: "sys_uploadfiles",
+            localField: "typeDetails.icon",
+            foreignField: "_id",
+            as: "typeDetails.icon",
+          },
+        },
+        {
+          $unwind: "$typeDetails.icon",
+        },
+        // =======
+        {
+          $lookup: {
+            from: "sys_refparameters",
+            localField: "category_id",
+            foreignField: "_id",
+            as: "categoryDetails",
+          },
+        },
+        { $unwind: "$categoryDetails" },
+        // jika ingin populate dari sub _id tulis kuerinya saja seperti contoh di bawah tidak perlu di push ===
+        {
+          $lookup: {
+            from: "sys_uploadfiles",
+            localField: "categoryDetails.icon",
+            foreignField: "_id",
+            as: "categoryDetails.icon",
+          },
+        },
+        {
+          $unwind: "$categoryDetails.icon",
+        },
+        // =======
+        {
+          $lookup: {
+            from: "sys_refparameters",
+            localField: "kurs_id",
+            foreignField: "_id",
+            as: "kursDetails",
+          },
+        },
+        { $unwind: "$kursDetails" },
+        {
+          $lookup: {
+            from: "sys_wallets",
+            localField: "bank_id",
+            foreignField: "_id",
+            as: "bankDetails",
+          },
+        },
+        { $unwind: "$bankDetails" },
+        // jika ingin populate dari sub _id tulis kuerinya saja seperti contoh di bawah tidak perlu di push ===
+        {
+          $lookup: {
+            from: "sys_uploadfiles",
+            localField: "kursDetails.icon",
+            foreignField: "_id",
+            as: "kursDetails.icon",
+          },
+        },
+        {
+          $unwind: "$kursDetails.icon",
+        },
+        // =======
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: "%B %Y", date: "$createdAt" }, // Ganti format
             },
-          },
-          { $unwind: "$typeDetails" },
-          // jika ingin populate dari sub _id tulis kuerinya saja seperti contoh di bawah tidak perlu di push ===
-          {
-            $lookup: {
-              from: "sys_uploadfiles",
-              localField: "typeDetails.icon",
-              foreignField: "_id",
-              as: "typeDetails.icon",
-            },
-          },
-          {
-            $unwind: "$typeDetails.icon",
-          },
-          // =======
-          {
-            $lookup: {
-              from: "sys_refparameters",
-              localField: "category_id",
-              foreignField: "_id",
-              as: "categoryDetails",
-            },
-          },
-          { $unwind: "$categoryDetails" },
-          // jika ingin populate dari sub _id tulis kuerinya saja seperti contoh di bawah tidak perlu di push ===
-          {
-            $lookup: {
-              from: "sys_uploadfiles",
-              localField: "categoryDetails.icon",
-              foreignField: "_id",
-              as: "categoryDetails.icon",
-            },
-          },
-          {
-            $unwind: "$categoryDetails.icon",
-          },
-          // =======
-          {
-            $lookup: {
-              from: "sys_refparameters",
-              localField: "kurs_id",
-              foreignField: "_id",
-              as: "kursDetails",
-            },
-          },
-          { $unwind: "$kursDetails" },
-          {
-            $lookup: {
-              from: "sys_wallets",
-              localField: "bank_id",
-              foreignField: "_id",
-              as: "bankDetails",
-            },
-          },
-          { $unwind: "$bankDetails" },
-          // jika ingin populate dari sub _id tulis kuerinya saja seperti contoh di bawah tidak perlu di push ===
-          {
-            $lookup: {
-              from: "sys_uploadfiles",
-              localField: "kursDetails.icon",
-              foreignField: "_id",
-              as: "kursDetails.icon",
-            },
-          },
-          {
-            $unwind: "$kursDetails.icon",
-          },
-          // =======
-          {
-            $group: {
-              _id: {
-                $dateToString: { format: "%B %Y", date: "$createdAt" }, // Ganti format
-              },
-              total_monthly: { $sum: "$total_amount" },
-              items: {
-                $push: {
-                  _id: "$_id",
-                  amount: "$amount",
-                  note: "$note",
-                  total_amount: "$total_amount",
-                  kurs_amount: "$kurs_amount",
-                  is_income: "$isIncome",
-                  datetime: {
-                    $dateToString: {
-                      format: "%Y-%m-%d %H:%M", // Ganti format
-                      timezone: "Asia/Jakarta",
-                      date: "$createdAt",
-                    },
+            total_monthly: { $sum: "$total_amount" },
+            items: {
+              $push: {
+                _id: "$_id",
+                amount: "$amount",
+                note: "$note",
+                total_amount: "$total_amount",
+                kurs_amount: "$kurs_amount",
+                is_income: "$isIncome",
+                datetime: {
+                  $dateToString: {
+                    format: "%Y-%m-%d %H:%M", // Ganti format
+                    timezone: "Asia/Jakarta",
+                    date: "$createdAt",
                   },
-                  bank_id: "$bankDetails",
-                  type_id: "$typeDetails",
-                  category_id: "$categoryDetails",
-                  kurs_id: "$kursDetails",
                 },
+                bank_id: "$bankDetails",
+                type_id: "$typeDetails",
+                category_id: "$categoryDetails",
+                kurs_id: "$kursDetails",
               },
             },
           },
-          {
-            $project: {
+        },
+        {
+          $project: {
+            _id: 1,
+            total_monthly: 1,
+            "items._id": 1,
+            "items.amount": 1,
+            "items.kurs_amount": 1,
+            "items.total_amount": 1,
+            "items.note": 1,
+            "items.is_income": 1,
+            "items.datetime": 1,
+            "items.type_id": {
               _id: 1,
-              total_monthly: 1,
-              "items._id": 1,
-              "items.amount": 1,
-              "items.kurs_amount": 1,
-              "items.total_amount": 1,
-              "items.note": 1,
-              "items.is_income": 1,
-              "items.datetime": 1,
-              "items.type_id": {
+              value: 1,
+              description: 1,
+              icon: {
                 _id: 1,
-                value: 1,
-                description: 1,
-                icon: {
-                  _id: 1,
-                  name: 1,
-                  is_active: 1,
-                  is_cover: 1,
-                },
+                name: 1,
+                is_active: 1,
+                is_cover: 1,
               },
-              "items.bank_id": {
+            },
+            "items.bank_id": {
+              _id: 1,
+              wallet_name: 1,
+            },
+            "items.category_id": {
+              _id: 1,
+              value: 1,
+              description: 1,
+              icon: {
                 _id: 1,
-                wallet_name: 1,
+                name: 1,
+                is_active: 1,
+                is_cover: 1,
               },
-              "items.category_id": {
+            },
+            "items.kurs_id": {
+              _id: 1,
+              value: 1,
+              description: 1,
+              icon: {
                 _id: 1,
-                value: 1,
-                description: 1,
-                icon: {
-                  _id: 1,
-                  name: 1,
-                  is_active: 1,
-                  is_cover: 1,
-                },
-              },
-              "items.kurs_id": {
-                _id: 1,
-                value: 1,
-                description: 1,
-                icon: {
-                  _id: 1,
-                  name: 1,
-                  is_active: 1,
-                  is_cover: 1,
-                },
+                name: 1,
+                is_active: 1,
+                is_cover: 1,
               },
             },
           },
-          {
-            $sort: {
-              _id: 1, // Mengurutkan berdasarkan bulan dan tahun
+        },
+        {
+          $sort: {
+            _id: 1, // Mengurutkan berdasarkan bulan dan tahun
+          },
+        },
+      ]),
+      SysFinancialLedgerSchema.aggregate([
+        { $match: query },
+        {
+          $group: {
+            _id: null,
+            grand_total: { $sum: "$total_amount" },
+          },
+        },
+      ]),
+      SysFinancialLedgerSchema.aggregate([
+        { $match: query },
+        {
+          $match: {
+            createdAt: {
+              $gte: DateTime.utc().startOf("month").toJSDate(), // Mengonversi ke JS Date
+              $lte: DateTime.utc().endOf("month").toJSDate(), // Mengonversi ke JS Date
             },
           },
-        ]),
-        SysFinancialLedgerSchema.aggregate([
-          { $match: query },
-          {
-            $group: {
-              _id: null,
-              current_grand_total: { $sum: "$total_amount" },
-            },
+        },
+        {
+          $group: {
+            _id: null,
+            current_monthly: { $sum: "$total_amount" },
           },
-        ]),
-        SysFinancialLedgerSchema.aggregate([
-          { $match: query },
-          {
-            $match: {
-              createdAt: {
-                $gte: DateTime.utc().startOf("month").toJSDate(), // Mengonversi ke JS Date
-                $lte: DateTime.utc().endOf("month").toJSDate(), // Mengonversi ke JS Date
-              },
-            },
-          },
-          {
-            $group: {
-              _id: null,
-              current_monthly: { $sum: "$total_amount" },
-            },
-          },
-        ]),
-      ]);
+        },
+      ]),
+    ]);
 
     const dataResponse = {
       list_data: listData.length ? listData : [],
-      current_grand_total: current_grand_total.current_grand_total
-        ? current_grand_total.current_grand_total
-        : 0,
+      grand_total: grand_total.grand_total ? grand_total.grand_total : 0,
       current_monthly: current_monthly.current_monthly
         ? current_monthly.current_monthly
         : 0,
@@ -293,7 +290,7 @@ controller.personalDashboard = async (req, res, next) => {
 
     const [
       bar_chart_transaction,
-      [current_grand_total],
+      [grand_total],
       dReffZakat,
       dReffSubtractZakat,
       dReffIncome,
@@ -336,7 +333,7 @@ controller.personalDashboard = async (req, res, next) => {
         },
       ]),
 
-      // query current_grand_total
+      // query grand_total
       SysFinancialLedgerSchema.aggregate([
         {
           $group: {
@@ -643,34 +640,34 @@ controller.personalDashboard = async (req, res, next) => {
         bar_chart_transaction,
         total_gold_silver: {
           total_month: dTotalIncomeOutcome.gold_silver,
-          current_grand_total: gradTotalEmasPerak.total_amount,
+          grand_total: gradTotalEmasPerak.total_amount,
           total_qty: gradTotalEmasPerak.total_qty - dZakatEmasPerak.total_qty,
-          current_grand_total_qty: gradTotalEmasPerak.total_qty,
+          grand_total_qty: gradTotalEmasPerak.total_qty,
           total_left_amount: 0,
           list_data: dListGoldSilver,
         },
         total_income: {
           total_month: dTotalIncomeOutcome.income,
-          current_grand_total: current_grand_total.total_income,
+          grand_total: grand_total.total_income,
           total_qty: 0,
-          current_grand_total_qty: 0,
+          grand_total_qty: 0,
           total_left_amount: 0,
           list_data: dListIncome,
         },
         total_outcome: {
           total_month: dTotalIncomeOutcome.outcome,
-          current_grand_total: current_grand_total.total_outcome,
+          grand_total: grand_total.total_outcome,
           total_qty: 0,
-          current_grand_total_qty: 0,
+          grand_total_qty: 0,
           total_left_amount: 0,
           list_data: dListOutcome,
         },
         total_zakat: {
           penghasilan: {
             total_month: _dZakatIncome[0].total_amount,
-            current_grand_total: _dZakatIncome[0].total_amount,
+            grand_total: _dZakatIncome[0].total_amount,
             total_qty: 0,
-            current_grand_total_qty: 0,
+            grand_total_qty: 0,
             total_left_amount: ![undefined, null].includes(
               _dZakatIncome[1]?.total_zakat,
             )
@@ -680,10 +677,10 @@ controller.personalDashboard = async (req, res, next) => {
           },
           gold_silver: {
             total_month: nominalZakatGoldSilver,
-            current_grand_total: gradTotalEmasPerak.total_amount,
-            current_grand_total: nominalZakatGoldSilver,
+            grand_total: gradTotalEmasPerak.total_amount,
+            grand_total: nominalZakatGoldSilver,
             total_qty: gradTotalEmasPerak.total_qty - dZakatEmasPerak.total_qty,
-            current_grand_total_qty: dZakatEmasPerak.total_qty,
+            grand_total_qty: dZakatEmasPerak.total_qty,
             total_left_amount: 0,
             list_data: dListGoldSilver,
           },
@@ -855,7 +852,7 @@ controller.categoryActivity = async (req, res, next) => {
     // mendapatkan tahun sekarang
     const currentYear = DateTime.now().year;
 
-    // mendapatkan tanggal dan bulan pertaman id tahun sekarang/ filter by current month of year
+    // mendapatkan tanggal dan bulan pertaman id tahun sekarang
     const firstDayOfYear = DateTime.fromObject({
       year: currentYear,
       month: 1,
@@ -872,7 +869,7 @@ controller.categoryActivity = async (req, res, next) => {
     }).toJSDate();
 
     // get data from database
-    const [list_data, data_chart, left_grand_total, current_grand_total] =
+    const [list_data, data_chart, grand_total_left, grand_total] =
       await Promise.all([
         // Data item
         SysFinancialLedgerSchema.aggregate([
@@ -959,7 +956,7 @@ controller.categoryActivity = async (req, res, next) => {
           },
         ]),
 
-        // query current_grand_total left
+        // query grand_total left
         SysFinancialLedgerSchema.aggregate([
           {
             $match: {
@@ -998,8 +995,7 @@ controller.categoryActivity = async (req, res, next) => {
             },
           },
         ]),
-
-        // query current_grand_total
+        // query grand_total
         SysFinancialLedgerSchema.aggregate([
           {
             $match: {
@@ -1034,52 +1030,43 @@ controller.categoryActivity = async (req, res, next) => {
     });
 
     const income = {
-      total_amount: current_grand_total[0].total_income,
+      total_amount: grand_total[0].total_income,
       percentage: "0 %",
       status: "stable",
     };
     const outcome = {
-      total_amount: current_grand_total[0].total_outcome,
+      total_amount: grand_total[0].total_outcome,
       percentage: "0 %",
       status: "stable",
     };
-
-    if (
-      current_grand_total[0].total_income > left_grand_total[0].total_income
-    ) {
-      income.percentage = `+${(
-        current_grand_total[0].total_income / left_grand_total[0].total_income
-      ).toFixed(2)} %`;
+    if (grand_total[0].total_income > grand_total_left[0].total_income) {
+      income.percentage = "+100 %";
       income.status = "up";
     } else {
       income.status = "down";
       income.percentage =
         "-" +
         (
-          left_grand_total[0].total_income / current_grand_total[0].total_income
-        ).toFixed(2) +
+          grand_total_left[0].total_income / grand_total[0].total_income
+        ).toFixed(0) +
         " %";
     }
 
-    if (
-      current_grand_total[0].total_outcome < left_grand_total[0].total_outcome
-    ) {
-      outcome.status = "up";
-      outcome.percentage =
+    if (grand_total[0].total_outcome > grand_total_left[0].total_outcome) {
+      income.status = "up";
+      income.percentage =
         "+" +
         (
-          left_grand_total[0].total_outcome /
-          current_grand_total[0].total_outcome
-        ).toFixed(2) +
+          grand_total[0].total_outcome / grand_total_left[0].total_outcome
+        ).toFixed(0) +
         " %";
     } else {
-      outcome.status = "down";
-      outcome.percentage =
+      income.status = "down";
+      income.percentage =
         "-" +
         (
-          current_grand_total[0].total_outcome /
-          left_grand_total[0].total_outcome
-        ).toFixed(2) +
+          grand_total_left[0].total_outcome / grand_total[0].total_outcome
+        ).toFixed(0) +
         " %";
     }
 
