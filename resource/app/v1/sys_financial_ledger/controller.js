@@ -1030,43 +1030,50 @@ controller.categoryActivity = async (req, res, next) => {
     });
 
     const income = {
-      total_amount: grand_total[0].total_income,
-      percentage: "0 %",
+      total_amount: grand_total[0]?.total_income ?? 0,
+      percentage: "~",
       status: "stable",
     };
     const outcome = {
-      total_amount: grand_total[0].total_outcome,
-      percentage: "0 %",
+      total_amount: grand_total[0]?.total_outcome ?? 0,
+      percentage: "~",
       status: "stable",
     };
-    if (grand_total[0].total_income > grand_total_left[0].total_income) {
-      income.percentage = "+100 %";
+
+    if (grand_total[0]?.total_income > grand_total_left[0]?.total_income) {
+      income.percentage = `+${(
+        grand_total[0]?.total_income / grand_total_left[0]?.total_income
+      ).toFixed(2)} %`;
       income.status = "up";
-    } else {
+    } else if (
+      grand_total[0]?.total_income < grand_total_left[0]?.total_income
+    ) {
       income.status = "down";
       income.percentage =
         "-" +
         (
-          grand_total_left[0].total_income / grand_total[0].total_income
-        ).toFixed(0) +
+          grand_total_left[0]?.total_income / grand_total[0]?.total_income
+        ).toFixed(2) +
         " %";
     }
 
-    if (grand_total[0].total_outcome > grand_total_left[0].total_outcome) {
-      income.status = "up";
-      income.percentage =
+    if (grand_total[0]?.total_outcome < grand_total_left[0]?.total_outcome) {
+      outcome.status = "up";
+      outcome.percentage =
         "+" +
         (
-          grand_total[0].total_outcome / grand_total_left[0].total_outcome
-        ).toFixed(0) +
+          grand_total_left[0]?.total_outcome / grand_total[0]?.total_outcome
+        ).toFixed(2) +
         " %";
-    } else {
-      income.status = "down";
-      income.percentage =
+    } else if (
+      grand_total[0]?.total_outcome > grand_total_left[0]?.total_outcome
+    ) {
+      outcome.status = "down";
+      outcome.percentage =
         "-" +
         (
-          grand_total_left[0].total_outcome / grand_total[0].total_outcome
-        ).toFixed(0) +
+          grand_total[0]?.total_outcome / grand_total_left[0]?.total_outcome
+        ).toFixed(2) +
         " %";
     }
 
