@@ -776,6 +776,8 @@ controller.create = async (req, res, next) => {
 };
 
 controller.update = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     /*
     #swagger.security = [{
@@ -807,7 +809,6 @@ controller.update = async (req, res, next) => {
         sys_wallets.findOne({ _id: payload.bank_id }).select("amount").lean(),
       ]);
 
-    console.log(leftDataTrx);
     if (typeRef._id.toString() != categoryRef.parent_id.toString()) {
       throw new BadRequestError("Category no match!");
     }
@@ -846,12 +847,15 @@ controller.update = async (req, res, next) => {
     payload.total_amount = Number(payload.amount) * 1;
 
     await Promise.all([
-      SysFinancialLedgerSchema.findOneAndUpdate({ _id }, payload),
+      SysFinancialLedgerSchema.findOneAndUpdate({ _id }, payload, { session }),
       sys_wallets.findOneAndUpdate(
         { _id: payload.bank_id },
         { amount: dataWallet.amount },
+        { session },
       ),
     ]);
+
+    await session.commitTransaction();
 
     responseAPI.MethodResponse({
       res,
@@ -859,11 +863,16 @@ controller.update = async (req, res, next) => {
       data: null,
     });
   } catch (err) {
+    await session.abortTransaction();
     next();
+  } finally {
+    await session.endSession();
   }
 };
 
 controller.delete = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     /*
     #swagger.security = [{
@@ -877,15 +886,41 @@ controller.delete = async (req, res, next) => {
   */
     const _id = req.params.id;
 
-    await SysFinancialLedgerSchema.findOneAndDelete({ _id });
+    // ambil data sebelumnya
+    const isExist = await SysFinancialLedgerSchema.findOne({ _id });
 
+    // cek jika datanya ada
+    if (!isExist) throw new NotFoundError(`Data with id: ${_id} not found`);
+
+    // jika data yang dihapus adalah income maka kurangi total amount dari wallet namu jika sebaliknya maka tambahkan
+    if (isExist.isIncome) {
+      await sys_wallets.findOneAndUpdate(
+        { _id: isExist.bank_id },
+        { $inc: { amount: -isExist.amount } },
+        { session },
+      );
+    } else {
+      await sys_wallets.findOneAndUpdate(
+        { _id: isExist.bank_id },
+        { $inc: { amount: isExist.amount } },
+        { session },
+      );
+    }
+
+    // hapus data
+    await SysFinancialLedgerSchema.findOneAndDelete({ _id }, { session });
+
+    await session.commitTransaction();
     responseAPI.MethodResponse({
       res,
       method: methodConstant.DELETE,
       data: null,
     });
   } catch (err) {
+    await session.abortTransaction();
     next();
+  } finally {
+    await session.endSession();
   }
 };
 
