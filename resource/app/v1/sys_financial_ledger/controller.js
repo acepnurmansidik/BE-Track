@@ -1,4 +1,5 @@
 const SysFinancialLedgerSchema = require("../../models/sys_financial_ledger");
+const sys_wallets = require("../../models/sys_wallet");
 const SysRefparamSchema = require("../../models/sys_refparam");
 const SysBillRunningSchema = require("../../models/sys_bill_running");
 const SysUserSchema = require("../../models/sys_users");
@@ -702,6 +703,8 @@ controller.personalDashboard = async (req, res, next) => {
 };
 
 controller.create = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     /*
     #swagger.security = [{
@@ -719,6 +722,8 @@ controller.create = async (req, res, next) => {
     }
   */
     const payload = req.body;
+    payload.user_id = req.login.user_id;
+    let payloadWallets = {};
 
     const [typeRef, categoryRef, kurs] = await Promise.all([
       SysRefparamSchema.findOne({ _id: payload.type_id }),
@@ -732,30 +737,41 @@ controller.create = async (req, res, next) => {
 
     // untuk sekarang mata uangnya di hardcode terlebih dahulu
     payload.kurs_id = kurs._id;
-
     // cek jika kursnya menggunakan IDR/tidak mengirimka kurs
     if (!payload.kurs_amount) payload.kurs_amount = 1;
-
     payload.total_amount = payload.amount * payload.kurs_amount;
-    payload.isIncome = typeRef.value.toLowerCase() == "income" ? true : false;
 
-    const auth = await AuthSchema.findOne({ email: req.login.email });
-    const userLogin = await SysUserSchema.findOne({ auth_id: auth._id });
-    payload.user_id = userLogin._id;
+    if (typeRef.value.toLowerCase() == "income") {
+      payload.isIncome = true;
+      payloadWallets = { $inc: { amount: payload.total_amount } };
+    } else {
+      payload.isIncome = false;
+      payloadWallets = { $inc: { amount: -payload.total_amount } };
+    }
 
-    const data = await SysFinancialLedgerSchema.create(payload);
+    const [dataCreateFinanceTrx] = await Promise.all([
+      SysFinancialLedgerSchema.create([payload], { session }),
+      sys_wallets.findOneAndUpdate({ _id: payload.bank_id }, payloadWallets, {
+        session,
+      }),
+    ]);
 
     // admin.initializeApp({
     //   credential: admin.credential.cert(serviceAccount),
     // });
 
+    await session.commitTransaction();
+
     responseAPI.MethodResponse({
       res,
       method: methodConstant.POST,
-      data,
+      data: dataCreateFinanceTrx,
     });
   } catch (err) {
+    await session.abortTransaction();
     next(err);
+  } finally {
+    await session.endSession();
   }
 };
 
@@ -765,40 +781,82 @@ controller.update = async (req, res, next) => {
     #swagger.security = [{
       "bearerAuth": []
     }]
-  */
+    */
     /*
-    #swagger.tags = ['FINANCE']
-    #swagger.summary = 'ref parameter'
-    #swagger.description = 'untuk referensi group'
-    #swagger.parameters['obj'] = {
-      in: 'body',
-      description: 'Create role',
-      schema: { $ref: '#/definitions/BodyFinancialLedgerSchema' }
-    }
-  */
+      #swagger.tags = ['FINANCE']
+      #swagger.summary = 'ref parameter'
+      #swagger.description = 'untuk referensi group'
+      #swagger.parameters['obj'] = {
+        in: 'body',
+        description: 'Create role',
+        schema: { $ref: '#/definitions/BodyFinancialLedgerSchema' }
+      }
+    */
     const payload = req.body;
     const _id = req.params.id;
 
-    const [typeRef, categoryRef] = await Promise.all([
-      SysRefparamSchema.findOne({ _id: payload.type_id }),
-      SysRefparamSchema.findOne({ _id: payload.category_id }),
-    ]);
+    const [typeRef, categoryRef, kurs, leftDataTrx, dataWallet] =
+      await Promise.all([
+        SysRefparamSchema.findOne({ _id: payload.type_id }).lean(),
+        SysRefparamSchema.findOne({ _id: payload.category_id }).lean(),
+        SysRefparamSchema.findOne({ slug: "idr" }).lean(),
+        SysFinancialLedgerSchema.findOne({ _id })
+          .select("total_amount type_id")
+          .populate("type_id")
+          .lean(),
+        sys_wallets.findOne({ _id: payload.bank_id }).select("amount").lean(),
+      ]);
 
+    console.log(leftDataTrx);
     if (typeRef._id.toString() != categoryRef.parent_id.toString()) {
       throw new BadRequestError("Category no match!");
     }
 
-    payload.total_amount = payload.amount * payload.kurs_amount;
+    if (
+      typeRef.value.toLowerCase() == "income" &&
+      leftDataTrx.type_id.value == "income"
+    ) {
+      payload.isIncome = true;
+      dataWallet.amount =
+        Number(payload.amount) + (dataWallet.amount - leftDataTrx.total_amount);
+    } else if (
+      typeRef.value.toLowerCase() == "outcome" &&
+      leftDataTrx.type_id.value == "income"
+    ) {
+      payload.isIncome = false;
+      dataWallet.amount =
+        dataWallet.amount - (leftDataTrx.total_amount + Number(payload.amount));
+    } else if (
+      typeRef.value.toLowerCase() == "outcome" &&
+      leftDataTrx.type_id.value == "outcome"
+    ) {
+      dataWallet.amount =
+        dataWallet.amount + leftDataTrx.total_amount - Number(payload.amount);
+    } else if (
+      typeRef.value.toLowerCase() == "income" &&
+      leftDataTrx.type_id.value == "outcome"
+    ) {
+      dataWallet.amount = dataWallet.amount + Number(payload.amount);
+    }
 
-    const data = await SysFinancialLedgerSchema.findOneAndUpdate(
-      { _id },
-      payload,
-    );
+    // untuk sekarang mata uangnya di hardcode terlebih dahulu
+    payload.kurs_id = kurs._id;
+    // cek jika kursnya menggunakan IDR/tidak mengirimka kurs
+    if (!payload.kurs_amount) payload.kurs_amount = 1;
+    payload.total_amount = Number(payload.amount) * 1;
+
+    await Promise.all([
+      SysFinancialLedgerSchema.findOneAndUpdate({ _id }, payload),
+      sys_wallets.findOneAndUpdate(
+        { _id: payload.bank_id },
+        { amount: dataWallet.amount },
+      ),
+    ]);
 
     responseAPI.MethodResponse({
       res,
       method: methodConstant.PUT,
-      data,
+      data: null,
     });
   } catch (err) {
     next();
