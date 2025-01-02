@@ -930,7 +930,7 @@ controller.categoryActivity = async (req, res, next) => {
           {
             $match: {
               createdAt: { $gte: firstDayOfYear, $lte: lastDayOfYear },
-              user_id: queryFilter.user_id,
+              ...queryFilter,
             },
           },
           {
@@ -985,7 +985,7 @@ controller.categoryActivity = async (req, res, next) => {
                   millisecond: 999,
                 }).toJSDate(),
               },
-              user_id: queryFilter.user_id,
+              ...queryFilter,
             },
           },
           {
@@ -1004,12 +1004,13 @@ controller.categoryActivity = async (req, res, next) => {
             },
           },
         ]),
+
         // query grand_total
         SysFinancialLedgerSchema.aggregate([
           {
             $match: {
               createdAt: { $gte: firstDayOfYear, $lte: lastDayOfYear },
-              user_id: queryFilter.user_id,
+              ...queryFilter,
             },
           },
           {
