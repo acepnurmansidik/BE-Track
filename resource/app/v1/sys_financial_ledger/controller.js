@@ -41,11 +41,9 @@ controller.indexWithMonthlyGroup = async (req, res, next) => {
       $sort: Mengurutkan hasil berdasarkan _id yang berisi bulan dan tahun.
      */
 
-    const auth = await AuthSchema.findOne({ email: req.login.email });
-    const userLogin = await SysUserSchema.findOne({ auth_id: auth._id });
-    query.user_id = userLogin._id;
+    query.user_id = req.login.user_id;
 
-    const [listData, [grand_total], current_monthly] = await Promise.all([
+    const [listData, [grand_total]] = await Promise.all([
       SysFinancialLedgerSchema.aggregate([
         { $match: query },
         {
@@ -204,43 +202,54 @@ controller.indexWithMonthlyGroup = async (req, res, next) => {
         },
         {
           $sort: {
-            _id: 1, // Mengurutkan berdasarkan bulan dan tahun
+            _id: -1, // Mengurutkan berdasarkan bulan dan tahun
           },
         },
       ]),
+
+      // grand total
       SysFinancialLedgerSchema.aggregate([
         { $match: query },
         {
           $group: {
             _id: null,
-            grand_total: { $sum: "$total_amount" },
-          },
-        },
-      ]),
-      SysFinancialLedgerSchema.aggregate([
-        { $match: query },
-        {
-          $match: {
-            createdAt: {
-              $gte: DateTime.utc().startOf("month").toJSDate(), // Mengonversi ke JS Date
-              $lte: DateTime.utc().endOf("month").toJSDate(), // Mengonversi ke JS Date
+            grand_total: { $sum: "$total_amount" }, // Jumlahkan semua total_amount
+            current_monthly: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      {
+                        $gte: [
+                          "$createdAt",
+                          DateTime.utc().startOf("month").toJSDate(),
+                        ],
+                      },
+                      {
+                        $lte: [
+                          "$createdAt",
+                          DateTime.utc().endOf("month").toJSDate(),
+                        ],
+                      },
+                    ],
+                  },
+                  "$total_amount", // Jika dalam rentang bulan ini, tambahkan total_amount
+                  0, // Jika tidak, tambahkan 0
+                ],
+              },
             },
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            current_monthly: { $sum: "$total_amount" },
           },
         },
       ]),
     ]);
 
+    // console.log(grand_total);
+
     const dataResponse = {
-      list_data: listData.length ? listData : [],
-      grand_total: grand_total.grand_total ? grand_total.grand_total : 0,
-      current_monthly: current_monthly.current_monthly
-        ? current_monthly.current_monthly
+      list_data: listData ?? [],
+      grand_total: grand_total?.grand_total ? grand_total?.grand_total : 0,
+      current_monthly: grand_total?.current_monthly
+        ? grand_total?.current_monthly
         : 0,
     };
 
