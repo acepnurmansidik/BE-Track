@@ -756,6 +756,14 @@ controller.create = async (req, res, next) => {
       }),
     ]);
 
+    await SysFinancialLedgerSchema.findOneAndUpdate(
+      {
+        _id: dataCreateFinanceTrx._id,
+      },
+      { source_id: dataCreateFinanceTrx._id },
+      { session },
+    );
+
     // admin.initializeApp({
     //   credential: admin.credential.cert(serviceAccount),
     // });
@@ -842,9 +850,6 @@ controller.update = async (req, res, next) => {
 
     // untuk sekarang mata uangnya di hardcode terlebih dahulu
     payload.kurs_id = kurs._id;
-    // cek jika kursnya menggunakan IDR/tidak mengirimka kurs
-    if (!payload.kurs_amount) payload.kurs_amount = 1;
-    payload.total_amount = Number(payload.amount) * 1;
 
     await Promise.all([
       SysFinancialLedgerSchema.findOneAndUpdate({ _id }, payload, { session }),
@@ -1143,13 +1148,17 @@ controller.categoryActivity = async (req, res, next) => {
       status: "stable",
     };
 
-    if (grand_total[0]?.total_income > grand_total_left[0]?.total_income) {
+    if (
+      grand_total[0]?.total_income > grand_total_left[0]?.total_income &&
+      grand_total_left[0]?.total_income !== 0
+    ) {
       income.percentage = `+${(
         grand_total[0]?.total_income / grand_total_left[0]?.total_income
       ).toFixed(2)} %`;
       income.status = "up";
     } else if (
-      grand_total[0]?.total_income < grand_total_left[0]?.total_income
+      grand_total[0]?.total_income < grand_total_left[0]?.total_income &&
+      grand_total_left[0]?.total_income !== 0
     ) {
       income.status = "down";
       income.percentage =
@@ -1168,6 +1177,8 @@ controller.categoryActivity = async (req, res, next) => {
           grand_total_left[0]?.total_outcome / grand_total[0]?.total_outcome
         ).toFixed(2) +
         " %";
+
+      console.log("SISD");
     } else if (
       grand_total[0]?.total_outcome > grand_total_left[0]?.total_outcome
     ) {
@@ -1178,6 +1189,7 @@ controller.categoryActivity = async (req, res, next) => {
           grand_total[0]?.total_outcome / grand_total_left[0]?.total_outcome
         ).toFixed(2) +
         " %";
+      console.log("DSDS");
     }
 
     // send response to client

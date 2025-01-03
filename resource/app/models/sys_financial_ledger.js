@@ -8,10 +8,22 @@ const SysFinancialLedgerSchema = Schema(
       ref: "sys_user",
       required: true,
     },
+    menu: {
+      type: String,
+      required: true,
+      default: "cashflow_trx",
+    },
+    is_paid: {
+      type: Boolean,
+      default: false,
+    },
     category_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_refparameter",
       required: true,
+    },
+    source_id: {
+      type: mongoose.Types.ObjectId,
     },
     type_id: {
       type: mongoose.Types.ObjectId,
@@ -57,5 +69,13 @@ const SysFinancialLedgerSchema = Schema(
   },
   { timestamps: true, versionKey: false, new: true },
 );
+
+SysFinancialLedgerSchema.pre("save", async function (next) {
+  // untuk saat ini set kurs nya menjadi 1
+  this.kurs_amount = 1;
+  this.total_amount = Number(this.amount) * 1;
+  this.source_id = this._id;
+  next();
+});
 
 module.exports = model("sys_financial_ledger", SysFinancialLedgerSchema);

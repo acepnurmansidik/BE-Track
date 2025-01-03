@@ -2,6 +2,8 @@ const { methodConstant } = require("../../../utils/constanta");
 const WalletSchema = require("../../models/sys_wallet");
 const responseAPI = require("../../../utils/response");
 const { NotFoundError } = require("../../../utils/errors");
+const { mongo, default: mongoose } = require("mongoose");
+const sys_financial_ledger = require("../../models/sys_financial_ledger");
 
 const controller = {};
 
@@ -22,7 +24,7 @@ controller.fetchIndexByUserLogin = async (req, res, next) => {
       $or: [{ user_id: req.login.user_id }, { user_id: null }],
     })
       .select("va_number wallet_name amount")
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: 1 })
       .lean();
 
     // send response
@@ -54,9 +56,6 @@ controller.createNewWalletBy = async (req, res, next) => {
 
     // insert data user_id by user login
     payload.user_id = req.login.user_id;
-
-    // create slug by wallet_name
-    payload.slug = payload.wallet_name.toLowerCase().replace(" ", "-");
 
     // get data from database
     const result = await WalletSchema.create(payload);
@@ -131,21 +130,31 @@ controller.deleteWallet = async (req, res, next) => {
     #swagger.summary = 'api for bank/wallet'
     #swagger.description = 'this api for bank/wallet payment for user when do transaction'
   */
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     // search used slug and user login
     const queryFilter = {};
     queryFilter.user_id = req.login.user_id;
     queryFilter.slug = req.params.slug;
 
-    // checked data from database
-    const result = await WalletSchema.findOneAndDelete({ _id: req.params.id });
+    const [result, isDataTrxAvailable] = await Promise.all([
+      WalletSchema.findOneAndDelete({ _id: req.params.id }, { session }),
+      sys_financial_ledger.findOne({ bank_id: req.params.id }, { session }),
+    ]);
 
-    // send error not found when data empty
+    // checking when data bank have transaction, if have data cancel delete wallet
+    if (isDataTrxAvailable) {
+      await session.abortTransaction();
+    }
+
     if (!result)
+      // send error not found when data empty
       throw new NotFoundError(
         `Data with wallet name '${req.params.id} not found!'`,
       );
 
+    await session.startTransaction();
     // send response to client
     responseAPI.MethodResponse({
       res,
@@ -153,7 +162,10 @@ controller.deleteWallet = async (req, res, next) => {
       data: null,
     });
   } catch (err) {
+    await session.abortTransaction();
     next(err);
+  } finally {
+    await session.endSession();
   }
 };
 
