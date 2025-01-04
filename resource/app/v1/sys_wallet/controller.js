@@ -138,15 +138,12 @@ controller.deleteWallet = async (req, res, next) => {
     queryFilter.user_id = req.login.user_id;
     queryFilter.slug = req.params.slug;
 
-    const [result, isDataTrxAvailable] = await Promise.all([
+    const [result] = await Promise.all([
       WalletSchema.findOneAndDelete({ _id: req.params.id }, { session }),
-      sys_financial_ledger.findOne({ bank_id: req.params.id }, { session }),
+      ,
     ]);
 
     // checking when data bank have transaction, if have data cancel delete wallet
-    if (isDataTrxAvailable) {
-      await session.abortTransaction();
-    }
 
     if (!result)
       // send error not found when data empty
@@ -154,7 +151,15 @@ controller.deleteWallet = async (req, res, next) => {
         `Data with wallet name '${req.params.id} not found!'`,
       );
 
-    await session.startTransaction();
+    const isDataTrxAvailable = await sys_financial_ledger.findOne({
+      bank_id: req.params.id,
+    });
+
+    if (isDataTrxAvailable) {
+      await session.abortTransaction();
+    }
+
+    await session.commitTransaction();
     // send response to client
     responseAPI.MethodResponse({
       res,
