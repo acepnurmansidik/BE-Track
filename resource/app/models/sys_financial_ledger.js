@@ -74,7 +74,9 @@ SysFinancialLedgerSchema.pre("save", async function (next) {
   // untuk saat ini set kurs nya menjadi 1
   this.kurs_amount = 1;
   this.total_amount = Number(this.amount) * 1;
-  this.source_id = this._id;
+  if (!this.source_id) {
+    this.source_id = this._id;
+  }
   next();
 });
 

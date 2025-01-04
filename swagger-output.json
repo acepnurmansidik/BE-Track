@@ -621,6 +621,142 @@
         ]
       }
     },
+    "/api/v1/loan/": {
+      "get": {
+        "tags": [
+          "LOAN"
+        ],
+        "summary": "api untuk menampilkan data loan/pinjaman",
+        "description": "listing data loan/pinjaman",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "LOAN"
+        ],
+        "summary": "api untuk menampilkan data loan/pinjaman",
+        "description": "listing data loan/pinjaman",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create loan",
+            "schema": {
+              "$ref": "#/definitions/BodyLoanSchema"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/loan/{id}": {
+      "put": {
+        "tags": [
+          "LOAN"
+        ],
+        "summary": "api untuk menampilkan data loan/pinjaman",
+        "description": "listing data loan/pinjaman",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create loan",
+            "schema": {
+              "$ref": "#/definitions/BodyLoanSchema"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "LOAN"
+        ],
+        "summary": "api untuk menampilkan data loan/pinjaman",
+        "description": "listing data loan/pinjaman",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create loan",
+            "schema": {
+              "$ref": "#/definitions/BodyLoanSchema"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/trx/": {
       "get": {
         "tags": [
@@ -1531,10 +1667,6 @@
     "BodyWalletSchema": {
       "type": "object",
       "properties": {
-        "va_number": {
-          "type": "string",
-          "example": "2131 6237 0172 2345 2374"
-        },
         "owner_name": {
           "type": "string",
           "example": "john doe"
@@ -1546,6 +1678,31 @@
         "amount": {
           "type": "number",
           "example": 0
+        }
+      }
+    },
+    "BodyLoanSchema": {
+      "type": "object",
+      "properties": {
+        "from_name": {
+          "type": "string",
+          "example": "You"
+        },
+        "to_name": {
+          "type": "string",
+          "example": "john wick"
+        },
+        "due_date": {
+          "type": "string",
+          "example": "2024-03-31T17:00:00.000Z"
+        },
+        "nominal": {
+          "type": "number",
+          "example": 0
+        },
+        "note": {
+          "type": "string",
+          "example": "Pencairan bitcoin"
         }
       }
     },

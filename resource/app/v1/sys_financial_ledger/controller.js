@@ -2,8 +2,6 @@ const SysFinancialLedgerSchema = require("../../models/sys_financial_ledger");
 const sys_wallets = require("../../models/sys_wallet");
 const SysRefparamSchema = require("../../models/sys_refparam");
 const SysBillRunningSchema = require("../../models/sys_bill_running");
-const SysUserSchema = require("../../models/sys_users");
-const AuthSchema = require("../../models/auth");
 const responseAPI = require("../../../utils/response");
 const { methodConstant, monthName } = require("../../../utils/constanta");
 const { BadRequestError, NotFoundError } = require("../../../utils/errors");
@@ -11,7 +9,7 @@ const { DateTime } = require("luxon");
 const admin = require("firebase-admin");
 const serviceAccount = require("../../../../serviceAccountKey.json");
 const { default: mongoose } = require("mongoose");
-const { portAccess, puclicIP, urlUltra } = require("../../../utils/config");
+const { urlUltra } = require("../../../utils/config");
 
 const controller = {};
 
@@ -20,12 +18,12 @@ controller.indexWithMonthlyGroup = async (req, res, next) => {
   #swagger.security = [{
     "bearerAuth": []
   }]
-*/
+  */
   /*
-  #swagger.tags = ['FINANCE']
-  #swagger.summary = 'ref parameter'
-  #swagger.description = 'untuk referensi group'
-*/
+    #swagger.tags = ['FINANCE']
+    #swagger.summary = 'ref parameter'
+    #swagger.description = 'untuk referensi group'
+  */
   try {
     const query = req.query;
 
@@ -723,6 +721,7 @@ controller.create = async (req, res, next) => {
   */
     const payload = req.body;
     payload.user_id = req.login.user_id;
+    payload.is_paid = true;
     let payloadWallets = {};
 
     const [typeRef, categoryRef, kurs] = await Promise.all([
