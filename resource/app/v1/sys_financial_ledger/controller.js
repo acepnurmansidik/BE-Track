@@ -1188,7 +1188,6 @@ controller.categoryActivity = async (req, res, next) => {
           grand_total[0]?.total_outcome / grand_total_left[0]?.total_outcome
         ).toFixed(2) +
         " %";
-      console.log("DSDS");
     }
 
     // send response to client

@@ -70,7 +70,18 @@ controller.index = async (req, res, next) => {
           from_name: "$loanDetails.from_name",
           to_name: "$loanDetails.to_name",
           note: "$loanDetails.note",
-          due_date: "$loanDetails.due_date",
+          due_date: {
+            $dateToString: {
+              format: "%Y-%m-%d %H:%M",
+              date: "$loanDetails.due_date",
+            },
+          },
+          created_at: {
+            $dateToString: {
+              format: "%Y-%m-%d %H:%M",
+              date: "$createdAt",
+            },
+          },
           nominal: "$loanDetails.nominal",
           image_url: { $concat: [urlUltra, "$categoryDetails.icon.name"] },
         },
