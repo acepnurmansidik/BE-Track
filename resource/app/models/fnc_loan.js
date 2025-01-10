@@ -35,10 +35,6 @@ const FncLoanSchema = Schema(
       default: "",
       required: true,
     },
-    due_date: {
-      type: Date,
-      default: null,
-    },
     nominal: {
       type: Number,
       default: 0,

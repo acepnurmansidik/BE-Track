@@ -1692,13 +1692,13 @@
           "type": "string",
           "example": "john wick"
         },
-        "due_date": {
-          "type": "string",
-          "example": "2024-03-31T17:00:00.000Z"
-        },
         "nominal": {
           "type": "number",
           "example": 0
+        },
+        "is_income": {
+          "type": "boolean",
+          "example": true
         },
         "note": {
           "type": "string",

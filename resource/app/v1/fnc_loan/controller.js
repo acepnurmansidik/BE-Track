@@ -70,12 +70,12 @@ controller.index = async (req, res, next) => {
           from_name: "$loanDetails.from_name",
           to_name: "$loanDetails.to_name",
           note: "$loanDetails.note",
-          due_date: {
-            $dateToString: {
-              format: "%Y-%m-%d %H:%M",
-              date: "$loanDetails.due_date",
-            },
-          },
+          // due_date: {
+          //   $dateToString: {
+          //     format: "%Y-%m-%d %H:%M",
+          //     date: "$loanDetails.due_date",
+          //   },
+          // },
           created_at: {
             $dateToString: {
               format: "%Y-%m-%d %H:%M",
@@ -266,6 +266,16 @@ controller.deleteLoan = async (req, res, next) => {
     #swagger.security = [{
       "bearerAuth": []
     }]
+  */
+  /*
+    #swagger.tags = ['LOAN']
+    #swagger.summary = 'api untuk menampilkan data loan/pinjaman'
+    #swagger.description = 'listing data loan/pinjaman'
+    #swagger.parameters['obj'] = {
+      in: 'body',
+      description: 'Create loan',
+      schema: { $ref: '#/definitions/BodyLoanSchema' }
+    }
   */
   const session = await mongoose.startSession();
   session.startTransaction();
