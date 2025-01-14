@@ -33,8 +33,6 @@ controller.uploadFile = async (req, res, next) => {
         name: fileImage.path,
       });
 
-      console.log();
-
       data.push({
         _id: response._id,
         name: response.name,
