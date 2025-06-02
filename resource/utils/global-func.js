@@ -1,9 +1,9 @@
 const { StatusCodes } = require("http-status-codes");
 const { methodConstant } = require("./constanta");
 
-const response = {};
+const globalFunc = {};
 
-response.MethodResponse = ({ res, method, data }) => {
+globalFunc.MethodResponse = ({ res, method, data }) => {
   let code = StatusCodes.OK;
   let message;
   switch (method) {
@@ -30,7 +30,7 @@ response.MethodResponse = ({ res, method, data }) => {
   });
 };
 
-response.GetPaginationResponse = ({ res, data, page, page_size }) => {
+globalFunc.GetPaginationResponse = ({ res, data, page, page_size }) => {
   return res.status(StatusCodes.CREATED).json({
     code: StatusCodes.OK,
     status: true,
@@ -46,7 +46,7 @@ response.GetPaginationResponse = ({ res, data, page, page_size }) => {
   });
 };
 
-response.ErrorResponse = (res, code, message) => {
+globalFunc.ErrorResponse = (res, code, message) => {
   return res.status(StatusCodes.BAD_REQUEST).json({
     code,
     status: false,
@@ -55,4 +55,4 @@ response.ErrorResponse = (res, code, message) => {
   });
 };
 
-module.exports = response;
+module.exports = globalFunc;

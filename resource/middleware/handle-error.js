@@ -1,5 +1,5 @@
 const { StatusCodes } = require("http-status-codes");
-const response = require("../utils/response");
+const response = require("../utils/global-func");
 
 const errorHandlerMiddleware = (err, req, res, next) => {
   let customError = {

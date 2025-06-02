@@ -1,8 +1,9 @@
 const { saltEncrypt } = require("../../utils/config");
 const AuthUser = require("../models/auth");
+const ImageSchema = require("../models/image");
 const UserSchema = require("../models/sys_users");
 const bcrypt = require("bcrypt");
-const responseAPI = require("../../utils/response");
+const globalFunc = require("../../utils/global-func");
 const { BadRequestError, NotFoundError } = require("../../utils/errors");
 const { methodConstant } = require("../../utils/constanta");
 const globalService = require("../../helper/global-func");
@@ -51,7 +52,7 @@ controller.Register = async (req, res, next) => {
     // Jika semua operasi berhasil, commit transaksi
     await session.commitTransaction();
 
-    responseAPI.MethodResponse({
+    globalFunc.MethodResponse({
       res,
       method: methodConstant.POST,
       data: null,
@@ -93,7 +94,7 @@ controller.Login = async (req, res, next) => {
       name: isAvailable.username,
     });
 
-    responseAPI.MethodResponse({
+    globalFunc.MethodResponse({
       res,
       method: methodConstant.GET,
       data: { token },
@@ -128,7 +129,43 @@ controller.recoveryPassword = async (req, res, next) => {
 
     await AuthUser.findOneAndUpdate({ email }, { password });
 
-    responseAPI.MethodResponse({ res, method: methodConstant.PUT, data: null });
+    globalFunc.MethodResponse({ res, method: methodConstant.PUT, data: null });
+  } catch (err) {
+    next(err);
+  }
+};
+
+controller.uploadFile = async (req, res, next) => {
+  /*
+    #swagger.tags = ['UPLOAD IMAGES']
+    #swagger.summary = 'this API for upload images'
+    #swagger.description = 'untuk referensi group'
+    #swagger.consumes = ['multipart/form-data']
+    #swagger.parameters['proofs'] = {
+      in: 'formData',
+      type: 'array',
+      required: true,
+      description: 'Some description...',
+      collectionFormat: 'multi',
+      items: { type: 'file' }
+    }
+  */
+  try {
+    const _temp = [];
+
+    console.log(req.files);
+
+    const fileResult = await ImageSchema.create(req.files);
+
+    for (let file of fileResult) {
+      _temp.push(file.id);
+    }
+
+    globalFunc.MethodResponse({
+      res,
+      method: methodConstant.POST,
+      data: _temp,
+    });
   } catch (err) {
     next(err);
   }

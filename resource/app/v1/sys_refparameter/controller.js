@@ -1,5 +1,5 @@
 const SysRefparamSchema = require("../../models/sys_refparam");
-const responseAPI = require("../../../utils/response");
+const globalFunc = require("../../../utils/global-func");
 const { methodConstant } = require("../../../utils/constanta");
 
 const controller = {};
@@ -98,7 +98,7 @@ controller.index = async (req, res, next) => {
       },
     ]);
 
-    responseAPI.MethodResponse({
+    globalFunc.MethodResponse({
       res,
       method: methodConstant.GET,
       data,
@@ -130,7 +130,7 @@ controller.create = async (req, res, next) => {
     payload.value = payload.value.toLowerCase();
     const data = await SysRefparamSchema.create(payload);
 
-    responseAPI.MethodResponse({
+    globalFunc.MethodResponse({
       res,
       method: methodConstant.POST,
       data: payload,
@@ -164,7 +164,7 @@ controller.update = async (req, res, next) => {
     payload.value = payload.value.toLowerCase();
     const data = await SysRefparamSchema.findOneAndUpdate({ _id }, payload);
 
-    responseAPI.MethodResponse({
+    globalFunc.MethodResponse({
       res,
       method: methodConstant.PUT,
       data,
@@ -190,7 +190,7 @@ controller.delete = async (req, res, next) => {
 
     await SysRefparamSchema.findOneAndDelete({ _id });
 
-    responseAPI.MethodResponse({
+    globalFunc.MethodResponse({
       res,
       method: methodConstant.DELETE,
       data: null,

@@ -1,5 +1,6 @@
 const express = require("express");
 const controller = require("./controller");
+const { uploadFileImageConfig } = require("../../middleware/multer");
 const router = express.Router();
 
 /**
@@ -12,5 +13,10 @@ const router = express.Router();
 router.post("/signup", controller.Register);
 router.post("/signin", controller.Login);
 router.put("/forgot", controller.recoveryPassword);
+router.post(
+  "/upload-file",
+  uploadFileImageConfig.array("proofs"),
+  controller.uploadFile,
+);
 
 module.exports = router;

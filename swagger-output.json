@@ -94,6 +94,36 @@
         }
       }
     },
+    "/api/v1/auth/upload-file": {
+      "post": {
+        "tags": [
+          "UPLOAD IMAGES"
+        ],
+        "summary": "this API for upload images",
+        "description": "untuk referensi group",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "proofs",
+            "in": "formData",
+            "type": "array",
+            "required": true,
+            "description": "Some description...",
+            "collectionFormat": "multi",
+            "items": {
+              "type": "file"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/v1/ref-parameter/": {
       "get": {
         "tags": [

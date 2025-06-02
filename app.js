@@ -10,6 +10,16 @@ const swaggerDocument = require("./swagger-output.json"); //
 
 const app = express();
 
+// Menentukan direktori untuk file gambar
+const imagesDirectory = path.join(__dirname, "uploads", "images");
+const imagesDoc = path.join(__dirname, "uploads", "doc");
+const imagesCSV = path.join(__dirname, "uploads", "csv");
+
+// Menggunakan middleware express.static untuk menyajikan file statis
+app.use("/uploads/images", express.static(imagesDirectory));
+app.use("/uploads/doc", express.static(imagesDoc));
+app.use("/uploads/csv", express.static(imagesCSV));
+
 // import router categories
 const indexRouter = require("./routes");
 const notFoundMiddleware = require("./resource/middleware/not-found");

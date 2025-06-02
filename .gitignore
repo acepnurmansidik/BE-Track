@@ -1,3 +1,13 @@
-/node_modules/
+/node_modules
 .env
-.vercel
+/uploads/csv/
+/uploads/images/
+/uploads/doc/
+swagger-output.json
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# app build result
+BE_RentHouse
