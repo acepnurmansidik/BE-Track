@@ -18,6 +18,9 @@ router.put("/:id", controller.update);
 router.delete("/:id", controller.delete);
 router.get("/category-activity", controller.categoryActivity);
 
+// WEB ROUTE API ==============================================
+router.get("/chart", controller.chartData);
+
 // BILLING ROUTE API ===========================================
 router.get("/bill", controller.indexBillRunning);
 router.post("/bill", controller.createBillRunning);

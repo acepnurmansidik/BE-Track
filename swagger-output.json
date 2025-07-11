@@ -978,6 +978,32 @@
         ]
       }
     },
+    "/api/v1/trx/chart": {
+      "get": {
+        "tags": [
+          "FINANCE"
+        ],
+        "summary": "chart data yearly",
+        "description": "chart data selama 1 tahun",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/trx/bill": {
       "get": {
         "tags": [

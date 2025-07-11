@@ -975,7 +975,7 @@ controller.categoryActivity = async (req, res, next) => {
     }).toJSDate();
 
     // get data from database
-    const [list_data, data_chart, grand_total_left, grand_total] =
+    const [list_data, data_chart, [grand_total_left], [grand_total]] =
       await Promise.all([
         // Data item
         SysFinancialLedgerSchema.aggregate([
@@ -1137,54 +1137,58 @@ controller.categoryActivity = async (req, res, next) => {
     });
 
     const income = {
-      total_amount: grand_total[0]?.total_income ?? 0,
+      total_amount: grand_total?.total_income ?? 0,
       percentage: "~",
       status: "stable",
     };
     const outcome = {
-      total_amount: grand_total[0]?.total_outcome ?? 0,
+      total_amount: grand_total?.total_outcome ?? 0,
       percentage: "~",
       status: "stable",
     };
 
     if (
-      grand_total[0]?.total_income > grand_total_left[0]?.total_income &&
-      grand_total_left[0]?.total_income !== 0
+      grand_total?.total_income > grand_total_left?.total_income &&
+      grand_total_left?.total_income !== 0
     ) {
       income.percentage = `+${(
-        grand_total[0]?.total_income / grand_total_left[0]?.total_income
+        grand_total?.total_income / grand_total_left?.total_income
       ).toFixed(2)} %`;
       income.status = "up";
     } else if (
-      grand_total[0]?.total_income < grand_total_left[0]?.total_income &&
-      grand_total_left[0]?.total_income !== 0
+      grand_total?.total_income < grand_total_left?.total_income &&
+      grand_total_left?.total_income !== 0
     ) {
       income.status = "down";
       income.percentage =
         "-" +
-        (
-          grand_total_left[0]?.total_income / grand_total[0]?.total_income
-        ).toFixed(2) +
+        (grand_total_left?.total_income / grand_total?.total_income).toFixed(
+          2,
+        ) +
         " %";
     }
 
-    if (grand_total[0]?.total_outcome < grand_total_left[0]?.total_outcome) {
+    if (
+      grand_total?.total_outcome < grand_total_left?.total_outcome &&
+      grand_total_left?.total_outcome !== 0
+    ) {
       outcome.status = "up";
       outcome.percentage =
         "+" +
-        (
-          grand_total_left[0]?.total_outcome / grand_total[0]?.total_outcome
-        ).toFixed(2) +
+        (grand_total_left?.total_outcome / grand_total?.total_outcome).toFixed(
+          2,
+        ) +
         " %";
     } else if (
-      grand_total[0]?.total_outcome > grand_total_left[0]?.total_outcome
+      grand_total?.total_outcome > grand_total_left?.total_outcome &&
+      grand_total_left?.total_outcome !== 0
     ) {
       outcome.status = "down";
       outcome.percentage =
         "-" +
-        (
-          grand_total[0]?.total_outcome / grand_total_left[0]?.total_outcome
-        ).toFixed(2) +
+        (grand_total?.total_outcome / grand_total_left?.total_outcome).toFixed(
+          2,
+        ) +
         " %";
     }
 
@@ -1204,7 +1208,111 @@ controller.categoryActivity = async (req, res, next) => {
   }
 };
 
-// =====================================================================================
+// ======================================================================================
+// CHART DATA ===========================================================================
+
+controller.chartData = async (req, res, next) => {
+  /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+  /*
+    #swagger.tags = ['FINANCE']
+    #swagger.summary = 'chart data yearly'
+    #swagger.description = 'chart data selama 1 tahun'
+  */
+  try {
+    // filter data
+    const queryFilter = {};
+    Object.keys(req.query).map((item) => {
+      if (item.includes("_id")) {
+        queryFilter[item] = new mongoose.Types.ObjectId(`${req.query[item]}`);
+      } else {
+        queryFilter[item] = req.query[item];
+      }
+    });
+
+    // filter data with user login
+    queryFilter.user_id = req.login.user_id;
+
+    // mendapatkan tahun sekarang
+    const currentYear = DateTime.now().year;
+
+    // mendapatkan tanggal dan bulan pertaman id tahun sekarang
+    const firstDayOfYear = DateTime.fromObject({
+      year: currentYear,
+      month: 1,
+      day: 1,
+    }).toJSDate();
+    const lastDayOfYear = DateTime.fromObject({
+      year: currentYear,
+      month: 12,
+      day: 31,
+      hour: 23,
+      minute: 59,
+      second: 59,
+      millisecond: 999,
+    }).toJSDate();
+
+    const data_chart = await SysFinancialLedgerSchema.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: firstDayOfYear, $lte: lastDayOfYear },
+          ...queryFilter,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%m %Y", date: "$createdAt" }, // Ganti format
+          },
+          date: { $first: "$createdAt" },
+          income: {
+            $sum: {
+              $cond: [{ $eq: ["$isIncome", true] }, "$total_amount", 0],
+            },
+          },
+          outcome: {
+            $sum: {
+              $cond: [{ $eq: ["$isIncome", false] }, "$total_amount", 0],
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: "$_id",
+          income: 1,
+          outcome: 1,
+          date: 1,
+        },
+      },
+      {
+        $sort: { date: -1 }, // Mengurutkan hasil berdasarkan date
+      },
+    ]);
+
+    // BAR * CHART * SECTION ################################################################################
+    // modifikasi result dari DB mnejadi nama bulan dan tahun/MMMM YYYY
+    data_chart.map((everyItem) => {
+      everyItem.month = `${
+        monthName[Number(everyItem.month.split(" ")[0]) - 1]
+      } ${everyItem.month.split(" ")[1]}`;
+    });
+
+    responseAPI.MethodResponse({
+      res,
+      method: methodConstant.GET,
+      data: data_chart,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ======================================================================================
 // BILL RUNNING =========================================================================
 controller.indexBillRunning = async (req, res, next) => {
   try {
