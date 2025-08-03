@@ -6,10 +6,10 @@ const responseAPI = require("../../../utils/response");
 const { methodConstant, monthName } = require("../../../utils/constanta");
 const { BadRequestError, NotFoundError } = require("../../../utils/errors");
 const { DateTime } = require("luxon");
-const admin = require("firebase-admin");
-const serviceAccount = require("../../../../serviceAccountKey.json");
 const { default: mongoose } = require("mongoose");
 const { urlUltra } = require("../../../utils/config");
+const globalService = require("../../../utils/global-func");
+const { queryGrandTotalTrx, queryMontlyNameGroup } = require("./queries");
 
 const controller = {};
 
@@ -246,6 +246,123 @@ controller.indexWithMonthlyGroup = async (req, res, next) => {
 
     const dataResponse = {
       list_data: listData ?? [],
+      grand_total: grand_total?.grand_total ? grand_total?.grand_total : 0,
+      current_monthly: grand_total?.current_monthly
+        ? grand_total?.current_monthly
+        : 0,
+    };
+
+    responseAPI.MethodResponse({
+      res,
+      method: methodConstant.GET,
+      data: dataResponse,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+controller.indexWithMonthlyGroupNew = async (req, res, next) => {
+  const populateField = [
+    { path: "bank_id", model: "sys_wallet", select: "wallet_name _id" },
+    {
+      path: "type_id",
+      model: "sys_refparameter",
+      select: "_id value description",
+      populate: {
+        path: "icon",
+        model: "sys_uploadfile",
+        select: "_id name",
+      },
+    },
+    {
+      path: "category_id",
+      model: "sys_refparameter",
+      select: "_id value description",
+      populate: {
+        path: "icon",
+        model: "sys_uploadfile",
+        select: "_id name",
+      },
+    },
+    {
+      path: "kurs_id",
+      model: "sys_refparameter",
+      select: "_id value description",
+      populate: {
+        path: "icon",
+        model: "sys_uploadfile",
+        select: "_id name",
+      },
+    },
+  ];
+  /*
+  #swagger.security = [{
+    "bearerAuth": []
+  }]
+  */
+  /*
+    #swagger.tags = ['FINANCE']
+    #swagger.summary = 'ref parameter'
+    #swagger.description = 'untuk referensi group'
+  */
+  try {
+    const query = req.query;
+
+    /**
+     * Penjelasan
+      1. Model Mongoose:
+
+      exampleSchema: Skema yang memiliki field name dan createdAt. Field createdAt diatur dengan default Date.now.
+      2. Agregasi MongoDB:
+
+      $group: Mengelompokkan dokumen berdasarkan hasil dari $dateToString.
+      $dateToString: Mengonversi tanggal createdAt ke format "MMMM yyyy".
+      count: { $sum: 1 }: Menghitung jumlah dokumen dalam setiap grup.
+      $sort: Mengurutkan hasil berdasarkan _id yang berisi bulan dan tahun.
+     */
+
+    query.user_id = req.login.user_id;
+
+    const [monthlyGroup, [grand_total], listData] = await Promise.all([
+      // grand total
+      globalService.Aggregate({
+        next,
+        modelSchema: SysFinancialLedgerSchema,
+        query: queryMontlyNameGroup,
+      }),
+      // grand total
+      globalService.Aggregate({
+        next,
+        modelSchema: SysFinancialLedgerSchema,
+        query: queryGrandTotalTrx,
+      }),
+
+      // data monthly group
+      globalService.FindAll({
+        modelSchema: SysFinancialLedgerSchema,
+        selectField: "-user_id -menu -is_paid -qty -updatedAt",
+        next,
+        populateField,
+      }),
+    ]);
+
+    monthlyGroup.map((month) => {
+      month.list_item = listData.filter((dataItem) => {
+        if (
+          DateTime.fromJSDate(dataItem.createdAt).toFormat("MMMM yyyy") ===
+          month.periode
+        ) {
+          month.total_monthly += dataItem.total_amount;
+          return dataItem;
+        }
+      });
+    });
+
+    // console.log(monthlyGroup[0]);
+
+    const dataResponse = {
+      list_data: monthlyGroup ?? [],
       grand_total: grand_total?.grand_total ? grand_total?.grand_total : 0,
       current_monthly: grand_total?.current_monthly
         ? grand_total?.current_monthly

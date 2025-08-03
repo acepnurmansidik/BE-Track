@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { model, Schema } = mongoose;
 
-const SysFinancialLedgerSchema = Schema(
+const TransactionSchema = Schema(
   {
     user_id: {
       type: mongoose.Types.ObjectId,
@@ -70,7 +70,7 @@ const SysFinancialLedgerSchema = Schema(
   { timestamps: true, versionKey: false, new: true },
 );
 
-SysFinancialLedgerSchema.pre("save", async function (next) {
+TransactionSchema.pre("save", async function (next) {
   // untuk saat ini set kurs nya menjadi 1
   this.kurs_amount = 1;
   this.total_amount = Number(this.amount) * 1;
@@ -80,4 +80,4 @@ SysFinancialLedgerSchema.pre("save", async function (next) {
   next();
 });
 
-module.exports = model("sys_financial_ledger", SysFinancialLedgerSchema);
+module.exports = model("transactions", TransactionSchema);

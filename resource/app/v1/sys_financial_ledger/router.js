@@ -11,7 +11,7 @@ const router = require("express").Router();
  */
 // MOBILE ROUTE API ===========================================
 // WEB ROUTE API ==============================================
-router.get("/", controller.indexWithMonthlyGroup);
+router.get("/", controller.indexWithMonthlyGroupNew);
 router.get("/dashboard/personal", controller.personalDashboard);
 router.post("/", controller.create);
 router.put("/:id", controller.update);

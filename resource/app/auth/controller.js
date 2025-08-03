@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const responseAPI = require("../../utils/response");
 const { BadRequestError, NotFoundError } = require("../../utils/errors");
 const { methodConstant } = require("../../utils/constanta");
-const globalService = require("../../helper/global-func");
+const globalService = require("../../utils/global-func");
 const { default: mongoose } = require("mongoose");
 
 const controller = {};
