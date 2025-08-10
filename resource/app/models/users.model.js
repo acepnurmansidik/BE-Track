@@ -16,8 +16,8 @@ const SysUserSchema = Schema(
     },
     device_token: {
       type: String,
-      minlength: [3, "Panjang password minimal 3 karakter"],
       required: [false, "Device token can't be empty"],
+      default: "",
     },
   },
   { timestamps: true, versionKey: false, new: true },

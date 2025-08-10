@@ -1,6 +1,6 @@
-const SysRefparamSchema = require("../../models/sys_refparam");
-const globalFunc = require("../../../utils/global-func");
-const { methodConstant } = require("../../../utils/constanta");
+const SysRefparamSchema = require("../models/reffParam.model");
+const globalFunc = require("../../utils/global-func");
+const { methodConstant } = require("../../utils/constanta");
 
 const controller = {};
 

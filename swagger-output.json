@@ -64,8 +64,8 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -88,8 +88,8 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -309,7 +309,7 @@
           "type": "string",
           "example": "123456"
         },
-        "confirmPassword": {
+        "confirm_password": {
           "type": "string",
           "example": "123456"
         }
@@ -337,35 +337,6 @@
         "icon": {
           "type": "string",
           "example": "https://firebasestorage.googleapis.com/v0/b/trackmoney-af0db.appspot.com/o/icons%2Fmore.png?alt=media&token=7a398a19-6b73-4e1c-bb59-e029eecec498"
-        }
-      }
-    },
-    "BodyFinancialLedgerSchema": {
-      "type": "object",
-      "properties": {
-        "category_id": {
-          "type": "string",
-          "example": "66912314e485b234f586e897"
-        },
-        "type_id": {
-          "type": "string",
-          "example": "669122f5e485b234f586e895"
-        },
-        "kurs_id": {
-          "type": "string",
-          "example": "669365e02c2c9f9c783752b2"
-        },
-        "amount": {
-          "type": "number",
-          "example": 20000
-        },
-        "kurs_amount": {
-          "type": "number",
-          "example": 1
-        },
-        "note": {
-          "type": "string",
-          "example": "naik KRL"
         }
       }
     },

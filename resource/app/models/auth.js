@@ -19,6 +19,10 @@ const AuthSchema = Schema(
       minlength: [3, "Panjang password minimal 3 karakter"],
       required: [true, "password harus diisi"],
     },
+    is_delete: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true, versionKey: false },
 );

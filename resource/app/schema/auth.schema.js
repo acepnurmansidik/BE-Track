@@ -16,7 +16,7 @@ const Authchema = {
     BodyAuthForgotSchema: {
       email: "john.doe@gmail.com",
       password: "123456",
-      confirmPassword: "123456",
+      confirm_password: "123456",
     },
   },
 };

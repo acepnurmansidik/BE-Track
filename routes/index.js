@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
-const authRouter = require("../resource/app/auth/router");
-const refparamRouter = require("../resource/app/v1/sys_refparameter/router");
+const authRouter = require("../resource/app/router/auth.router");
+const refparamRouter = require("../resource/app/router/reffParam.router");
 const AuthorizeUserLogin = require("../resource/middleware/authentification");
 
 router.use("/auth", authRouter);

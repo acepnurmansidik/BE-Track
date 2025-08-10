@@ -7,6 +7,10 @@ const ImageSchema = Schema(
       type: String,
       required: [true, "Value harus diisi"],
     },
+    source_name: {
+      type: String,
+      required: [false, "Value harus diisi"],
+    },
     status: {
       type: Boolean,
       default: false,

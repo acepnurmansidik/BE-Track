@@ -1,93 +1,76 @@
 const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
-// SETUP ==============================================================
-const filterImages = (req, file, cb) => {
-  if (
-    ["jpg", "jpeg", "JPG", "JPEG", "png", "PNG"].includes(
-      file.mimetype.split("/")[1],
-    )
-  ) {
-    cb(null, true);
-  } else {
-    //reject file
-    cb(
-      {
-        message: `Unsupported file format please insert ${[
-          "jpg",
-          "jpeg",
-          "JPG",
-          "JPEG",
-          "png",
-          "PNG",
-        ].join(", ")}`,
-      },
-      false,
-    );
+// Fungsi untuk membuat folder jika belum ada
+const ensureDirExistence = (filePath) => {
+  const dirname = path.dirname(filePath);
+  if (!fs.existsSync(filePath)) {
+    console.log(`Folder does not exist, create folder: ${dirname}`);
+    fs.mkdirSync(filePath, { recursive: true });
   }
 };
 
-const filterDocument = (req, file, cb) => {
-  if (
-    ["doc", "docx", "xlsx", "pdf", "csv"].includes(file.mimetype.split("/")[1])
-  ) {
-    cb(null, true);
-  } else {
-    //reject file
-    cb(
-      {
-        message: `Unsupported file format please insert ${[
-          "doc",
-          "docx",
-          "xlsx",
-          "pdf",
-          "csv",
-        ].join(", ")}`,
-      },
-      false,
-    );
-  }
+// Fungsi untuk mendapatkan storage secara dinamis
+const getStorage = (folder) => {
+  return multer.diskStorage({
+    destination: (req, file, cb) => {
+      const fileExtension = file.mimetype.split("/")[1];
+      let pathDir = "uploads/";
+      if (["jpg", "jpeg", "png"].includes(fileExtension)) {
+        pathDir += "images";
+      } else if (["doc", "docx", "xlsx", "pdf"].includes(fileExtension)) {
+        pathDir += "doc";
+      } else if (["csv"].includes(fileExtension)) {
+        pathDir += "csv";
+      }
+
+      // Menentukan folder tujuan berdasarkan parameter folder
+      const uploadDir = path.join(__dirname, `../../${pathDir}/${folder}`);
+
+      // Debugging: log lokasi folder yang digunakan
+      // console.log(`Upload destination folder: ${uploadDir}`);
+
+      // Pastikan folder tujuan ada
+      ensureDirExistence(uploadDir); // Membuat folder jika belum ada
+      cb(null, uploadDir); // Folder tujuan upload
+    },
+    filename: (req, file, cb) => {
+      cb(
+        null,
+        Date.now() +
+          `${Math.random().toString(36).split(".")[1]}${
+            Math.random().toString(36).split(".")[1]
+          }.${file.mimetype.split("/")[1]}`,
+      );
+    },
+  });
 };
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    let path = "uploads/";
-    if (
-      ["jpg", "jpeg", "JPG", "JPEG", "png", "PNG"].includes(
-        file.mimetype.split("/")[1],
-      )
-    ) {
-      path += "images";
-    } else if (
-      ["doc", "docx", "xlsx", "pdf"].includes(file.mimetype.split("/")[1])
-    ) {
-      path += "doc";
-    } else if (["csv"].includes(file.mimetype.split("/")[1])) {
-      path += "csv";
-    }
 
-    cb(null, path); // Sesuaikan dengan path direktori tujuan Anda
-  },
-  filename: (req, file, cb) => {
-    cb(
-      null,
-      Date.now() +
-        `${Math.random().toString(36).split(".")[1]}${
-          Math.random().toString(36).split(".")[1]
-        }${file.originalname.replace(/\s+/g, "-").replace(/[^\w-]+/g, "")}.${
-          file.mimetype.split("/")[1]
-        }`,
-    );
-  },
-});
+// Fungsi middleware yang menerima parameter folder
+const uploadFilesMiddleware = (folder) => {
+  const formatAllowed = "jpg jpeg png doc docx csv pdf";
 
-const uploadFileImageConfig = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
-  fileFilter: filterImages,
-});
-const uploadFileDocumentConfig = multer({
-  storage,
-  limits: { fileSize: 100 * 1024 * 1024 },
-  fileFilter: filterDocument,
-});
+  const upload = multer({
+    storage: getStorage(folder),
+    fileFilter: (req, file, cb) => {
+      const fileExtension = file.mimetype.split("/")[1];
+      // Filter file (hanya .jpg dan .png)
+      if (formatAllowed.split(" ").includes(fileExtension)) {
+        cb(null, true);
+      } else {
+        cb(
+          new Error(
+            `Unsupported file format only ${formatAllowed} files are allowed`,
+          ),
+          false,
+        );
+      }
+    },
+    limits: { fileSize: 15 * 1024 * 1024 }, // 15 Mb
+  });
 
-module.exports = { uploadFileImageConfig, uploadFileDocumentConfig };
+  return upload.fields([{ name: "proofs", maxCount: 5 }]);
+};
+
+module.exports = uploadFilesMiddleware;

@@ -1,6 +1,6 @@
 const express = require("express");
-const controller = require("./controller");
-const { uploadFileImageConfig } = require("../../middleware/multer");
+const controller = require("../auth/controller");
+const uploadFilesMiddleware = require("../../middleware/multer");
 const router = express.Router();
 
 /**
@@ -15,7 +15,7 @@ router.post("/signin", controller.Login);
 router.put("/forgot", controller.recoveryPassword);
 router.post(
   "/upload-file",
-  uploadFileImageConfig.array("proofs"),
+  uploadFilesMiddleware("avatar"),
   controller.uploadFile,
 );
 

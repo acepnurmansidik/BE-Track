@@ -1,17 +1,17 @@
 const swaggerAutogen = require("swagger-autogen")();
-const GlobalSchema = require("./resource/schema");
-const { portAccess } = require("./resource/utils/config");
+const GlobalSchema = require("./resource/app/schema");
+const { server } = require("./resource/utils/config");
 
 const outputFile = "./swagger-output.json";
 const endpointsFiles = ["./app.js"]; // Sesuaikan dengan file-file yang berisi route Anda
 
 const doc = {
   info: {
-    version: "", // by default: '1.0.0'
+    version: "1.0.0", // by default: '1.0.0'
     title: "REST API", // by default: 'REST API'
     description: "", // by default: ''
   },
-  host: `localhost:${portAccess}`, // by default: 'localhost:3022'
+  host: `localhost:${server.portAccess}`, // by default: 'localhost:3022'
   basePath: "/", // by default: '/'
   schemes: ["http", "https"], // by default: ['http']
   consumes: [], // by default: ['application/json']
