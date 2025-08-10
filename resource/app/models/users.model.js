@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { model, Schema } = mongoose;
 
-const SysUserSchema = Schema(
+const SysUserModel = Schema(
   {
     auth_id: {
       type: mongoose.Types.ObjectId,
@@ -23,4 +23,4 @@ const SysUserSchema = Schema(
   { timestamps: true, versionKey: false, new: true },
 );
 
-module.exports = model("sys_user", SysUserSchema);
+module.exports = model("sys_user", SysUserModel);

@@ -1,5 +1,6 @@
 const AuthUser = require("../app/models/auth");
 const globalService = require("../helper/global-func");
+const { UnauthenticatedError } = require("../utils/errors");
 
 const AuthorizeUserLogin = async (req, res, next) => {
   try {

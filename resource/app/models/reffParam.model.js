@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { model, Schema } = mongoose;
 
-const SysRefparamSchema = Schema(
+const ReffparamModel = Schema(
   {
     key: {
       type: Number,
@@ -23,16 +23,17 @@ const SysRefparamSchema = Schema(
       minlength: [3, "Panjang password minimal 3 karakter"],
       required: [true, "password harus diisi"],
     },
-    icon: {
-      type: String,
+    is_delete: {
+      type: Boolean,
+      default: false,
     },
-    parent_id: {
+    icon_id: {
       type: mongoose.Types.ObjectId,
-      ref: "sys_refparameter",
+      ref: "images",
       default: null,
     },
   },
   { timestamps: true, versionKey: false, new: true },
 );
 
-module.exports = model("sys_refparameter", SysRefparamSchema);
+module.exports = model("reff_parameter", ReffparamModel);

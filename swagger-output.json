@@ -133,28 +133,16 @@
         "description": "untuk referensi group",
         "parameters": [
           {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
             "name": "type",
             "default": "category",
             "description": "Search by type",
             "in": "query",
             "type": "string"
-          },
-          {
-            "name": "preserve",
-            "default": "false",
-            "description": "Search by type",
-            "type": "boolean",
-            "in": "query"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
           }
         },
         "security": [
@@ -170,11 +158,6 @@
         "summary": "ref parameter",
         "description": "untuk referensi group",
         "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
           {
             "name": "obj",
             "in": "body",
@@ -211,11 +194,6 @@
             "type": "string"
           },
           {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
             "name": "obj",
             "in": "body",
             "description": "Create role",
@@ -246,11 +224,6 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
             "type": "string"
           }
         ],
@@ -330,13 +303,9 @@
           "type": "string",
           "example": "pemasukan anda"
         },
-        "parent_id": {
+        "icon_id": {
           "type": "string",
           "example": "669122f5e485b234f586e895"
-        },
-        "icon": {
-          "type": "string",
-          "example": "https://firebasestorage.googleapis.com/v0/b/trackmoney-af0db.appspot.com/o/icons%2Fmore.png?alt=media&token=7a398a19-6b73-4e1c-bb59-e029eecec498"
         }
       }
     },

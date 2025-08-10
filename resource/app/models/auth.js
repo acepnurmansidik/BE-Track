@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { model, Schema } = mongoose;
 
-const AuthSchema = Schema(
+const AuthModel = Schema(
   {
     username: {
       type: String,
@@ -27,4 +27,4 @@ const AuthSchema = Schema(
   { timestamps: true, versionKey: false },
 );
 
-module.exports = model("sys_auth_user", AuthSchema);
+module.exports = model("sys_auth_user", AuthModel);

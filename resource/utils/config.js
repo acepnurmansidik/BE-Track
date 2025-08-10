@@ -3,7 +3,7 @@ dotENV.config();
 
 const ENV = {
   urlDb: process.env.URL_MONGODB_DEV,
-  jwt:{
+  jwt: {
     tokenExp: process.env.TOKEN_EXPIRED,
     secretKey: process.env.TOKEN_SECRET,
     tokenAlgorithm: process.env.TOKEN_ALGORITHM,
@@ -12,6 +12,7 @@ const ENV = {
   },
   server: {
     portAccess: process.env.PORT,
+    nodeEnv: process.env.NODE_ENV,
   },
 };
 

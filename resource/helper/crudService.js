@@ -1,4 +1,5 @@
 const { default: mongoose } = require("mongoose");
+const logActionModel = require("../app/models/logAction.model");
 
 const crudServices = {};
 
@@ -35,6 +36,25 @@ crudServices.findOne = async (model, { query, populateField, selectField }) => {
       .select(`${selectField ?? ""} -__v -updatedAt -is_delete`)
       .lean();
 
+    return {
+      success: true,
+      message: "Data retrieved successfully!",
+      data: result,
+    };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+// FIND ALL
+crudServices.findAll = async (model, { query, populateField, selectField }) => {
+  try {
+    const result = await model
+      .find({ ...query, is_delete: { $ne: true } })
+      .populate(populateField)
+      .select(`${selectField ?? ""} -__v -updatedAt -is_delete`)
+      .lean();
+
     if (!result) throw new Error(`data not found!`);
 
     return {
@@ -54,6 +74,14 @@ crudServices.create = async (model, { data }) => {
   try {
     const result = await model.create([data], { session });
 
+    const log = {
+      type: "CREATE",
+      target_id: result[0]._id, // id of the created document
+      after: result[0],
+      source: model.collection.collectionName,
+    };
+
+    await logActionModel.create([log], { session });
     await session.commitTransaction();
 
     delete result[0].is_delete;
@@ -72,30 +100,39 @@ crudServices.create = async (model, { data }) => {
 };
 
 // UPDATE
-crudServices.update = async (model, { fieldSearch, data }) => {
+crudServices.update = async (model, { id, data }) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const result = await model.findOneAndUpdate(
-      { ...fieldSearch, is_delete: { $ne: true } },
-      data,
-      {
+    const [dataUpdate, dataOld] = await Promise.all([
+      model.findByIdAndUpdate(id, data, {
         new: true,
         runValidators: true,
         session,
-      },
-    );
+      }),
+      model.findOne({ _id: id }).lean(),
+    ]);
 
-    if (!result) throw new Error(`data not found!`);
+    if (!dataUpdate) throw new Error(`data not found!`);
+
+    delete dataUpdate.is_delete;
+    delete dataUpdate.updatedAt;
+
+    const log = {
+      type: "UPDATE",
+      target_id: dataUpdate._id, // id of the created document
+      before: dataOld,
+      after: dataUpdate,
+      source: model.collection.collectionName,
+    };
+
+    await logActionModel.create([log], { session });
 
     await session.commitTransaction();
-
-    delete result.is_delete;
-    delete result.updatedAt;
     return {
       success: true,
       message: "Data updated successfully!",
-      data: result,
+      data: dataUpdate,
     };
   } catch (error) {
     await session.abortTransaction();
@@ -110,9 +147,9 @@ crudServices.delete = async (model, { id, data }) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const result = await model.findOnedAndUpdate(
-      { id, is_delete: { $ne: true } },
-      { is_delete: true },
+    const result = await model.findByIdAndUpdate(
+      id,
+      { is_delete: true, deleted_by: data?.deleted_by },
       {
         new: true,
         runValidators: true,
@@ -122,11 +159,20 @@ crudServices.delete = async (model, { id, data }) => {
 
     if (!result) throw new Error(`data with id: '${id}' not found!`);
 
+    const log = {
+      type: "DELETE",
+      target_id: result._id, // id of the created document
+      after: result,
+      source: model.collection.collectionName,
+    };
+
+    await logActionModel.create([log], { session });
+
     await session.commitTransaction();
     return {
       success: true,
       message: "Data updated successfully!",
-      data: result[0],
+      data: result,
     };
   } catch (error) {
     await session.abortTransaction();

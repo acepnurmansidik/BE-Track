@@ -1,19 +1,19 @@
 const mongoose = require("mongoose");
 const { model, Schema } = mongoose;
 
-const ImageSchema = Schema(
+const ImageModel = Schema(
   {
     path: {
       type: String,
       required: [true, "Value harus diisi"],
     },
-    source_name: {
-      type: String,
-      required: [false, "Value harus diisi"],
-    },
     status: {
       type: Boolean,
       default: false,
+    },
+    source_name: {
+      type: String,
+      required: [false, "Value harus diisi"],
     },
     source_id: {
       type: mongoose.Types.ObjectId,
@@ -23,4 +23,4 @@ const ImageSchema = Schema(
   { timestamps: true, versionKey: false, new: true },
 );
 
-module.exports = model("images", ImageSchema);
+module.exports = model("images", ImageModel);
