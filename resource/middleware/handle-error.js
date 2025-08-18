@@ -1,5 +1,5 @@
 const { StatusCodes } = require("http-status-codes");
-const response = require("../utils/response");
+const { setupLogger } = require("../helper/global-func");
 
 const errorHandlerMiddleware = (err, req, res, next) => {
   let customError = {
@@ -36,7 +36,27 @@ const errorHandlerMiddleware = (err, req, res, next) => {
   if (["Validation error"].includes(customError.msg))
     customError.msg = "Record duplicate!";
 
-  response.ErrorResponse(res, customError.statusCode, customError.msg);
+  const options = {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  };
+  const currentDateTime = new Intl.DateTimeFormat("id-ID", options)
+    .format(new Date())
+    .replaceAll("/", "-");
+
+  setupLogger(currentDateTime.split(", ")[0], err);
+  console.log(err);
+
+  return res.status(StatusCodes.BAD_REQUEST).json({
+    status: false,
+    message: customError.msg,
+    data: null,
+  });
 };
 
 module.exports = errorHandlerMiddleware;

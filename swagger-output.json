@@ -40,8 +40,8 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -64,8 +64,8 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -88,13 +88,13 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
           }
         }
       }
     },
-    "/api/v1/upload/img": {
+    "/api/v1/auth/upload-file": {
       "post": {
         "tags": [
           "UPLOAD IMAGES"
@@ -118,314 +118,10 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
           }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/upload/img/{id}": {
-      "put": {
-        "tags": [
-          "UPLOAD IMAGES"
-        ],
-        "summary": "this API for upload images",
-        "description": "untuk referensi group",
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "proofs",
-            "in": "formData",
-            "type": "array",
-            "required": true,
-            "description": "Some description...",
-            "collectionFormat": "multi",
-            "items": {
-              "type": "file"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/upload/doc": {
-      "post": {
-        "tags": [
-          "UPLOAD IMAGES"
-        ],
-        "summary": "this API for upload images",
-        "description": "untuk referensi group",
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "parameters": [
-          {
-            "name": "proofs",
-            "in": "formData",
-            "type": "array",
-            "required": true,
-            "description": "Some description...",
-            "collectionFormat": "multi",
-            "items": {
-              "type": "file"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/upload/doc/{id}": {
-      "put": {
-        "tags": [
-          "UPLOAD IMAGES"
-        ],
-        "summary": "this API for upload images",
-        "description": "untuk referensi group",
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "proofs",
-            "in": "formData",
-            "type": "array",
-            "required": true,
-            "description": "Some description...",
-            "collectionFormat": "multi",
-            "items": {
-              "type": "file"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/show-case/": {
-      "get": {
-        "tags": [
-          "PROJECT SHOW CASE"
-        ],
-        "summary": "project show case",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "limit",
-            "default": "10",
-            "description": "Search by type",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "page",
-            "default": "1",
-            "description": "Search by type",
-            "in": "query",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "PROJECT SHOW CASE"
-        ],
-        "summary": "project show case",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "obj",
-            "in": "body",
-            "description": "Create project",
-            "schema": {
-              "$ref": "#/definitions/BodyProjectResumeSchema"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/show-case/{id}": {
-      "get": {
-        "tags": [
-          "PROJECT SHOW CASE"
-        ],
-        "summary": "project show case",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "PROJECT SHOW CASE"
-        ],
-        "summary": "project show case",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "obj",
-            "in": "body",
-            "description": "Create project",
-            "schema": {
-              "$ref": "#/definitions/BodyProjectResumeSchema"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "PROJECT SHOW CASE"
-        ],
-        "summary": "project show case",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/ref-parameter/mob/": {
-      "get": {
-        "tags": [
-          "REF PARAMETER"
-        ],
-        "summary": "ref parameter",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "type",
-            "default": "category",
-            "description": "Search by type",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "preserve",
-            "default": "false",
-            "description": "Search by type",
-            "type": "boolean",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/ref-parameter/": {
@@ -437,58 +133,37 @@
         "description": "untuk referensi group",
         "parameters": [
           {
-            "name": "type",
+            "name": "search",
             "default": "",
-            "description": "Search by type",
+            "description": "search by value",
             "in": "query",
             "type": "string"
-          },
-          {
-            "name": "parent_id",
-            "default": "",
-            "description": "Search by parent_id",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "preserve",
-            "default": "false",
-            "description": "Search by type",
-            "type": "boolean",
-            "in": "query"
-          },
-          {
-            "name": "alias",
-            "default": "false",
-            "description": "Search by type",
-            "type": "boolean",
-            "in": "query"
           },
           {
             "name": "limit",
-            "default": "10",
-            "description": "Search by type",
+            "default": 10,
+            "description": "limit",
             "in": "query",
             "type": "string"
           },
           {
             "name": "page",
-            "default": "1",
-            "description": "Search by type",
+            "default": 1,
+            "description": "page",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "type",
             "in": "query",
             "type": "string"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
           }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
+        }
       },
       "post": {
         "tags": [
@@ -507,61 +182,13 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/ref-parameter/type": {
-      "get": {
-        "tags": [
-          "REF PARAMETER"
-        ],
-        "summary": "ref parameter",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "type",
-            "default": "",
-            "description": "Search by type",
-            "in": "query",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
+          "201": {
+            "description": "Created"
           }
         }
       }
     },
     "/api/v1/ref-parameter/{id}": {
-      "get": {
-        "tags": [
-          "REF PARAMETER"
-        ],
-        "summary": "ref parameter",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      },
       "put": {
         "tags": [
           "REF PARAMETER"
@@ -585,8 +212,8 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "201": {
+            "description": "Created"
           }
         },
         "security": [
@@ -610,8 +237,8 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
           }
         },
         "security": [
@@ -621,23 +248,40 @@
         ]
       }
     },
-    "/api/v1/loan/": {
+    "/api/v1/transaction/": {
       "get": {
         "tags": [
-          "LOAN"
+          "TRANSACTION"
         ],
-        "summary": "api untuk menampilkan data loan/pinjaman",
-        "description": "listing data loan/pinjaman",
+        "summary": "Get transaction",
+        "description": "Get transaction",
         "parameters": [
           {
             "name": "authorization",
             "in": "header",
             "type": "string"
+          },
+          {
+            "name": "limit",
+            "default": 10,
+            "description": "limit",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "default": 1,
+            "description": "page",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           }
         },
         "security": [
@@ -648,10 +292,10 @@
       },
       "post": {
         "tags": [
-          "LOAN"
+          "TRANSACTION"
         ],
-        "summary": "api untuk menampilkan data loan/pinjaman",
-        "description": "listing data loan/pinjaman",
+        "summary": "Create transaction",
+        "description": "Create transaction",
         "parameters": [
           {
             "name": "authorization",
@@ -661,15 +305,18 @@
           {
             "name": "obj",
             "in": "body",
-            "description": "Create loan",
+            "description": "Create role",
             "schema": {
-              "$ref": "#/definitions/BodyLoanSchema"
+              "$ref": "#/definitions/BodyTransactionSchema"
             }
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           }
         },
         "security": [
@@ -679,13 +326,13 @@
         ]
       }
     },
-    "/api/v1/loan/{id}": {
+    "/api/v1/transaction/{id}": {
       "put": {
         "tags": [
-          "LOAN"
+          "TRANSACTION"
         ],
-        "summary": "api untuk menampilkan data loan/pinjaman",
-        "description": "listing data loan/pinjaman",
+        "summary": "Create transaction",
+        "description": "Create transaction",
         "parameters": [
           {
             "name": "id",
@@ -701,15 +348,18 @@
           {
             "name": "obj",
             "in": "body",
-            "description": "Create loan",
+            "description": "Create role",
             "schema": {
-              "$ref": "#/definitions/BodyLoanSchema"
+              "$ref": "#/definitions/BodyTransactionSchema"
             }
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           }
         },
         "security": [
@@ -720,10 +370,10 @@
       },
       "delete": {
         "tags": [
-          "LOAN"
+          "TRANSACTION"
         ],
-        "summary": "api untuk menampilkan data loan/pinjaman",
-        "description": "listing data loan/pinjaman",
+        "summary": "Delete transaction",
+        "description": "Delete transaction",
         "parameters": [
           {
             "name": "id",
@@ -735,19 +385,14 @@
             "name": "authorization",
             "in": "header",
             "type": "string"
-          },
-          {
-            "name": "obj",
-            "in": "body",
-            "description": "Create loan",
-            "schema": {
-              "$ref": "#/definitions/BodyLoanSchema"
-            }
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           }
         },
         "security": [
@@ -757,13 +402,13 @@
         ]
       }
     },
-    "/api/v1/trx/": {
+    "/api/v1/transaction/list": {
       "get": {
         "tags": [
-          "FINANCE"
+          "TRANSACTION"
         ],
-        "summary": "ref parameter",
-        "description": "untuk referensi group",
+        "summary": "Get transaction",
+        "description": "Get transaction",
         "parameters": [
           {
             "name": "authorization",
@@ -771,46 +416,26 @@
             "type": "string"
           },
           {
-            "name": "user_id",
+            "name": "limit",
+            "default": 10,
+            "description": "limit",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "default": 1,
+            "description": "page",
             "in": "query",
             "type": "string"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "FINANCE"
-        ],
-        "summary": "ref parameter",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
+          "200": {
+            "description": "OK"
           },
-          {
-            "name": "obj",
-            "in": "body",
-            "description": "Create role",
-            "schema": {
-              "$ref": "#/definitions/BodyFinancialLedgerSchema"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
+          "400": {
+            "description": "Bad Request"
           }
         },
         "security": [
@@ -820,13 +445,42 @@
         ]
       }
     },
-    "/api/v1/trx/dashboard/personal": {
+    "/api/v1/transaction/chart-categories-periode": {
       "get": {
         "tags": [
-          "FINANCE"
+          "TRANSACTION"
         ],
-        "summary": "ref parameter",
-        "description": "untuk referensi group",
+        "summary": "user transaction yearly report",
+        "description": "user transaction yearly report",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/transaction/chart-category": {
+      "get": {
+        "tags": [
+          "TRANSACTION"
+        ],
+        "summary": "user transaction yearly report",
+        "description": "user transaction yearly report",
         "parameters": [
           {
             "name": "authorization",
@@ -834,353 +488,62 @@
             "type": "string"
           },
           {
-            "name": "isIncome",
+            "name": "category_name",
             "default": "",
-            "description": "Search by type",
-            "type": "boolean",
-            "in": "query"
-          },
-          {
-            "name": "from",
+            "description": "searh by category name",
             "in": "query",
             "type": "string"
           },
           {
-            "name": "to",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "createdAt",
-            "in": "query",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/trx/{id}": {
-      "put": {
-        "tags": [
-          "FINANCE"
-        ],
-        "summary": "ref parameter",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "obj",
-            "in": "body",
-            "description": "Create role",
-            "schema": {
-              "$ref": "#/definitions/BodyFinancialLedgerSchema"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "FINANCE"
-        ],
-        "summary": "ref parameter",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/trx/category-activity": {
-      "get": {
-        "tags": [
-          "FINANCE"
-        ],
-        "summary": "category activity",
-        "description": "get data transaction yang dikelompokan ke dalam setiap kategorinya",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "type_id",
+            "name": "filter",
             "default": "",
-            "description": "Search by type id",
-            "type": "string",
-            "in": "query"
+            "description": "filter with 1M 3M 6M 1Y",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/transaction/category": {
+      "get": {
+        "tags": [
+          "TRANSACTION"
+        ],
+        "summary": "user transaction yearly report",
+        "description": "user transaction yearly report",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
           },
           {
-            "name": "bank_id",
+            "name": "filter",
             "default": "",
-            "description": "Search by bank id",
-            "type": "string",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/trx/chart": {
-      "get": {
-        "tags": [
-          "FINANCE"
-        ],
-        "summary": "chart data yearly",
-        "description": "chart data selama 1 tahun",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
+            "description": "filter with 1M 3M 6M 1Y",
+            "in": "query",
             "type": "string"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/trx/bill": {
-      "get": {
-        "tags": [
-          "TAGIHAN/BILL"
-        ],
-        "summary": "ref parameter",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "TAGIHAN/BILL"
-        ],
-        "summary": "ref parameter",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
+          "200": {
+            "description": "OK"
           },
-          {
-            "name": "obj",
-            "in": "body",
-            "description": "Create role",
-            "schema": {
-              "$ref": "#/definitions/BodyBillRunningSchema"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/trx/bill/{id}": {
-      "put": {
-        "tags": [
-          "TAGIHAN/BILL"
-        ],
-        "summary": "ref parameter",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "obj",
-            "in": "body",
-            "description": "Create role",
-            "schema": {
-              "$ref": "#/definitions/BodyBillRunningSchema"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "TAGIHAN/BILL"
-        ],
-        "summary": "ref parameter",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/profile/": {
-      "put": {
-        "tags": [
-          "PROFILE"
-        ],
-        "summary": "profile",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "obj",
-            "in": "body",
-            "description": "Create role",
-            "schema": {
-              "$ref": "#/definitions/BodyProfileSchema"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "get": {
-        "tags": [
-          "PROFILE"
-        ],
-        "summary": "profile",
-        "description": "untuk referensi group",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
+          "400": {
+            "description": "Bad Request"
           }
         },
         "security": [
@@ -1193,20 +556,44 @@
     "/api/v1/wallet/": {
       "get": {
         "tags": [
-          "BANK/WALLET"
+          "EWALLET"
         ],
-        "summary": "api for bank/wallet",
-        "description": "this api for bank/wallet payment for user when do transaction",
+        "summary": "Get e-wallet",
+        "description": "Get e-wallet",
         "parameters": [
           {
             "name": "authorization",
             "in": "header",
             "type": "string"
+          },
+          {
+            "name": "search",
+            "default": "",
+            "description": "Search by type wallet name, va number",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "default": 10,
+            "description": "limit",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "default": 1,
+            "description": "page",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           }
         },
         "security": [
@@ -1217,10 +604,10 @@
       },
       "post": {
         "tags": [
-          "BANK/WALLET"
+          "EWALLET"
         ],
-        "summary": "api for bank/wallet",
-        "description": "this api for bank/wallet payment for user when do transaction",
+        "summary": "Create e-wallte",
+        "description": "Create e-wallte",
         "parameters": [
           {
             "name": "authorization",
@@ -1237,8 +624,11 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           }
         },
         "security": [
@@ -1251,10 +641,10 @@
     "/api/v1/wallet/{id}": {
       "put": {
         "tags": [
-          "BANK/WALLET"
+          "EWALLET"
         ],
-        "summary": "api for bank/wallet",
-        "description": "this api for bank/wallet payment for user when do transaction",
+        "summary": "Create e-wallte",
+        "description": "Create e-wallte",
         "parameters": [
           {
             "name": "id",
@@ -1277,8 +667,11 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           }
         },
         "security": [
@@ -1289,10 +682,10 @@
       },
       "delete": {
         "tags": [
-          "BANK/WALLET"
+          "EWALLET"
         ],
-        "summary": "api for bank/wallet",
-        "description": "this api for bank/wallet payment for user when do transaction",
+        "summary": "Create e-wallte",
+        "description": "Create e-wallte",
         "parameters": [
           {
             "name": "id",
@@ -1307,8 +700,11 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           }
         },
         "security": [
@@ -1334,7 +730,12 @@
         "password": {
           "type": "string",
           "example": "123456"
-        }
+        },
+        "wallet_name": {
+          "type": "string",
+          "example": "Indonesian Express"
+        },
+        "currency_id": {}
       }
     },
     "BodyAuthLoginSchema": {
@@ -1361,7 +762,7 @@
           "type": "string",
           "example": "123456"
         },
-        "confirmPassword": {
+        "confirm_password": {
           "type": "string",
           "example": "123456"
         }
@@ -1370,10 +771,6 @@
     "BodyRefParameterSchema": {
       "type": "object",
       "properties": {
-        "is_subtract": {
-          "type": "boolean",
-          "example": false
-        },
         "value": {
           "type": "string",
           "example": "income"
@@ -1386,350 +783,50 @@
           "type": "string",
           "example": "pemasukan anda"
         },
-        "icon": {
-          "type": "string",
-          "example": "https://firebasestorage.googleapis.com/v0/b/trackmoney-af0db.appspot.com/o/icons%2Fmore.png?alt=media&token=7a398a19-6b73-4e1c-bb59-e029eecec498"
-        }
-      }
-    },
-    "BodyFinancialLedgerSchema": {
-      "type": "object",
-      "properties": {
-        "category_id": {
-          "type": "string",
-          "example": "66912314e485b234f586e897"
-        },
-        "bank_id": {
-          "type": "string",
-          "example": "676dfd599630f0b17d9c874e"
-        },
-        "type_id": {
-          "type": "string",
-          "example": "669122f5e485b234f586e895"
-        },
-        "amount": {
-          "type": "number",
-          "example": 20000
-        },
-        "kurs_amount": {
-          "type": "number",
-          "example": 1
-        },
-        "note": {
-          "type": "string",
-          "example": "naik KRL"
-        }
-      }
-    },
-    "BodyProfileSchema": {
-      "type": "object",
-      "properties": {
-        "gender_id": {
-          "type": "string",
-          "example": "671a55ba8d72b1ceca3770fd"
-        },
-        "status_id": {
-          "type": "string",
-          "example": "671a569e25616b9c3c89bdd5"
-        },
-        "role_id": {
-          "type": "string",
-          "example": "671a56f3af9cf9e0557d02c7"
-        },
-        "description": {
-          "type": "string",
-          "example": "pemasukan anda"
-        },
-        "name": {
-          "type": "string",
-          "example": "john doe"
-        },
-        "tagline": {
-          "type": "string",
-          "example": "Merain kesusksusan di usia muda"
-        },
-        "birth_date": {
-          "type": "string",
-          "example": "22 July 1998"
-        },
-        "web_url": {
-          "type": "string",
-          "example": "web_url"
-        },
-        "github_url": {
-          "type": "string",
-          "example": "github_url"
-        },
-        "phone_number": {
-          "type": "string",
-          "example": "phone_number"
-        },
-        "instagram_url": {
-          "type": "string",
-          "example": "instagram_url"
-        },
-        "linkedin_url": {
-          "type": "string",
-          "example": "linkedin_url"
-        },
-        "facebook_url": {
-          "type": "string",
-          "example": "facebook_url"
-        },
-        "address": {
-          "type": "string",
-          "example": ""
-        },
-        "educations": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "key": {
-                "type": "number",
-                "example": 0
-              },
-              "major_id": {
-                "type": "string",
-                "example": "671a56f3af9cf9e0557d02c7"
-              },
-              "degree_id": {
-                "type": "string",
-                "example": "671a56f3af9cf9e0557d02c7"
-              },
-              "school_name": {
-                "type": "string",
-                "example": "SMK"
-              },
-              "start_date": {
-                "type": "string",
-                "example": "22 July 1998"
-              },
-              "end_date": {
-                "type": "string",
-                "example": "22 July 1998"
-              }
-            }
-          }
-        },
-        "experiences": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "key": {
-                "type": "number",
-                "example": 0
-              },
-              "role_id": {
-                "type": "string",
-                "example": "671a56f3af9cf9e0557d02c7"
-              },
-              "product_name": {
-                "type": "string",
-                "example": "sdasd"
-              },
-              "achievment_list": {
-                "type": "string",
-                "example": "test"
-              },
-              "company_name": {
-                "type": "string",
-                "example": "PT.Sinar Berlian"
-              },
-              "start_date": {
-                "type": "string",
-                "example": "22 July 1998"
-              },
-              "end_date": {
-                "type": "string",
-                "example": "22 July 1998"
-              },
-              "stacks": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "_id": {
-                      "type": "string",
-                      "example": "671a56f3af9cf9e0557d02c7"
-                    },
-                    "name": {
-                      "type": "string",
-                      "example": "test"
-                    },
-                    "icon": {
-                      "type": "string",
-                      "example": "test"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "BodyProjectResumeSchema": {
-      "type": "object",
-      "properties": {
-        "project_name": {
-          "type": "string",
-          "example": "income"
-        },
-        "url_web_app": {
-          "type": "string",
-          "example": "cashflow_type"
-        },
-        "url_doc_be": {
-          "type": "string",
-          "example": "pemasukan anda"
-        },
-        "url_download_android_apk": {
-          "type": "string",
-          "example": "669122f5e485b234f586e895"
-        },
-        "url_download_ios_apk": {
-          "type": "string",
-          "example": "https://firebasestorage.googleapis.com"
-        },
-        "description": {
-          "type": "string",
-          "example": "669122f5e485b234f586e895"
-        },
-        "categories": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "_id": {
-                "type": "string",
-                "example": "671a569e25616b9c3c89bdd5"
-              }
-            }
-          }
-        },
-        "images": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "_id": {
-                "type": "string",
-                "example": "673034811bf4807bb83caa04"
-              },
-              "is_cover": {
-                "type": "boolean",
-                "example": false
-              }
-            }
-          }
-        },
-        "features": {
-          "type": "array",
-          "example": [
-            ""
-          ],
-          "items": {
-            "type": "string"
-          }
-        },
-        "stacks": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "_id": {
-                "type": "string",
-                "example": "671a569e25616b9c3c89bdd5"
-              }
-            }
-          }
-        }
-      }
-    },
-    "BodyUploadFileSchema": {
-      "type": "object",
-      "properties": {
-        "reff_id": {
-          "type": "string",
-          "example": "66912314e485b234f586e897"
-        },
-        "is_cover": {
-          "type": "boolean",
-          "example": false
-        }
-      }
-    },
-    "BodyBillRunningSchema": {
-      "type": "object",
-      "properties": {
-        "category_id": {
-          "type": "string",
-          "example": "67468e301ab0c28c97425f12"
-        },
-        "type_id": {
-          "type": "string",
-          "example": "67468ee21ab0c28c97425f19"
-        },
-        "due_date": {
-          "type": "string",
-          "example": "2024-03-31T17:00:00.000Z"
-        },
-        "date_reminder": {
-          "type": "string",
-          "example": "2024-02-21T17:00:00.000Z"
-        },
-        "nominal": {
-          "type": "number",
-          "example": 0
-        },
-        "note": {
-          "type": "string",
-          "example": "naik KRL"
-        }
+        "icon_id": {},
+        "parent_id": {}
       }
     },
     "BodyWalletSchema": {
       "type": "object",
       "properties": {
-        "owner_name": {
-          "type": "string",
-          "example": "john doe"
-        },
         "wallet_name": {
           "type": "string",
-          "example": "Cash"
+          "example": "Indonesian Express"
         },
         "amount": {
           "type": "number",
           "example": 0
-        }
+        },
+        "owner_name": {
+          "type": "string",
+          "example": "John Doe"
+        },
+        "currency_id": {}
       }
     },
-    "BodyLoanSchema": {
+    "BodyTransactionSchema": {
       "type": "object",
       "properties": {
-        "from_name": {
+        "menu": {
           "type": "string",
-          "example": "You"
+          "example": "cashflow"
         },
-        "to_name": {
-          "type": "string",
-          "example": "john wick"
-        },
-        "nominal": {
-          "type": "number",
-          "example": 0
-        },
-        "is_income": {
+        "is_paid": {
           "type": "boolean",
           "example": true
         },
+        "wallet_id": {},
+        "total_amount": {
+          "type": "number",
+          "example": 15000
+        },
         "note": {
           "type": "string",
-          "example": "Pencairan bitcoin"
-        }
+          "example": "beli nasi goreng gila + telor"
+        },
+        "category_id": {},
+        "type_id": {}
       }
     },
     "NotFound": {

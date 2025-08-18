@@ -1,6 +1,6 @@
 const AuthUser = require("../app/models/auth");
-const SysUserSchema = require("../app/models/sys_users");
-const globalService = require("../utils/global-func");
+const UserModel = require("../app/models/users.model");
+const globalService = require("../helper/global-func");
 const { UnauthenticatedError } = require("../utils/errors");
 
 const AuthorizeUserLogin = async (req, res, next) => {
@@ -19,16 +19,11 @@ const AuthorizeUserLogin = async (req, res, next) => {
     const dataValid = await globalService.verifyJwtToken(authHeader, next);
 
     // check email is register on database
-    const verifyData = await AuthUser.findOne({
-      email: dataValid.email,
-    }).select("_id username email");
+    const verifyData = await AuthUser.findOne({ email: dataValid.email });
+    const userLogin = await UserModel.findOne({ auth_id: verifyData._id });
 
     // send error not found, if data not register
     if (!verifyData) throw new NotFound("Data not register!");
-
-    const userLogin = await SysUserSchema.findOne({
-      auth_id: verifyData._id,
-    }).select("_id");
 
     // impliment login user
     delete dataValid.iat;
@@ -36,9 +31,10 @@ const AuthorizeUserLogin = async (req, res, next) => {
     delete dataValid.jti;
 
     req.login = {
-      ...verifyData._doc,
-      _id: verifyData.id,
+      ...dataValid,
+      auth_id: verifyData._id,
       user_id: userLogin._id,
+      device_token: userLogin.device_token,
     };
     // next to controller
     next();
