@@ -349,7 +349,7 @@ controller.transactionCategoriesPeriode = async (req, res, next) => {
           year: "$_id.year",
           periode: {
             $dateToString: {
-              format: "%B %Y", // Format MM-YYYY (01-2023)
+              format: "%b %Y", // Format MM-YYYY (01-2023)
               date: {
                 $dateFromParts: {
                   year: "$_id.year",
@@ -386,7 +386,7 @@ controller.transactionCategoriesPeriode = async (req, res, next) => {
           total_amount: 1,
           periode: {
             $concat: [
-              { $dateToString: { format: "%B", date: "$first_created" } }, // Month
+              { $dateToString: { format: "%b", date: "$first_created" } }, // Month
               " ",
               { $dateToString: { format: "%Y", date: "$first_created" } }, // Year
             ],
