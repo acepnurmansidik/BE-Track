@@ -9,6 +9,7 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger-output.json");
 
 const app = express();
+const memory = require("process").memoryUsage();
 
 // Menentukan direktori untuk file gambar
 const imagesDirectory = path.join(__dirname, "uploads", "images");
@@ -49,8 +50,10 @@ app.use((req, res, next) => {
   // Store the start time for response time calculation
   const start = Date.now();
 
-  let logFormat = `[${currentDateTime}]:: ${req.method}:${res.statusCode} :: ${req.url}`;
+  const memoryUsage = `[MEM: ${`${(memory.rss / 1024 / 1024).toFixed(2)}MB`}]`;
+  let logFormat = `[${currentDateTime}]::${memoryUsage}:: ${req.method}:${res.statusCode} :: ${req.url}`;
   res.on("finish", () => {
+    (memory.rss / 1024 / 1024).toFixed(2);
     logFormat = logFormat + ` - ${Date.now() - start} ms`;
     setupLogger(currentDateTime.split(", ")[0], logFormat);
     console.log(logFormat);

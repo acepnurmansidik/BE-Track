@@ -559,6 +559,7 @@ controller.transactionCateogryGroup = async (req, res, next) => {
           _id: "$category_name",
           total_amount: { $sum: "$total_amount" },
           type_name: { $first: "$type_name" }, // Ambil salah satu type_name
+          created_at: { $first: "$createdAt" }, // Ambil salah satu type_name
         },
       },
       {
@@ -567,7 +568,11 @@ controller.transactionCateogryGroup = async (req, res, next) => {
           category: "$_id",
           total_amount: 1,
           type_name: 1, // Sekarang type_name adalah string
+          created_at: 1,
         },
+      },
+      {
+        $sort: { created_at: 1 },
       },
     ]);
 
