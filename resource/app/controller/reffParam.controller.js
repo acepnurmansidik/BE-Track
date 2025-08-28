@@ -9,14 +9,21 @@ controller.index = async (req, res, next) => {
   const { search, type, page, limit = 10 } = req.query;
   const skip = (page - 1) * limit;
   if (query.length) query.type = type;
+
   const arrFilter = [];
   if (search) {
     arrFilter.push({ value: { $regex: search, $options: "i" } });
   }
+
+  if (type) {
+    arrFilter.push({ type: { $regex: type, $options: "i" } });
+  }
+
   if (arrFilter.length) query["$or"] = arrFilter;
 
   const populateField = [
     { path: "icon_id", model: "Image", select: "_id path" },
+    { path: "children", model: "ReffParameter", select: "_id value type" },
   ];
   try {
     /*
