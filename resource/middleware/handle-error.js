@@ -53,7 +53,7 @@ const errorHandlerMiddleware = (err, req, res, next) => {
   console.log(err);
 
   return res.status(StatusCodes.BAD_REQUEST).json({
-    status: false,
+    success: false,
     message: customError.msg,
     data: null,
   });

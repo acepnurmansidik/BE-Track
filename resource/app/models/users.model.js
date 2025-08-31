@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 const { model, Schema } = mongoose;
 
-const SysUserModel = Schema(
+const SysUserSchema = new Schema(
   {
     auth_id: {
       type: mongoose.Types.ObjectId,
       ref: "sys_auth_user",
-      require: true,
+      required: true, // perbaikan dari 'require' ke 'required'
       unique: true,
     },
     name: {
@@ -16,16 +16,26 @@ const SysUserModel = Schema(
     },
     device_token: {
       type: String,
-      required: [false, "Device token can't be empty"],
+      required: false,
       default: "",
     },
   },
   {
     timestamps: true,
     versionKey: false,
-    new: true,
     collection: "users",
+    toJSON: { virtuals: true }, // Aktifkan virtuals untuk JSON response
+    toObject: { virtuals: true }, // Aktifkan virtuals untuk object biasa
   },
 );
 
-module.exports = model("User", SysUserModel);
+// Virtual field untuk format tanggal bergabung
+SysUserSchema.virtual("joined_at").get(function () {
+  if (!this.createdAt) return null;
+  return this.createdAt.toLocaleString("default", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+});
+module.exports = model("User ", SysUserSchema);

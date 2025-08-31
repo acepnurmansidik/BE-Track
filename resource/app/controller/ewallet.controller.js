@@ -44,7 +44,9 @@ controller.indexAllWallet = async (req, res, next) => {
     res.status(200).json({ ...result, page_size, current_page: Number(page) });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ status: false, message: error.message, data: null });
+    res
+      .status(400)
+      .json({ success: false, message: error.message, data: null });
   }
 };
 
@@ -82,7 +84,9 @@ controller.createWallet = async (req, res, next) => {
     res.status(200).json(result);
   } catch (error) {
     console.log(error);
-    res.status(400).json({ status: false, message: error.message, data: null });
+    res
+      .status(400)
+      .json({ success: false, message: error.message, data: null });
   }
 };
 
@@ -111,7 +115,9 @@ controller.updateWallet = async (req, res, next) => {
     res.status(200).json(result);
   } catch (error) {
     console.log(error);
-    res.status(400).json({ status: false, message: error.message, data: null });
+    res
+      .status(400)
+      .json({ success: false, message: error.message, data: null });
   }
 };
 
@@ -133,7 +139,9 @@ controller.deleteWallet = async (req, res, next) => {
     res.status(200).json(result);
   } catch (error) {
     console.log(error);
-    res.status(400).json({ status: false, message: error.message, data: null });
+    res
+      .status(400)
+      .json({ success: false, message: error.message, data: null });
   }
 };
 

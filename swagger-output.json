@@ -457,6 +457,18 @@
             "name": "authorization",
             "in": "header",
             "type": "string"
+          },
+          {
+            "name": "periode",
+            "default": "1Y",
+            "description": "this filter by periode 1Y 6M 3M 1M",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "matchQuery",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
@@ -713,6 +725,35 @@
           }
         ]
       }
+    },
+    "/api/v1/user/profile": {
+      "get": {
+        "tags": [
+          "USER"
+        ],
+        "summary": "user",
+        "description": "untuk referensi group",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
     }
   },
   "definitions": {
@@ -836,7 +877,7 @@
           "type": "number",
           "example": 404
         },
-        "status": {
+        "success": {
           "type": "boolean",
           "example": false
         },

@@ -4,6 +4,7 @@ const WalletModel = require("../models/ewallet.model");
 const TransactionModel = require("../models/transactions.model");
 const LogActionModel = require("../models/logAction.model");
 const crudServices = require("../../helper/crudService");
+const { DateTime } = require("luxon");
 
 const controller = {};
 
@@ -41,7 +42,9 @@ controller.indexAllTransaction = async (req, res, next) => {
     res.status(200).json({ ...result, page_size, current_page: Number(page) });
   } catch (error) {
     console.error(error);
-    res.status(400).json({ status: false, message: error.message, data: null });
+    res
+      .status(400)
+      .json({ success: false, message: error.message, data: null });
   }
 };
 
@@ -73,7 +76,9 @@ controller.getAllTransaction = async (req, res, next) => {
     res.status(200).json(result);
   } catch (error) {
     console.error(error);
-    res.status(400).json({ status: false, message: error.message, data: null });
+    res
+      .status(400)
+      .json({ success: false, message: error.message, data: null });
   }
 };
 
@@ -161,7 +166,9 @@ controller.createTransaction = async (req, res, next) => {
   } catch (error) {
     console.error(error);
     await session.abortTransaction();
-    res.status(400).json({ status: false, message: error.message, data: null });
+    res
+      .status(400)
+      .json({ success: false, message: error.message, data: null });
   } finally {
     await session.endSession();
   }
@@ -283,7 +290,9 @@ controller.updateTransaction = async (req, res, next) => {
   } catch (error) {
     await session.abortTransaction();
     console.error(error);
-    res.status(400).json({ status: false, message: error.message, data: null });
+    res
+      .status(400)
+      .json({ success: false, message: error.message, data: null });
   } finally {
     await session.endSession();
   }
@@ -308,7 +317,9 @@ controller.deleteTransaction = async (req, res, next) => {
     res.status(200).json(result);
   } catch (error) {
     console.log(error);
-    res.status(400).json({ status: false, message: error.message, data: null });
+    res
+      .status(400)
+      .json({ success: false, message: error.message, data: null });
   }
 };
 
@@ -316,6 +327,44 @@ controller.deleteTransaction = async (req, res, next) => {
 // CHART DATA ===========================================================================
 
 controller.transactionCategoriesPeriode = async (req, res, next) => {
+  const { periode, ...matchQuery } = req.query;
+  let query = {
+    ...matchQuery,
+    is_delete: false,
+    user_id: req.login.user_id,
+  };
+
+  const now = DateTime.local();
+  switch (periode) {
+    case "1Y":
+      query.createdAt = {
+        $gte: DateTime.local(now.year, 1, 1).toJSDate(),
+        $lte: DateTime.local(now.year, 12, 31).toJSDate(),
+      };
+
+      break;
+    case "6M":
+      query.createdAt = {
+        $gte: now.minus({ months: 6 }).startOf("month").toJSDate(),
+        $lte: now.endOf("month").toJSDate(),
+      };
+
+      break;
+    case "3M":
+      query.createdAt = {
+        $gte: now.minus({ months: 3 }).startOf("month").toJSDate(),
+        $lte: now.endOf("month").toJSDate(),
+      };
+      break;
+    default:
+      query.createdAt = {
+        $gte: now.startOf("month").toJSDate(),
+        $lte: now.endOf("month").toJSDate(),
+      };
+      break;
+  }
+
+  console.log(query);
   /*
     #swagger.security = [{
       "bearerAuth": []
@@ -325,99 +374,117 @@ controller.transactionCategoriesPeriode = async (req, res, next) => {
     #swagger.tags = ['TRANSACTION']
     #swagger.summary = 'user transaction yearly report'
     #swagger.description = 'user transaction yearly report'
+     #swagger.parameters['periode'] = { default: '1Y', description: 'this filter by periode 1Y 6M 3M 1M' }
   */
   try {
-    const query = {
-      ...req.query,
-      is_delete: false,
-      user_id: req.login.user_id,
-    };
-    const monthlyGroup = await TransactionModel.aggregate([
-      { $match: query },
-      {
-        $group: {
-          _id: {
-            year: { $year: "$createdAt" }, // Ambil tahun dari createdAt
-            month: { $month: "$createdAt" }, // Ambil bulan dari createdAt
+    // Helper function untuk membuat key property dari category name
+    const formatCategoryKey = (categoryName) =>
+      `total_${categoryName.replaceAll(" ", "").toLowerCase()}`;
+
+    // Ambil data kategori, periode bulanan, dan total per kategori per bulan secara paralel
+    const [categories, monthlyGroup, result] = await Promise.all([
+      // CATEGORIES
+      ReffParamModel.find({ type: "category" }).select("value").lean(),
+
+      // DATA MONTHLY
+      TransactionModel.aggregate([
+        { $match: query },
+        {
+          $group: {
+            _id: {
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" },
+            },
           },
         },
-      },
-      {
-        $project: {
-          _id: 0,
-          month: "$_id.month",
-          year: "$_id.year",
-          periode: {
-            $dateToString: {
-              format: "%b %Y", // Format MM-YYYY (01-2023)
-              date: {
-                $dateFromParts: {
-                  year: "$_id.year",
-                  month: "$_id.month",
-                  day: 1,
+        {
+          $project: {
+            _id: 0,
+            month: "$_id.month",
+            year: "$_id.year",
+            periode: {
+              $dateToString: {
+                format: "%b %Y",
+                date: {
+                  $dateFromParts: {
+                    year: "$_id.year",
+                    month: "$_id.month",
+                    day: 1,
+                  },
                 },
               },
             },
           },
         },
-      },
-      {
-        $sort: { year: -1, month: -1 }, // Urutkan hasil berdasarkan tahun, bulan, dan kategori
-      },
-    ]);
+        { $sort: { year: -1, month: -1 } },
+      ]),
 
-    const result = await TransactionModel.aggregate([
-      { $match: query },
-      {
-        $group: {
-          _id: {
-            category: "$category_name", // Group by category_name
-            month: { $month: "$createdAt" }, // Extract month from createdAt
-            year: { $year: "$createdAt" }, // Extract year from createdAt
-          },
-          total_amount: { $sum: "$total_amount" },
-          first_created: { $first: "$createdAt" }, // Get one createdAt for formatting
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          category: "$_id.category",
-          total_amount: 1,
-          periode: {
-            $concat: [
-              { $dateToString: { format: "%b", date: "$first_created" } }, // Month
-              " ",
-              { $dateToString: { format: "%Y", date: "$first_created" } }, // Year
-            ],
+      // ALL DATA
+      TransactionModel.aggregate([
+        { $match: query },
+        {
+          $group: {
+            _id: {
+              category: "$category_name",
+              month: { $month: "$createdAt" },
+              year: { $year: "$createdAt" },
+            },
+            total_amount: { $sum: "$total_amount" },
+            first_created: { $first: "$createdAt" },
           },
         },
-      },
-      {
-        $sort: { periode: 1, category: 1 }, // Optional: Sort by periode and category
-      },
+        {
+          $project: {
+            _id: 0,
+            category: "$_id.category",
+            total_amount: 1,
+            periode: {
+              $concat: [
+                { $dateToString: { format: "%b", date: "$first_created" } },
+                " ",
+                { $dateToString: { format: "%Y", date: "$first_created" } },
+              ],
+            },
+          },
+        },
+        { $sort: { periode: 1, category: 1 } },
+      ]),
     ]);
 
-    for (let group of monthlyGroup) {
-      result.filter((item) => {
+    // Gabungkan total_amount ke dalam monthlyGroup berdasarkan periode dan kategori
+    monthlyGroup.forEach((group) => {
+      result.forEach((item) => {
         if (item.periode === group.periode) {
-          group[`total_${item.category.replaceAll(" ", "").toLowerCase()}`] =
-            item.total_amount;
+          const key = formatCategoryKey(item.category);
+          group[key] = item.total_amount;
         }
       });
 
+      // Hapus properti year dan month yang tidak diperlukan
       delete group.year;
       delete group.month;
-    }
+    });
+
+    // Pastikan setiap kategori ada di setiap periode, jika tidak ada set 0
+    monthlyGroup.forEach((group) => {
+      categories.forEach(({ value }) => {
+        const key = formatCategoryKey(value);
+        if (!(key in group)) {
+          group[key] = 0;
+        }
+      });
+    });
 
     res.status(200).json({
-      status: true,
+      success: true,
       message: "Data retrieved successfully!",
       data: monthlyGroup,
     });
   } catch (error) {
-    console.log(error);
-    res.status(400).json({ status: false, message: error.message, data: null });
+    console.error(error);
+    res
+      .status(400)
+      .json({ success: false, message: error.message, data: null });
   }
 };
 
@@ -473,18 +540,6 @@ controller.transactionCategoryYearly = async (req, res, next) => {
               ],
             },
           },
-          // list_data: {
-          //   $push: {
-          //     _id: "$_id",
-          //     total_amount: "$total_amount",
-          //     note: "$note",
-          //     category_name: "$category_name",
-          //     type_name: "$type_name",
-          //     date: {
-          //       $dateToString: { format: "%d %B %Y", date: "$createdAt" },
-          //     },
-          //   },
-          // },
         },
       },
       {
@@ -534,7 +589,9 @@ controller.transactionCategoryYearly = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ status: false, message: error.message, data: null });
+    res
+      .status(400)
+      .json({ success: false, message: error.message, data: null });
   }
 };
 
@@ -583,7 +640,9 @@ controller.transactionCateogryGroup = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ status: false, message: error.message, data: null });
+    res
+      .status(400)
+      .json({ success: false, message: error.message, data: null });
   }
 };
 

@@ -21,7 +21,7 @@ const doc = {
     ...GlobalSchema,
     NotFound: {
       code: 404,
-      status: false,
+      success: false,
       message: "Data not found!",
       data: "",
     },
