@@ -28,7 +28,11 @@ controller.indexAllTransaction = async (req, res, next) => {
     const populateField = [
       { path: "type_id", select: "_id value" },
       { path: "category_id", select: "_id value" },
-      { path: "wallet_id", select: "_id wallet_name" },
+      {
+        path: "wallet_id",
+        select: "_id wallet_name",
+        populate: { path: "currency_id", select: "_id value" },
+      },
     ];
     const page_size = await TransactionModel.countDocuments(query);
     const result = await crudServices.findAllPagination(TransactionModel, {
@@ -52,7 +56,7 @@ controller.getAllTransaction = async (req, res, next) => {
   const selectField = "-menu -user_id -category_id -type_id -wallet_id";
   let { limit, page, ...query } = req.query;
   const skip = (Number(page) - 1) * limit;
-  query = { ...query };
+  query = { ...query, is_delete: false };
   /*
   #swagger.security = [{
     "bearerAuth": []
@@ -162,7 +166,7 @@ controller.createTransaction = async (req, res, next) => {
     await session.commitTransaction();
     res
       .status(200)
-      .json({ status: true, message: "Data saved successfully", data: null });
+      .json({ success: true, message: "Data saved successfully", data: null });
   } catch (error) {
     console.error(error);
     await session.abortTransaction();
@@ -284,9 +288,11 @@ controller.updateTransaction = async (req, res, next) => {
     await LogActionModel.insertMany(logAction, { session });
 
     await session.commitTransaction();
-    res
-      .status(200)
-      .json({ status: true, message: "Data updated successfully", data: null });
+    res.status(200).json({
+      success: true,
+      message: "Data updated successfully",
+      data: null,
+    });
   } catch (error) {
     await session.abortTransaction();
     console.error(error);
@@ -312,6 +318,18 @@ controller.deleteTransaction = async (req, res, next) => {
   try {
     const result = await crudServices.delete(TransactionModel, {
       id: req.params.id,
+    });
+
+    await crudServices.update(WalletModel, {
+      id: result.data.wallet_id,
+      data: {
+        $inc: {
+          amount:
+            result.data.type_name === "income"
+              ? -result.data.total_amount
+              : result.data.total_amount,
+        },
+      },
     });
 
     res.status(200).json(result);
@@ -364,7 +382,6 @@ controller.transactionCategoriesPeriode = async (req, res, next) => {
       break;
   }
 
-  console.log(query);
   /*
     #swagger.security = [{
       "bearerAuth": []

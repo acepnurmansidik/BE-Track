@@ -69,7 +69,7 @@ controller.Register = async (req, res, next) => {
 
     res
       .status(200)
-      .json({ status: true, message: "Register Success", data: null });
+      .json({ success: true, message: "Register Success", data: null });
   } catch (err) {
     await session.abortTransaction();
     next(err);
@@ -118,7 +118,7 @@ controller.Login = async (req, res, next) => {
     });
 
     res.status(200).json({
-      status: true,
+      success: true,
       message: "Login success!",
       data: { ...users.data._doc, token },
     });
@@ -201,7 +201,7 @@ controller.uploadFile = async (req, res, next) => {
 
     res
       .status(200)
-      .json({ status: true, message: "succcess created images", data: _temp });
+      .json({ success: true, message: "succcess created images", data: _temp });
   } catch (err) {
     next(err);
   }
