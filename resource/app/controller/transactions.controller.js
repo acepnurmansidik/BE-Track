@@ -345,43 +345,6 @@ controller.deleteTransaction = async (req, res, next) => {
 // CHART DATA ===========================================================================
 
 controller.transactionCategoriesPeriode = async (req, res, next) => {
-  const { periode, ...matchQuery } = req.query;
-  let query = {
-    ...matchQuery,
-    is_delete: false,
-    user_id: req.login.user_id,
-  };
-
-  const now = DateTime.local();
-  switch (periode) {
-    case "1Y":
-      query.createdAt = {
-        $gte: DateTime.local(now.year, 1, 1).toJSDate(),
-        $lte: DateTime.local(now.year, 12, 31).toJSDate(),
-      };
-
-      break;
-    case "6M":
-      query.createdAt = {
-        $gte: now.minus({ months: 6 }).startOf("month").toJSDate(),
-        $lte: now.endOf("month").toJSDate(),
-      };
-
-      break;
-    case "3M":
-      query.createdAt = {
-        $gte: now.minus({ months: 3 }).startOf("month").toJSDate(),
-        $lte: now.endOf("month").toJSDate(),
-      };
-      break;
-    default:
-      query.createdAt = {
-        $gte: now.startOf("month").toJSDate(),
-        $lte: now.endOf("month").toJSDate(),
-      };
-      break;
-  }
-
   /*
     #swagger.security = [{
       "bearerAuth": []
@@ -394,6 +357,41 @@ controller.transactionCategoriesPeriode = async (req, res, next) => {
      #swagger.parameters['periode'] = { default: '1Y', description: 'this filter by periode 1Y 6M 3M 1M' }
   */
   try {
+    const { periode = "1Y", ...matchQuery } = req.query;
+
+    let query = {
+      ...matchQuery,
+      is_delete: false,
+      user_id: req.login.user_id,
+    };
+
+    switch (periode) {
+      case "1Y":
+        query.createdAt = {
+          $gte: DateTime.now().startOf("year").toJSDate(),
+          $lte: DateTime.now().endOf("year").toJSDate(),
+        };
+        break;
+      case "6M":
+        query.createdAt = {
+          $gte: DateTime.now().startOf("month").minus({ months: 5 }).toJSDate(),
+          $lte: DateTime.now().endOf("month").toJSDate(),
+        };
+        break;
+      case "3M":
+        query.createdAt = {
+          $gte: DateTime.now().startOf("month").minus({ months: 2 }).toJSDate(),
+          $lte: DateTime.now().endOf("month").toJSDate(),
+        };
+        break;
+      default:
+        query.createdAt = {
+          $gte: DateTime.now().startOf("month").toJSDate(),
+          $lte: DateTime.now().endOf("month").toJSDate(),
+        };
+        break;
+    }
+
     // Helper function untuk membuat key property dari category name
     const formatCategoryKey = (categoryName) =>
       `total_${categoryName.replaceAll(" ", "").toLowerCase()}`;
@@ -468,29 +466,30 @@ controller.transactionCategoriesPeriode = async (req, res, next) => {
       ]),
     ]);
 
-    // Gabungkan total_amount ke dalam monthlyGroup berdasarkan periode dan kategori
-    monthlyGroup.forEach((group) => {
-      result.forEach((item) => {
+    for (let indexGroup = 0; indexGroup < monthlyGroup.length; indexGroup++) {
+      const group = monthlyGroup[indexGroup];
+
+      // Gabungkan total_amount dari result ke group berdasarkan periode dan kategori
+      for (let indexData = 0; indexData < result.length; indexData++) {
+        const item = result[indexData];
         if (item.periode === group.periode) {
           const key = formatCategoryKey(item.category);
           group[key] = item.total_amount;
         }
-      });
+      }
 
-      // Hapus properti year dan month yang tidak diperlukan
-      delete group.year;
-      delete group.month;
-    });
-
-    // Pastikan setiap kategori ada di setiap periode, jika tidak ada set 0
-    monthlyGroup.forEach((group) => {
-      categories.forEach(({ value }) => {
-        const key = formatCategoryKey(value);
+      // Pastikan setiap kategori ada di group, jika tidak ada set 0
+      for (let indexCat = 0; indexCat < categories.length; indexCat++) {
+        const key = formatCategoryKey(categories[indexCat].value);
         if (!(key in group)) {
           group[key] = 0;
         }
-      });
-    });
+      }
+
+      // Hapus properti yang tidak diperlukan
+      delete group.year;
+      delete group.month;
+    }
 
     res.status(200).json({
       success: true,
@@ -518,20 +517,45 @@ controller.transactionCategoryYearly = async (req, res, next) => {
     #swagger.summary = 'user transaction yearly report'
     #swagger.description = 'user transaction yearly report'
     #swagger.parameters['category_name'] = { default: '', description: 'searh by category name' }
-    #swagger.parameters['filter'] = { default: '', description: 'filter with 1M 3M 6M 1Y' }
+    #swagger.parameters['periode'] = { default: '1Y', description: 'filter with 1M 3M 6M 1Y' }
   */
   try {
+    const { periode = "1Y", ...restQuery } = req.query;
     const query = {
-      ...req.query,
+      ...restQuery,
       is_delete: false,
       user_id: req.login.user_id,
     };
-    const newQuery = {
-      is_delete: false,
-      user_id: req.login.user_id,
-    };
+
+    switch (periode) {
+      case "1Y":
+        query.createdAt = {
+          $gte: DateTime.now().startOf("year").toJSDate(),
+          $lte: DateTime.now().endOf("year").toJSDate(),
+        };
+        break;
+      case "6M":
+        query.createdAt = {
+          $gte: DateTime.now().startOf("month").minus({ months: 5 }).toJSDate(),
+          $lte: DateTime.now().endOf("month").toJSDate(),
+        };
+        break;
+      case "3M":
+        query.createdAt = {
+          $gte: DateTime.now().startOf("month").minus({ months: 2 }).toJSDate(),
+          $lte: DateTime.now().endOf("month").toJSDate(),
+        };
+        break;
+      default:
+        query.createdAt = {
+          $gte: DateTime.now().startOf("month").toJSDate(),
+          $lte: DateTime.now().endOf("month").toJSDate(),
+        };
+        break;
+    }
+
     const monthlyGroup = await TransactionModel.aggregate([
-      { $match: newQuery },
+      { $match: query },
       {
         $group: {
           _id: {
@@ -622,10 +646,43 @@ controller.transactionCateogryGroup = async (req, res, next) => {
     #swagger.tags = ['TRANSACTION']
     #swagger.summary = 'user transaction yearly report'
     #swagger.description = 'user transaction yearly report'
-    #swagger.parameters['filter'] = { default: '', description: 'filter with 1M 3M 6M 1Y' }
+    #swagger.parameters['periode'] = { default: '1Y', description: 'filter with 1M 3M 6M 1Y' }
   */
   try {
-    const query = { is_delete: false, user_id: req.login.user_id };
+    const { periode = "1Y", ...restQuery } = req.query;
+    const query = {
+      ...restQuery,
+      is_delete: false,
+      user_id: req.login.user_id,
+    };
+
+    switch (periode) {
+      case "1Y":
+        query.createdAt = {
+          $gte: DateTime.now().startOf("year").toJSDate(),
+          $lte: DateTime.now().endOf("year").toJSDate(),
+        };
+        break;
+      case "6M":
+        query.createdAt = {
+          $gte: DateTime.now().startOf("month").minus({ months: 5 }).toJSDate(),
+          $lte: DateTime.now().endOf("month").toJSDate(),
+        };
+        break;
+      case "3M":
+        query.createdAt = {
+          $gte: DateTime.now().startOf("month").minus({ months: 2 }).toJSDate(),
+          $lte: DateTime.now().endOf("month").toJSDate(),
+        };
+        break;
+      default:
+        query.createdAt = {
+          $gte: DateTime.now().startOf("month").toJSDate(),
+          $lte: DateTime.now().endOf("month").toJSDate(),
+        };
+        break;
+    }
+
     const result = await TransactionModel.aggregate([
       { $match: query },
       {
