@@ -7,11 +7,11 @@ const endpointsFiles = ["./app.js"]; // Sesuaikan dengan file-file yang berisi r
 
 const doc = {
   info: {
-    version: "1.0.0", // by default: '1.0.0'
+    version: server.versionApp, // by default: '1.0.0'
     title: "REST API", // by default: 'REST API'
     description: "", // by default: ''
   },
-  host: `localhost:${server.portAccess}`, // by default: 'localhost:3022'
+  host: `${server.publicServer}:${server.portAccess}`, // by default: 'localhost:3022'
   basePath: "/", // by default: '/'
   schemes: ["http", "https"], // by default: ['http']
   consumes: [], // by default: ['application/json']

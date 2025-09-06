@@ -12,7 +12,9 @@ const ENV = {
   },
   server: {
     portAccess: process.env.PORT,
+    publicServer: process.env.PUBLIC_SERVER,
     nodeEnv: process.env.NODE_ENV,
+    versionApp: process.env.VERSION_APP,
   },
   smtpConfig: {
     host: process.env.HOST_EMAIl,

@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "1.0.0",
+    "version": "1.0.1",
     "title": "REST API",
     "description": ""
   },
@@ -507,9 +507,14 @@
             "type": "string"
           },
           {
-            "name": "filter",
-            "default": "",
+            "name": "periode",
+            "default": "1Y",
             "description": "filter with 1M 3M 6M 1Y",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "restQuery",
             "in": "query",
             "type": "string"
           }
@@ -543,9 +548,14 @@
             "type": "string"
           },
           {
-            "name": "filter",
-            "default": "",
+            "name": "periode",
+            "default": "1Y",
             "description": "filter with 1M 3M 6M 1Y",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "restQuery",
             "in": "query",
             "type": "string"
           }
