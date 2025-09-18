@@ -9,6 +9,20 @@ const TransactionsSchema = new Schema(
       ref: "users",
       required: true,
     },
+    transaction_code: {
+      type: String,
+      required: true,
+    },
+    source: {
+      type: String,
+      required: true,
+      default: "transactions",
+      enum: ["transactions", "loan"], // sesuaikan dengan kebutuhan
+    },
+    source_id: {
+      type: mongoose.Types.ObjectId,
+      default: null,
+    },
     menu: {
       type: String,
       required: true,
@@ -81,6 +95,13 @@ TransactionsSchema.virtual("month").get(function () {
     Number(this.createdAt?.toLocaleString("default", { month: "numeric" })) ||
     null
   );
+});
+
+TransactionsSchema.pre("save", function (next) {
+  if (!this.source_id) {
+    this.source_id = this._id;
+  }
+  next();
 });
 
 // Pastikan virtuals disertakan dalam output

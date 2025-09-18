@@ -19,6 +19,11 @@ const SysUserSchema = new Schema(
       required: false,
       default: "",
     },
+    pin: {
+      type: String,
+      required: false,
+      default: "",
+    },
   },
   {
     timestamps: true,

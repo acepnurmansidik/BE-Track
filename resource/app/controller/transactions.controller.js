@@ -5,6 +5,7 @@ const TransactionModel = require("../models/transactions.model");
 const LogActionModel = require("../models/logAction.model");
 const crudServices = require("../../helper/crudService");
 const { DateTime } = require("luxon");
+const globalService = require("../../helper/global-func");
 
 const controller = {};
 
@@ -125,6 +126,9 @@ controller.createTransaction = async (req, res, next) => {
     }
 
     payload.category_name = categoryReff.value;
+    payload.transaction_code = globalService.generateUniqueCode({
+      customeCode: "CFW",
+    });
     payload.type_name = typeReff.value;
     payload.user_id = userLogin.user_id;
 
