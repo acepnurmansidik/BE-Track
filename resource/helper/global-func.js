@@ -59,7 +59,7 @@ globalService.sendEmail = async ({ template, payload, receive, subject }) => {
 globalService.generateJwtToken = ({ ...payload }) => {
   const jwtSignOptions = {
     algorithm: jwt.tokenAlgorithm,
-    expiresIn: jwt.tokenExp,
+    // expiresIn: jwt.tokenExp,
     jwtid: jwt.jwtId,
   };
 
@@ -79,12 +79,13 @@ globalService.verifyJwtToken = async (token, next) => {
       token,
       jwt.secretKey,
       (err, decode) => {
-        if (err) throw new UnauthenticatedError(err.message);
+        if (err) throw new Error(err.message);
         if (!err) return decode;
       },
     );
     return decode;
   } catch (err) {
+    console.log(err, "ERRROR====>");
     next(err);
   }
 };

@@ -1,6 +1,7 @@
 const AuthUser = require("../app/models/auth");
 const UserModel = require("../app/models/users.model");
 const globalService = require("../helper/global-func");
+const ENV = require("../utils/config");
 const { UnauthenticatedError } = require("../utils/errors");
 const NotFound = require("../utils/errors/not-found");
 
@@ -13,7 +14,14 @@ const AuthorizeUserLogin = async (req, res, next) => {
       ];
 
     // send error Token not found
-    if (!authHeader || !req.headers.authorization)
+    if (
+      !authHeader ||
+      !req.headers.authorization ||
+      (ENV.server.nodeEnv === "production" &&
+        !req.headers["x-api-key"]?.length) ||
+      (ENV.server.nodeEnv === "production" &&
+        req.headers["x-api-key"] !== ENV.server.apiKey)
+    )
       throw new UnauthenticatedError("Invalid credentials!");
 
     // verify JWT token

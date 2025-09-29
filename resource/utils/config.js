@@ -11,6 +11,7 @@ const ENV = {
     jwtId: process.env.JWT_ID,
   },
   server: {
+    apiKey: process.env.X_API_KEY,
     portAccess: process.env.PORT,
     publicServer: process.env.PUBLIC_SERVER,
     nodeEnv: process.env.NODE_ENV,
