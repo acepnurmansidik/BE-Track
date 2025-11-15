@@ -8,6 +8,11 @@ const EWalletModel = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    style_card: {
+      type: String,
+      required: [true, "Style mode can't be empty!"],
+      default: "default",
+    },
     va_number: {
       type: String,
       required: [true, "VA number can't be empty"],
