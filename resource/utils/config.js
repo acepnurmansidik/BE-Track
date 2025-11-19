@@ -16,6 +16,7 @@ const ENV = {
     publicServer: process.env.PUBLIC_SERVER,
     nodeEnv: process.env.NODE_ENV,
     versionApp: process.env.VERSION_APP,
+    timeZone: process.env.TIME_ZONE,
   },
   smtpConfig: {
     host: process.env.HOST_EMAIl,

@@ -19,6 +19,12 @@
       "name": "Authorization",
       "bearerFormat": "JWT",
       "description": "Please insert JWT format!"
+    },
+    "apiKeyAuth": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "x-api-key",
+      "description": "API key header"
     }
   },
   "paths": {
@@ -239,6 +245,201 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/loan/": {
+      "get": {
+        "tags": [
+          "LOAN"
+        ],
+        "summary": "Create loan",
+        "description": "Create loan",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "search",
+            "default": "",
+            "description": "Search by type wallet name, va number",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "default": "",
+            "description": "all, ongoing, paid",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "LOAN"
+        ],
+        "summary": "Create loan",
+        "description": "Create loan",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Create loan",
+            "schema": {
+              "$ref": "#/definitions/BodyCreateLoanSchema"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/loan/{id}": {
+      "put": {
+        "tags": [
+          "LOAN"
+        ],
+        "summary": "Update loan",
+        "description": "Create loan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "obj",
+            "in": "body",
+            "description": "Update loan",
+            "schema": {
+              "$ref": "#/definitions/BodyUpdateLoanSchema"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/v1/loan/{id}/{trxId}": {
+      "delete": {
+        "tags": [
+          "LOAN"
+        ],
+        "summary": "Update loan payment term",
+        "description": "Update loan",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "trxId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         },
         "security": [
@@ -880,6 +1081,41 @@
         "type_id": {}
       }
     },
+    "BodyCreateLoanSchema": {
+      "type": "object",
+      "properties": {
+        "partner_name": {
+          "type": "string",
+          "example": "John Doe"
+        },
+        "is_borrow": {
+          "type": "boolean",
+          "example": false
+        },
+        "amount": {
+          "type": "number",
+          "example": 0
+        },
+        "note": {
+          "type": "string",
+          "example": ""
+        },
+        "wallet_id": {}
+      }
+    },
+    "BodyUpdateLoanSchema": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "number",
+          "example": 0
+        },
+        "note": {
+          "type": "string",
+          "example": ""
+        }
+      }
+    },
     "NotFound": {
       "type": "object",
       "properties": {
@@ -910,5 +1146,13 @@
         }
       }
     }
-  }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    },
+    {
+      "apiKeyAuth": []
+    }
+  ]
 }
