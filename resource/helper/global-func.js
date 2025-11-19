@@ -196,4 +196,40 @@ globalService.setupLogger = (fileName, log) => {
   }
 };
 
+/**
+ * -----------------------------------------------
+ * | CHECK FILE .txt
+ * -----------------------------------------------
+ * | Pastikan file konfigurasi ada, kalau tidak buat kosong
+ */
+globalService.ensureCronConfigFile = (CONFIG_PATH) => {
+  if (!fs.existsSync(CONFIG_PATH)) {
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify([], null, 2));
+    console.log(`📄 File ${CONFIG_PATH}.json dibuat otomatis.`);
+  }
+};
+
+/**
+ * -----------------------------------------------
+ * | SAVING CONFIG ON FILE .txt
+ * -----------------------------------------------
+ * | Simpan konfigurasi ke file
+ */
+globalService.saveCronConfig = (config, CONFIG_PATH) => {
+  globalService.ensureCronConfigFile(CONFIG_PATH);
+  fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
+};
+
+/**
+ * -----------------------------------------------
+ * | READ FILE .txt
+ * -----------------------------------------------
+ * | Baca konfigurasi array dari file
+ */
+globalService.loadCronConfig = (CONFIG_PATH) => {
+  globalService.ensureCronConfigFile(CONFIG_PATH);
+  const data = fs.readFileSync(CONFIG_PATH, "utf8");
+  return JSON.parse(data || "[]");
+};
+
 module.exports = globalService;
