@@ -35,6 +35,10 @@ const EWalletModel = new mongoose.Schema(
       required: [true, "Owner name can't be empty"],
       default: "John Doe",
     },
+    style_card: {
+      type: String,
+      default: "default",
+    },
     currency_id: {
       type: mongoose.Types.ObjectId,
       ref: "ReffParameter",
