@@ -1,13 +1,12 @@
+const { DateTime } = require("luxon");
+const { server } = require("../../utils/config");
 const { default: mongoose } = require("mongoose");
-const crudServices = require("../../helper/crudService");
 const LoanModel = require("../models/loan.model");
-const TransactionModel = require("../models/transactions.model");
 const WalletModel = require("../models/ewallet.model");
 const globalService = require("../../helper/global-func");
 const ReffParamModel = require("../models/reffParam.model");
-const { DateTime } = require("luxon");
-const { server } = require("../../utils/config");
 const LogActionModel = require("../models/logAction.model");
+const TransactionModel = require("../models/transactions.model");
 
 const controller = {};
 
@@ -330,23 +329,24 @@ controller.updateLoanPayment = async (req, res, next) => {
       source: TransactionModel.collection.collectionName,
     });
 
-    const payment_terms = [
-      ...isdLoanAvailable.payment_terms,
-      {
-        paid_at: DateTime.now().setZone(server.timeZone),
-        amount: payload.amount,
-        paid: true,
-        transaction_id: dTransaction[0]._id,
-      },
-    ];
+    const paid_amount = isdLoanAvailable.paid_amount + payload.amount;
 
     // update loan
     const dLoanUpdated = await LoanModel.findOneAndUpdate(
       { _id: isdLoanAvailable._id },
       {
         ...payload,
-        payment_terms,
-        $inc: { paid_amount: payload.amount },
+        paid_amount,
+        status: paid_amount == isdLoanAvailable.amount ? "paid" : "ongoing",
+        payment_terms: [
+          ...isdLoanAvailable.payment_terms,
+          {
+            paid_at: DateTime.now().setZone(server.timeZone),
+            amount: payload.amount,
+            paid: true,
+            transaction_id: dTransaction[0]._id,
+          },
+        ],
       },
       { session, new: true },
     );
