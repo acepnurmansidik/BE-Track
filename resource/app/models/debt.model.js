@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
 
-const LoansSchema = new Schema(
+const DebtsSchema = new Schema(
   {
     user_id: {
       type: mongoose.Types.ObjectId,
@@ -78,4 +78,4 @@ const LoansSchema = new Schema(
   },
 );
 
-module.exports = model("Loans", LoansSchema);
+module.exports = model("Debts", DebtsSchema);

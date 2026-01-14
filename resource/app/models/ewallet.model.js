@@ -11,8 +11,10 @@ const EWalletModel = new mongoose.Schema(
     style_card: {
       type: String,
       required: [true, "Style mode can't be empty!"],
-      default: "default",
+      enum: ["neumorphismLite", "oceanBreeze", "neonPurple", "emeraldGlow"],
+      default: "neumorphismLite",
     },
+
     va_number: {
       type: String,
       required: [true, "VA number can't be empty"],

@@ -254,13 +254,13 @@
         ]
       }
     },
-    "/api/v1/loan/": {
+    "/api/v1/debt/": {
       "get": {
         "tags": [
-          "LOAN"
+          "DEBT"
         ],
-        "summary": "Create loan",
-        "description": "Create loan",
+        "summary": "Create debt",
+        "description": "Create debt",
         "parameters": [
           {
             "name": "authorization",
@@ -298,10 +298,10 @@
       },
       "post": {
         "tags": [
-          "LOAN"
+          "DEBT"
         ],
-        "summary": "Create loan",
-        "description": "Create loan",
+        "summary": "Create debt",
+        "description": "Create debt",
         "parameters": [
           {
             "name": "authorization",
@@ -311,9 +311,9 @@
           {
             "name": "obj",
             "in": "body",
-            "description": "Create loan",
+            "description": "Create debt",
             "schema": {
-              "$ref": "#/definitions/BodyCreateLoanSchema"
+              "$ref": "#/definitions/BodyCreateDebtSchema"
             }
           }
         ],
@@ -332,13 +332,13 @@
         ]
       }
     },
-    "/api/v1/loan/{id}": {
+    "/api/v1/debt/{id}": {
       "put": {
         "tags": [
-          "LOAN"
+          "DEBT"
         ],
-        "summary": "Update loan",
-        "description": "Create loan",
+        "summary": "Update debt",
+        "description": "Create debt",
         "parameters": [
           {
             "name": "id",
@@ -354,9 +354,9 @@
           {
             "name": "obj",
             "in": "body",
-            "description": "Update loan",
+            "description": "Update debt",
             "schema": {
-              "$ref": "#/definitions/BodyUpdateLoanSchema"
+              "$ref": "#/definitions/BodyUpdateDebtSchema"
             }
           }
         ],
@@ -378,7 +378,11 @@
         ]
       },
       "delete": {
-        "description": "",
+        "tags": [
+          "DEBT"
+        ],
+        "summary": "Delete debt",
+        "description": "Update debt",
         "parameters": [
           {
             "name": "id",
@@ -399,16 +403,21 @@
           "500": {
             "description": "Internal Server Error"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
-    "/api/v1/loan/{id}/{trxId}": {
+    "/api/v1/debt/{id}/{trxId}": {
       "delete": {
         "tags": [
-          "LOAN"
+          "DEBT"
         ],
-        "summary": "Update loan payment term",
-        "description": "Update loan",
+        "summary": "Update debt payment term(detail debt)",
+        "description": "Update debt",
         "parameters": [
           {
             "name": "id",

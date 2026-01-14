@@ -1,7 +1,7 @@
 const { DateTime } = require("luxon");
 const { server } = require("../../utils/config");
 const { default: mongoose } = require("mongoose");
-const LoanModel = require("../models/loan.model");
+const DebtModel = require("../models/debt.model");
 const WalletModel = require("../models/ewallet.model");
 const globalService = require("../../helper/global-func");
 const ReffParamModel = require("../models/reffParam.model");
@@ -11,11 +11,10 @@ const TransactionModel = require("../models/transactions.model");
 const controller = {};
 
 /* ========================================================================
- *  LOAN CONTROLLER — CLEAN CODE VERSION
- *  Semua komentar asli dipertahankan
+ *  DEBT CONTROLLER — CLEAN CODE VERSION
  * ======================================================================== */
 
-controller.indexLoan = async (req, res, next) => {
+controller.indexDebt = async (req, res, next) => {
   const { search, status = "ongoing" } = req.query;
 
   const query = {
@@ -42,20 +41,20 @@ controller.indexLoan = async (req, res, next) => {
   */
 
   /*
-    #swagger.tags = ['LOAN']
-    #swagger.summary = 'Create loan'
-    #swagger.description = 'Create loan'
+    #swagger.tags = ['DEBT']
+    #swagger.summary = 'Create debt'
+    #swagger.description = 'Create debt'
     #swagger.parameters['search'] = { default: '', description: 'Search by type wallet name, va number' }
     #swagger.parameters['status'] = { default: '', description: 'all, ongoing, paid' }
   */
 
   try {
-    const dLoan = await LoanModel.find(query).lean();
+    const dDebt = await DebtModel.find(query).lean();
 
     res.status(200).json({
       success: true,
       message: "Data retrieved successfully!",
-      data: dLoan,
+      data: dDebt,
     });
   } catch (error) {
     console.log(error);
@@ -66,10 +65,10 @@ controller.indexLoan = async (req, res, next) => {
 };
 
 /* ========================================================================
- *  CREATE LOAN
+ *  CREATE DEBT
  * ======================================================================== */
 
-controller.createLoan = async (req, res, next) => {
+controller.createDebt = async (req, res, next) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -80,13 +79,13 @@ controller.createLoan = async (req, res, next) => {
   */
 
   /*
-    #swagger.tags = ['LOAN']
-    #swagger.summary = 'Create loan'
-    #swagger.description = 'Create loan'
+    #swagger.tags = ['DEBT']
+    #swagger.summary = 'Create debt'
+    #swagger.description = 'Create debt'
     #swagger.parameters['obj'] = {
       in: 'body',
-      description: 'Create loan',
-      schema: { $ref: '#/definitions/BodyCreateLoanSchema' }
+      description: 'Create debt',
+      schema: { $ref: '#/definitions/BodyCreateDebtSchema' }
     }
   */
 
@@ -97,10 +96,10 @@ controller.createLoan = async (req, res, next) => {
 
     // get data reffparam & wallet
     const [dReffCategory, dReffType, dWallet] = await Promise.all([
-      ReffParamModel.findOne({ slug: "loan", type: "category" })
+      ReffParamModel.findOne({ slug: "debt", type: "category" })
         .select("_id value")
         .lean(),
-      ReffParamModel.findOne({ value: "loan", type: "cashflow_type" })
+      ReffParamModel.findOne({ value: "debt", type: "cashflow_type" })
         .select("_id value")
         .lean(),
       WalletModel.findOne({ _id: payload.wallet_id, user_id })
@@ -112,7 +111,7 @@ controller.createLoan = async (req, res, next) => {
     if (!dReffCategory || !dReffType) {
       return res.status(500).json({
         success: false,
-        message: "Data loan not found!",
+        message: "Data debt not found!",
         data: null,
       });
     }
@@ -132,10 +131,10 @@ controller.createLoan = async (req, res, next) => {
         {
           user_id,
           transaction_code: globalService.generateUniqueCode({
-            customeCode: "LOAN",
+            customeCode: "DEBT",
           }),
-          source: "loan",
-          menu: "loan",
+          source: "debt",
+          menu: "debt",
           is_paid: true,
           total_amount: payload.amount,
           note: payload.note,
@@ -149,15 +148,15 @@ controller.createLoan = async (req, res, next) => {
       { session },
     );
 
-    // create loan data
-    const dLoan = await LoanModel.create(
+    // create debt data
+    const dDebt = await DebtModel.create(
       [
         {
           ...payload,
           user_id,
           payment_terms: [],
           initial_transaction_id: dTransaction[0]._id,
-          loan_id: globalService.generateUniqueCode({ lengthCode: 11 }),
+          debt_id: globalService.generateUniqueCode({ lengthCode: 11 }),
         },
       ],
       { session },
@@ -165,20 +164,20 @@ controller.createLoan = async (req, res, next) => {
 
     dLogger.push({
       type: "CREATE",
-      target_id: dLoan[0]._id,
-      after: dLoan[0],
-      source: LoanModel.collection.collectionName,
+      target_id: dDebt[0]._id,
+      after: dDebt[0],
+      source: DebtModel.collection.collectionName,
     });
 
     // update source_id at transaction
     const dTransactionUpdated = await TransactionModel.findOneAndUpdate(
       { _id: dTransaction[0]._id },
-      { source_id: dLoan[0]._id },
+      { source_id: dDebt[0]._id },
       { session, new: true },
     );
 
     dLogger.push({
-      type: "UPDATE",
+      type: "CREATE",
       target_id: dTransaction[0]._id,
       after: dTransactionUpdated,
       source: TransactionModel.collection.collectionName,
@@ -227,10 +226,10 @@ controller.createLoan = async (req, res, next) => {
 };
 
 /* ========================================================================
- *  UPDATE LOAN PAYMENT TERM
+ *  UPDATE DEBT PAYMENT TERM
  * ======================================================================== */
 
-controller.updateLoanPayment = async (req, res, next) => {
+controller.updateDebtPayment = async (req, res, next) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -245,13 +244,13 @@ controller.updateLoanPayment = async (req, res, next) => {
   */
 
   /*
-    #swagger.tags = ['LOAN']
-    #swagger.summary = 'Update loan'
-    #swagger.description = 'Create loan'
+    #swagger.tags = ['DEBT']
+    #swagger.summary = 'Update debt'
+    #swagger.description = 'Create debt'
     #swagger.parameters['obj'] = {
       in: 'body',
-      description: 'Update loan',
-      schema: { $ref: '#/definitions/BodyUpdateLoanSchema' }
+      description: 'Update debt',
+      schema: { $ref: '#/definitions/BodyUpdateDebtSchema' }
     }
   */
 
@@ -261,18 +260,18 @@ controller.updateLoanPayment = async (req, res, next) => {
     const user_id = req.login.user_id.toString();
 
     // VALIDATE ===================================================================
-    const [dReffCategory, dReffType, dWallet, isdLoanAvailable] =
+    const [dReffCategory, dReffType, dWallet, isdDebtAvailable] =
       await Promise.all([
-        ReffParamModel.findOne({ slug: "loan", type: "category" })
+        ReffParamModel.findOne({ slug: "debt", type: "category" })
           .select("_id value")
           .lean(),
-        ReffParamModel.findOne({ value: "loan", type: "cashflow_type" })
+        ReffParamModel.findOne({ value: "debt", type: "cashflow_type" })
           .select("_id value")
           .lean(),
         WalletModel.findOne({ _id: payload.wallet_id, user_id })
           .select("_id value")
           .lean(),
-        LoanModel.findOne({
+        DebtModel.findOne({
           _id: req.params.id,
           user_id,
         })
@@ -284,13 +283,13 @@ controller.updateLoanPayment = async (req, res, next) => {
     if (!dReffCategory || !dReffType) {
       return res.status(500).json({
         success: false,
-        message: "Data loan not found!",
+        message: "Data debt not found!",
         data: null,
       });
     }
 
-    // check data loan
-    if (!isdLoanAvailable) {
+    // check data debt
+    if (!isdDebtAvailable) {
       return res.status(404).json({
         success: false,
         message: `Data with id: ${req.params.id} is not not found!`,
@@ -305,10 +304,10 @@ controller.updateLoanPayment = async (req, res, next) => {
         {
           user_id,
           transaction_code: globalService.generateUniqueCode({
-            customeCode: "LOAN",
+            customeCode: "DEBT",
           }),
-          source: "loan",
-          menu: "loan",
+          source: "debt",
+          menu: "debt",
           is_paid: true,
           total_amount: payload.amount,
           note: payload.note,
@@ -316,7 +315,7 @@ controller.updateLoanPayment = async (req, res, next) => {
           category_name: dReffCategory.value,
           type_id: dReffType._id,
           type_name: dReffType.value,
-          wallet_id: isdLoanAvailable.initial_transaction_id.wallet_id,
+          wallet_id: isdDebtAvailable.initial_transaction_id.wallet_id,
         },
       ],
       { session },
@@ -329,19 +328,19 @@ controller.updateLoanPayment = async (req, res, next) => {
       source: TransactionModel.collection.collectionName,
     });
 
-    const paid_amount = isdLoanAvailable.paid_amount + payload.amount;
+    const paid_amount = isdDebtAvailable.paid_amount + payload.amount;
 
-    // update loan
-    const dLoanUpdated = await LoanModel.findOneAndUpdate(
-      { _id: isdLoanAvailable._id },
+    // update debt
+    const dDebtUpdated = await DebtModel.findOneAndUpdate(
+      { _id: isdDebtAvailable._id },
       {
         ...payload,
         paid_amount,
-        status: paid_amount == isdLoanAvailable.amount ? "paid" : "ongoing",
+        status: paid_amount == isdDebtAvailable.amount ? "paid" : "ongoing",
         payment_terms: [
-          ...isdLoanAvailable.payment_terms,
+          ...isdDebtAvailable.payment_terms,
           {
-            paid_at: DateTime.now().setZone(server.timeZone),
+            paid_at: DateTime.now().setZone(server.timeZone).toUTC().toJSDate(),
             amount: payload.amount,
             paid: true,
             transaction_id: dTransaction[0]._id,
@@ -353,18 +352,18 @@ controller.updateLoanPayment = async (req, res, next) => {
 
     dLogger.push({
       type: "UPDATE",
-      target_id: dLoanUpdated._id,
-      before: isdLoanAvailable,
-      after: dLoanUpdated,
-      source: LoanModel.collection.collectionName,
+      target_id: dDebtUpdated._id,
+      before: isdDebtAvailable,
+      after: dDebtUpdated,
+      source: DebtModel.collection.collectionName,
     });
 
     // update wallet
     const dWalletUpdate = await WalletModel.findOneAndUpdate(
-      { _id: isdLoanAvailable.initial_transaction_id.wallet_id },
+      { _id: isdDebtAvailable.initial_transaction_id.wallet_id },
       {
         $inc: {
-          amount: isdLoanAvailable.is_borrow ? -payload.amount : payload.amount,
+          amount: isdDebtAvailable.is_borrow ? -payload.amount : payload.amount,
         },
       },
       { session, new: true },
@@ -402,10 +401,10 @@ controller.updateLoanPayment = async (req, res, next) => {
 };
 
 /* ========================================================================
- *  DELETE PAYMENT TERM LOAN
+ *  DELETE PAYMENT TERM DEBT
  * ======================================================================== */
 
-controller.deletePaymentTermLoan = async (req, res, next) => {
+controller.deletePaymentTermDebt = async (req, res, next) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -418,21 +417,21 @@ controller.deletePaymentTermLoan = async (req, res, next) => {
   */
 
   /*
-    #swagger.tags = ['LOAN']
-    #swagger.summary = 'Update loan payment term'
-    #swagger.description = 'Update loan'
+    #swagger.tags = ['DEBT']
+    #swagger.summary = 'Update debt payment term(detail debt)'
+    #swagger.description = 'Update debt'
   */
 
   try {
     // VALIDATE ===================================================================
-    const [isdLoanAvailable, isdTrxAvailable] = await Promise.all([
-      LoanModel.findOne({ _id: req.params.id }).lean(),
+    const [isdDebtAvailable, isdTrxAvailable] = await Promise.all([
+      DebtModel.findOne({ _id: req.params.id }).lean(),
       TransactionModel.findOne({ _id: req.params.trxId })
         .populate(populateField)
         .lean(),
     ]);
 
-    if (!isdLoanAvailable) {
+    if (!isdDebtAvailable) {
       return res.status(404).json({
         success: false,
         message: `Data with id: ${req.params.id} is not not found!`,
@@ -448,7 +447,7 @@ controller.deletePaymentTermLoan = async (req, res, next) => {
       });
     }
 
-    if (isdLoanAvailable.status == "paid") {
+    if (isdDebtAvailable.status == "paid") {
       return res.status(400).json({
         success: false,
         message: `Data has been paid!`,
@@ -461,23 +460,23 @@ controller.deletePaymentTermLoan = async (req, res, next) => {
     delete isdTrxAvailable.wallet_id;
 
     // Cari payment term yang sesuai
-    const payment_terms_selected = isdLoanAvailable.payment_terms.find(
+    const payment_terms_selected = isdDebtAvailable.payment_terms.find(
       (item) => item.transaction_id === req.params.trxId,
     );
 
     // Update payment term: tambahkan flag is_delete
-    const payment_terms = isdLoanAvailable.payment_terms.map((item) => {
+    const payment_terms = isdDebtAvailable.payment_terms.map((item) => {
       if (item.transaction_id === req.params.trxId) {
         return { ...item, is_delete: true };
       }
       return item;
     });
 
-    // UPDATE (loan, transaction, wallet)
-    const [dLoanUpdated, dTransactionUpdated, dWalletUpdate] =
+    // UPDATE (debt, transaction, wallet)
+    const [dDebtUpdated, dTransactionUpdated, dWalletUpdate] =
       await Promise.all([
-        LoanModel.findOneAndUpdate(
-          { _id: isdLoanAvailable._id },
+        DebtModel.findOneAndUpdate(
+          { _id: isdDebtAvailable._id },
           {
             payment_terms,
             $inc: { paid_amount: -payment_terms_selected.amount },
@@ -493,7 +492,7 @@ controller.deletePaymentTermLoan = async (req, res, next) => {
           { _id: WalletId._id },
           {
             $inc: {
-              amount: isdLoanAvailable.is_borrow
+              amount: isdDebtAvailable.is_borrow
                 ? payment_terms_selected.amount
                 : -payment_terms_selected.amount,
             },
@@ -507,10 +506,10 @@ controller.deletePaymentTermLoan = async (req, res, next) => {
       [
         {
           type: "UPDATE",
-          target_id: dLoanUpdated._id,
-          before: isdLoanAvailable,
-          after: dLoanUpdated,
-          source: LoanModel.collection.collectionName,
+          target_id: dDebtUpdated._id,
+          before: isdDebtAvailable,
+          after: dDebtUpdated,
+          source: DebtModel.collection.collectionName,
         },
         {
           type: "UPDATE",
@@ -552,10 +551,21 @@ controller.deletePaymentTermLoan = async (req, res, next) => {
 };
 
 /* ========================================================================
- *  DELETE LOAN
+ *  DELETE DEBT
  * ======================================================================== */
 
-controller.deleteLoan = async (req, res, next) => {
+controller.deleteDebt = async (req, res, next) => {
+  /*
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+  */
+
+  /*
+    #swagger.tags = ['DEBT']
+    #swagger.summary = 'Delete debt'
+    #swagger.description = 'Update debt'
+  */
   const session = await mongoose.startSession();
   session.startTransaction();
   const populateField = [{ path: "initial_transaction_id" }];
@@ -564,40 +574,40 @@ controller.deleteLoan = async (req, res, next) => {
     const dLogger = [];
     const user_id = req.login.user_id.toString(); // cari data pinjaman
 
-    const dLoanAvailable = await LoanModel.findOne({
+    const dDebtAvailable = await DebtModel.findOne({
       _id: req.params.id,
       user_id,
     })
       .populate(populateField)
       .lean();
 
-    if (!dLoanAvailable) {
+    if (!dDebtAvailable) {
       return res
         .status(500)
-        .json({ success: false, message: "Data loan not found!", data: null });
+        .json({ success: false, message: "Data debt not found!", data: null });
     }
-    // LOAN
-    const dLoanUpdated = await LoanModel.findOneAndUpdate(
+    // DEBT
+    const dDebtUpdated = await DebtModel.findOneAndUpdate(
       { _id: req.params.id },
       { is_delete: true },
       { session },
     );
     dLogger.push({
       type: "UPDATE",
-      target_id: dLoanUpdated._id,
-      before: dLoanAvailable,
-      after: dLoanUpdated,
-      source: LoanModel.collection.collectionName,
+      target_id: dDebtUpdated._id,
+      before: dDebtAvailable,
+      after: dDebtUpdated,
+      source: DebtModel.collection.collectionName,
     });
 
     // WALLET
     // update jumlah amountya wallet dari field paid_amount jika ada, jika tidak ada ambil dari amount
-    const walletAmount = dLoanAvailable.paid_amount ?? dLoanAvailable.amount;
+    const walletAmount = dDebtAvailable.paid_amount ?? dDebtAvailable.amount;
     const dWalletUpdate = await WalletModel.findOneAndUpdate(
-      { _id: dLoanAvailable.initial_transaction_id.wallet_id },
+      { _id: dDebtAvailable.initial_transaction_id.wallet_id },
       {
         $inc: {
-          amount: dLoanAvailable.is_borrow ? -walletAmount : walletAmount,
+          amount: dDebtAvailable.is_borrow ? -walletAmount : walletAmount,
         },
       },
       { session },
@@ -605,15 +615,15 @@ controller.deleteLoan = async (req, res, next) => {
     dLogger.push({
       type: "UPDATE",
       target_id: dWalletUpdate._id,
-      before: dLoanAvailable.initial_transaction_id.wallet_id,
+      before: dDebtAvailable.initial_transaction_id.wallet_id,
       after: dWalletUpdate,
       source: WalletModel.collection.collectionName,
     });
 
     // TRANSACTION
     // cari data log data pembyaranya di field payment_term(is_delete false), jika ada update transaksi
-    if (dLoanAvailable.paid_amount) {
-      for (const everyItem of dLoanAvailable.payment_terms) {
+    if (dDebtAvailable.paid_amount) {
+      for (const everyItem of dDebtAvailable.payment_terms) {
         const dTransaction = await TransactionModel.findOne({
           _id: everyItem.transaction_id,
         }).lean();

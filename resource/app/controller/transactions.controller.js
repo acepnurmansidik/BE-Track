@@ -6,6 +6,7 @@ const LogActionModel = require("../models/logAction.model");
 const crudServices = require("../../helper/crudService");
 const { DateTime } = require("luxon");
 const globalService = require("../../helper/global-func");
+const { server } = require("../../utils/config");
 
 const controller = {};
 
@@ -126,11 +127,16 @@ controller.createTransaction = async (req, res, next) => {
     }
 
     payload.category_name = categoryReff.value;
+    payload.type_name = typeReff.value;
+    payload.user_id = userLogin.user_id;
     payload.transaction_code = globalService.generateUniqueCode({
       customeCode: "CFW",
     });
-    payload.type_name = typeReff.value;
-    payload.user_id = userLogin.user_id;
+    payload.isIncome = typeReff.value.toLowerCase() == "income" ? true : false;
+    payload.date_transaction = DateTime.now()
+      .setZone(server.timeZone)
+      .toUTC()
+      .toJSDate();
 
     const [walletUpdate, createTrx] = await Promise.all([
       await WalletModel.findOneAndUpdate(
@@ -337,6 +343,17 @@ controller.deleteTransaction = async (req, res, next) => {
     });
 
     res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+    res
+      .status(400)
+      .json({ success: false, message: error.message, data: null });
+  }
+};
+
+controller.expenseToday = (req, res, next) => {
+  try {
+    const data = TransactionModel.aggregate();
   } catch (error) {
     console.log(error);
     res

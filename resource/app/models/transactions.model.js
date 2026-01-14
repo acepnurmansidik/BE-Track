@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const { model, Schema } = mongoose;
-const { DateTime } = require("luxon");
 
 const TransactionsSchema = new Schema(
   {
@@ -66,6 +65,11 @@ const TransactionsSchema = new Schema(
       ref: "EWallet",
       required: true,
       default: null,
+    },
+    date_transaction: {
+      type: Date,
+      required: false,
+      default: Date.now,
     },
     is_delete: {
       type: Boolean,
