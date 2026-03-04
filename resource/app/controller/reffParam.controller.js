@@ -102,7 +102,10 @@ controller.update = async (req, res, next) => {
 
     payload.type = payload.type.toLowerCase().replace(" ", "_");
     payload.value = payload.value.toLowerCase();
-    const data = crudServices.update(ReffparamModel, { id, data: payload });
+    const data = await crudServices.update(ReffparamModel, {
+      id,
+      data: payload,
+    });
 
     res.status(201).json(data);
   } catch (err) {
